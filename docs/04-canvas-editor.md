@@ -1,0 +1,555 @@
+# Section 04: 2D Canvas Editor
+
+> **Priority**: Medium-High - Enables advanced editing beyond table input.
+>
+> **Phase**: Phase 2 (after MVP table input is complete)
+>
+> **Dependencies**:
+> - Section 01 (data model, geometry utils)
+> - Section 02 (UI shell, toolbar integration)
+> - Section 06 (adjacency detection for room connections)
+>
+> **Parallel Work**: 3D Viewer (Section 05) can proceed independently.
+
+---
+
+## Overview
+
+The 2D Canvas Editor provides a visual drawing interface for users who want manual control over room placement and wall drawing. Uses SVG for the layout display and Canvas API for interaction overlays. Supports both room-rectangle mode (position existing rooms) and wall-drawing mode (draw walls to define rooms).
+
+---
+
+## Task 4.1: Canvas Viewport Setup
+
+**File**: `src/components/editor/Canvas2D.tsx`, `src/components/editor/CanvasViewport.tsx`
+
+### Subtasks
+
+- [ ] **4.1.1** Create SVG-based canvas component:
+  - Full viewport size (fills main content area)
+  - Coordinate system: origin at top-left
+  - Positive X right, positive Z down
+  - Scale factor from uiStore.zoomLevel
+
+- [ ] **4.1.2** Implement viewport transformation:
+  ```typescript
+  interface ViewportState {
+    zoom: number       // 0.25 - 4.0
+    panX: number       // pixels offset
+    panZ: number       // pixels offset
+    pixelsPerMeter: number  // base scale (e.g., 50)
+  }
+  ```
+
+- [ ] **4.1.3** Create `worldToScreen(point: Position2D): { x: number, y: number }`
+  - Converts world coordinates (meters) to screen pixels
+
+- [ ] **4.1.4** Create `screenToWorld(x: number, y: number): Position2D`
+  - Converts screen pixels to world coordinates (meters)
+
+- [ ] **4.1.5** Implement pan gesture:
+  - Middle mouse drag to pan
+  - Right mouse drag to pan (alternative)
+  - Two-finger drag on touch devices
+  - Update panOffset in uiStore
+
+- [ ] **4.1.6** Implement zoom gesture:
+  - Mouse wheel to zoom in/out
+  - Pinch to zoom on touch devices
+  - Zoom centered on cursor position
+  - Clamp to zoom limits (0.25 - 4.0)
+
+- [ ] **4.1.7** Implement zoom controls:
+  - "Zoom to Fit" button: fits all rooms in view with padding
+  - Zoom slider in status bar
+  - Keyboard: +/- for zoom
+
+### Unit Tests (`tests/unit/components/editor/CanvasViewport.test.tsx`)
+
+- [ ] worldToScreen converts coordinates correctly at zoom 1.0
+- [ ] worldToScreen accounts for zoom level
+- [ ] worldToScreen accounts for pan offset
+- [ ] screenToWorld is inverse of worldToScreen
+- [ ] Zoom clamps to bounds
+
+---
+
+## Task 4.2: Grid Rendering
+
+**File**: `src/components/editor/Grid.tsx`
+
+### Subtasks
+
+- [ ] **4.2.1** Create grid overlay component:
+  - SVG pattern for grid lines
+  - Major lines every 1m (darker)
+  - Minor lines every 0.1m (lighter, only at high zoom)
+  - Grid follows viewport pan/zoom
+
+- [ ] **4.2.2** Implement adaptive grid density:
+  - At zoom < 0.5: show only 1m lines
+  - At zoom 0.5-1.0: show 0.5m and 1m lines
+  - At zoom > 1.0: show 0.1m, 0.5m, and 1m lines
+
+- [ ] **4.2.3** Create coordinate display:
+  - Axis labels at edges (0, 1, 2, 3... meters)
+  - Update as viewport pans/zooms
+  - Optional: origin marker at (0,0)
+
+- [ ] **4.2.4** Add grid toggle (from uiStore.showGrid)
+
+- [ ] **4.2.5** Create "snap to grid" indicator:
+  - Show snap points as small dots when snap enabled
+  - Highlight nearest snap point to cursor
+
+### Unit Tests
+
+- [ ] Grid renders at correct density for zoom level
+- [ ] Grid respects showGrid toggle
+- [ ] Coordinate labels update with pan
+
+---
+
+## Task 4.3: Room Rendering
+
+**File**: `src/components/editor/RoomShape.tsx`, `src/components/editor/RoomLayer.tsx`
+
+### Subtasks
+
+- [ ] **4.3.1** Create `RoomShape` SVG component:
+  ```typescript
+  interface RoomShapeProps {
+    room: Room
+    isSelected: boolean
+    isHovered: boolean
+    onClick: () => void
+    onDoubleClick: () => void
+  }
+  ```
+
+- [ ] **4.3.2** Render room as rectangle:
+  - Fill with room type color (from constants)
+  - Stroke for walls (darker color)
+  - Stroke width based on wall thickness
+
+- [ ] **4.3.3** Implement selection state:
+  - Selected: thicker border, selection handles at corners
+  - Hover: subtle highlight
+
+- [ ] **4.3.4** Render room label:
+  - Room name centered in room
+  - Area below name (smaller text)
+  - Auto-scale text size based on room size
+  - Hide labels if room too small
+
+- [ ] **4.3.5** Create `RoomLayer` container:
+  - Maps over all rooms
+  - Handles z-ordering (selected room on top)
+
+- [ ] **4.3.6** Implement rotation rendering:
+  - Apply SVG transform for rotated rooms
+  - Handles 0, 90, 180, 270 degree rotations
+
+### Unit Tests
+
+- [ ] Room renders at correct position and size
+- [ ] Selected room has selection handles
+- [ ] Room color matches type
+- [ ] Label text scales appropriately
+- [ ] Rotation transform applied correctly
+
+---
+
+## Task 4.4: Room Selection and Interaction
+
+**File**: `src/hooks/useRoomInteraction.ts`, `src/components/editor/SelectionOverlay.tsx`
+
+### Subtasks
+
+- [ ] **4.4.1** Implement click-to-select:
+  - Click room → select (update store)
+  - Click empty area → deselect
+  - Shift+click → add to selection (multi-select)
+  - Ctrl+click → toggle selection
+
+- [ ] **4.4.2** Implement box selection:
+  - Drag in empty area → draw selection box
+  - Rooms intersecting box become selected
+  - Shift+drag → add to existing selection
+
+- [ ] **4.4.3** Create selection handles:
+  - 4 corner handles for resize
+  - 4 edge handles for single-axis resize
+  - 1 rotation handle (circle above top edge)
+
+- [ ] **4.4.4** Implement keyboard selection:
+  - Arrow keys: move selection (when room selected)
+  - Delete: delete selected rooms
+  - Escape: deselect all
+
+- [ ] **4.4.5** Implement hover states:
+  - Track mouse position
+  - Determine which room is under cursor
+  - Apply hover highlight
+
+- [ ] **4.4.6** Double-click behavior:
+  - Double-click room → open properties panel
+  - Focus on name input in properties
+
+### Unit Tests
+
+- [ ] Click selects room
+- [ ] Click outside deselects
+- [ ] Shift+click adds to selection
+- [ ] Box selection selects multiple rooms
+- [ ] Escape deselects all
+
+---
+
+## Task 4.5: Room Dragging and Positioning
+
+**File**: `src/hooks/useRoomDrag.ts`
+
+### Subtasks
+
+- [ ] **4.5.1** Implement drag-to-move:
+  - Mouse down on selected room starts drag
+  - Mouse move updates position
+  - Mouse up commits new position
+  - Cursor: "move" during drag
+
+- [ ] **4.5.2** Apply grid snapping:
+  - Snap position to grid if snapToGrid enabled
+  - Snap to grid size from uiStore
+  - Show snap feedback (line to snap point)
+
+- [ ] **4.5.3** Implement collision detection:
+  - Check for overlaps while dragging
+  - Show warning indicator if overlapping
+  - Allow placement but show warning toast
+
+- [ ] **4.5.4** Implement smart guides:
+  - Show alignment guides to other rooms
+  - Horizontal guide when top/bottom/center aligns
+  - Vertical guide when left/right/center aligns
+  - Snap to guides
+
+- [ ] **4.5.5** Multi-room drag:
+  - Dragging one room in multi-selection moves all
+  - Maintain relative positions
+
+- [ ] **4.5.6** Implement undo for move:
+  - Store previous position before drag
+  - On undo: restore previous position
+
+### Unit Tests
+
+- [ ] Drag updates room position
+- [ ] Grid snapping works at different grid sizes
+- [ ] Smart guides appear when aligned
+- [ ] Multi-select drag maintains relative positions
+- [ ] Collision warning appears for overlapping rooms
+
+---
+
+## Task 4.6: Room Resizing
+
+**File**: `src/hooks/useRoomResize.ts`
+
+### Subtasks
+
+- [ ] **4.6.1** Implement corner resize:
+  - Drag corner handle to resize both dimensions
+  - Opposite corner stays fixed
+  - Cursor: "nwse-resize" etc.
+
+- [ ] **4.6.2** Implement edge resize:
+  - Drag edge handle to resize single dimension
+  - Cursor: "ew-resize" or "ns-resize"
+
+- [ ] **4.6.3** Apply dimension constraints:
+  - Minimum dimension: 0.1m
+  - Maximum dimension: 100m
+  - Snap to grid if enabled
+
+- [ ] **4.6.4** Proportional resize:
+  - Hold Shift during resize to maintain aspect ratio
+
+- [ ] **4.6.5** Resize from center:
+  - Hold Alt during resize to resize from center
+  - Both sides move equally
+
+- [ ] **4.6.6** Live feedback:
+  - Show dimension labels during resize
+  - Show area calculation updating
+
+- [ ] **4.6.7** Validate on completion:
+  - Show warning if dimension is unusual
+  - Show error if dimension is invalid (but still allow)
+
+### Unit Tests
+
+- [ ] Corner resize changes both dimensions
+- [ ] Edge resize changes single dimension
+- [ ] Minimum dimension enforced
+- [ ] Shift constrains aspect ratio
+- [ ] Dimension labels update during resize
+
+---
+
+## Task 4.7: Room Rotation
+
+**File**: `src/hooks/useRoomRotation.ts`
+
+### Subtasks
+
+- [ ] **4.7.1** Create rotation handle:
+  - Circle above top edge of room
+  - Line connecting to room
+
+- [ ] **4.7.2** Implement drag-to-rotate:
+  - Drag rotation handle to rotate
+  - Snap to 90-degree increments
+  - Rotate around room center
+
+- [ ] **4.7.3** Implement rotation snapping:
+  - Without modifier: snap to 0, 90, 180, 270
+  - With modifier (Ctrl): free rotation (future feature)
+
+- [ ] **4.7.4** Keyboard rotation:
+  - R key: rotate 90° clockwise
+  - Shift+R: rotate 90° counter-clockwise
+
+- [ ] **4.7.5** Update dimensions after rotation:
+  - Swap length/width for 90/270 degree rotations
+  - Ensure room footprint stays consistent
+
+### Unit Tests
+
+- [ ] Rotation handle appears on selected room
+- [ ] Drag rotates to nearest 90° increment
+- [ ] R key rotates 90° clockwise
+- [ ] Dimensions swap correctly on 90° rotation
+
+---
+
+## Task 4.8: Wall Drawing Mode (Advanced)
+
+**File**: `src/components/editor/WallTool.tsx`, `src/hooks/useWallDrawing.ts`
+
+### Subtasks
+
+- [ ] **4.8.1** Create wall drawing tool:
+  - Toolbar button to activate
+  - Cursor changes to crosshair
+  - Click to start wall, click to end wall
+
+- [ ] **4.8.2** Implement wall preview:
+  - Show wall line from start point to cursor
+  - Show wall length as label
+  - Show angle relative to horizontal
+
+- [ ] **4.8.3** Implement wall snapping:
+  - Snap to grid points
+  - Snap to existing wall endpoints
+  - Snap to perpendicular angles (0°, 90°)
+  - Snap to 45° angles (optional)
+
+- [ ] **4.8.4** Implement continuous wall drawing:
+  - After placing wall, start next wall from endpoint
+  - Press Escape or double-click to finish
+  - Connect back to start to close shape
+
+- [ ] **4.8.5** Create wall from room boundary:
+  - Option to convert room rectangle to walls
+  - Creates 4 walls matching room dimensions
+
+- [ ] **4.8.6** Implement wall deletion:
+  - Select wall → Delete key
+  - Or click delete tool then click wall
+
+### Unit Tests
+
+- [ ] Wall tool activates on button click
+- [ ] Wall preview shows correct length
+- [ ] Grid snapping works for wall endpoints
+- [ ] Wall-to-wall snapping works
+- [ ] Escape cancels current wall
+
+---
+
+## Task 4.9: Room Creation from Walls
+
+**File**: `src/services/roomDetection.ts`
+
+### Subtasks
+
+- [ ] **4.9.1** Implement enclosed area detection:
+  - Find closed polygons formed by walls
+  - Use graph algorithm (find cycles)
+
+- [ ] **4.9.2** Create "Click to create room" UI:
+  - Detect click inside enclosed area
+  - Highlight detected area on hover
+  - Click creates room with that boundary
+
+- [ ] **4.9.3** Implement polygon-to-room conversion:
+  - Calculate bounding box for dimensions
+  - Set room position from bounding box
+  - Store polygon vertices for non-rectangular rooms
+
+- [ ] **4.9.4** Handle non-rectangular rooms:
+  - Store vertices array in room
+  - Render polygon instead of rectangle
+  - Calculate area using shoelace formula
+
+### Unit Tests
+
+- [ ] Enclosed area detection finds simple rectangles
+- [ ] Enclosed area detection finds L-shapes
+- [ ] Click inside area creates room
+- [ ] Polygon area calculated correctly
+
+---
+
+## Task 4.10: Measurements and Dimensions
+
+**File**: `src/components/editor/MeasurementOverlay.tsx`
+
+### Subtasks
+
+- [ ] **4.10.1** Create measurement display:
+  - Show dimensions on selected room edges
+  - Format: "5.0 m" with unit from project settings
+
+- [ ] **4.10.2** Implement measurement tool:
+  - Click two points to measure distance
+  - Display distance with line between points
+  - Measurements persist until cleared
+
+- [ ] **4.10.3** Create distance-between-rooms display:
+  - When two rooms selected, show gap distance
+  - Horizontal and vertical gaps
+
+- [ ] **4.10.4** Implement angle measurement:
+  - Optional: show wall angles
+  - Show rotation angle during rotation
+
+- [ ] **4.10.5** Toggle measurements visibility:
+  - Checkbox in View menu
+  - Keyboard shortcut: M
+
+### Unit Tests
+
+- [ ] Dimension labels show correct values
+- [ ] Measurement tool calculates correct distance
+- [ ] Measurements toggle on/off
+
+---
+
+## Task 4.11: Toolbar and Tool State
+
+**File**: `src/components/editor/EditorToolbar.tsx`, `src/stores/toolStore.ts`
+
+### Subtasks
+
+- [ ] **4.11.1** Create tool state store:
+  ```typescript
+  interface ToolState {
+    activeTool: 'select' | 'pan' | 'wall' | 'measure' | 'door' | 'window'
+    setTool: (tool: ActiveTool) => void
+  }
+  ```
+
+- [ ] **4.11.2** Create toolbar component:
+  - Select tool (S) - default
+  - Pan tool (H) - hand
+  - Wall tool (W) - for drawing walls
+  - Measure tool (M)
+  - Door tool (D)
+  - Window tool (N)
+
+- [ ] **4.11.3** Implement tool keyboard shortcuts
+
+- [ ] **4.11.4** Create toolbar tooltips:
+  - Tool name + keyboard shortcut
+  - Brief description
+
+- [ ] **4.11.5** Active tool indicator:
+  - Highlighted button for active tool
+  - Cursor changes based on tool
+
+### Unit Tests
+
+- [ ] Tool buttons activate correct tool
+- [ ] Keyboard shortcuts work
+- [ ] Active tool is highlighted
+
+---
+
+## Integration Tests
+
+**File**: `tests/integration/canvas-editor.integration.test.tsx`
+
+### Test Cases (using jsdom + @napi-rs/canvas)
+
+- [ ] **Room positioning**: Add room via table → verify appears in canvas at correct position
+- [ ] **Drag and drop**: Select room → drag to new position → verify position updated in store
+- [ ] **Resize workflow**: Select room → drag corner handle → verify dimensions updated
+- [ ] **Multi-room selection**: Shift+click multiple rooms → drag → verify all move together
+- [ ] **Zoom and pan**: Zoom to 200% → pan right → verify coordinates transform correctly
+- [ ] **Wall drawing**: Draw 4 walls forming rectangle → click inside → verify room created
+
+---
+
+## Acceptance Criteria
+
+- [ ] Rooms display in 2D canvas with correct positions and sizes
+- [ ] Click to select, Shift+click for multi-select works
+- [ ] Drag to move rooms works with grid snapping
+- [ ] Resize handles work for all directions
+- [ ] Rotation snaps to 90° increments
+- [ ] Wall drawing tool creates walls
+- [ ] Enclosed areas can become rooms
+- [ ] Pan and zoom work smoothly
+- [ ] Grid displays at appropriate density
+- [ ] Unit test coverage > 85%
+
+---
+
+## Files Created
+
+```
+src/
+├── components/
+│   └── editor/
+│       ├── Canvas2D.tsx
+│       ├── CanvasViewport.tsx
+│       ├── Grid.tsx
+│       ├── RoomShape.tsx
+│       ├── RoomLayer.tsx
+│       ├── SelectionOverlay.tsx
+│       ├── WallTool.tsx
+│       ├── MeasurementOverlay.tsx
+│       └── EditorToolbar.tsx
+├── hooks/
+│   ├── useRoomInteraction.ts
+│   ├── useRoomDrag.ts
+│   ├── useRoomResize.ts
+│   ├── useRoomRotation.ts
+│   └── useWallDrawing.ts
+├── services/
+│   └── roomDetection.ts
+└── stores/
+    └── toolStore.ts
+
+tests/
+├── unit/
+│   └── components/
+│       └── editor/
+│           ├── CanvasViewport.test.tsx
+│           ├── RoomShape.test.tsx
+│           └── Grid.test.tsx
+└── integration/
+    └── canvas-editor.integration.test.tsx
+```
