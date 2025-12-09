@@ -1,9 +1,9 @@
 {
-  "name": "js-app-template",
+  "name": "strata-plan",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "A template for React + TypeScript web applications with comprehensive testing setup",
+  "description": "StrataPlan - Browser-based, offline-first floorplan application for creating professional 3D floorplans from room measurements",
   "engines": {
     "node": ">=20.0.0"
   },
