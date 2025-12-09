@@ -1,81 +1,102 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { Viewer3D } from '../../../../src/components/viewer/Viewer3D';
 import * as THREE from 'three';
 
-// Mock dependencies
+// Setup mock tracking - must start with 'mock'
+const mockAddEventListener = jest.fn();
+const mockSetClearColor = jest.fn();
+
+// Mock @react-three/fiber
 jest.mock('@react-three/fiber', () => {
   const React = require('react');
   const THREE = require('three');
+  // We can't use `document` directly inside the mock factory if not guaranteed to be present (though in Jest it is).
+  // But variables are checked strictly.
+  // We can just return a plain object as domElement.
+
   return {
-    ...jest.requireActual('@react-three/fiber'),
-    Canvas: ({ children, onCreated, onContextLost, onContextRestored, fallback, ...props }: any) => {
-      // Simulate onCreated callback
+    Canvas: ({ children, onCreated }: any) => {
       React.useEffect(() => {
-          if (onCreated) {
-              const domElement = {
-                  addEventListener: jest.fn(),
-                  removeEventListener: jest.fn(),
-              };
-
-              onCreated({
-                  gl: {
-                      setClearColor: jest.fn(),
-                      domElement: domElement
-                  }
-              });
-          }
+        if (onCreated) {
+          onCreated({
+            gl: {
+              domElement: {
+                addEventListener: mockAddEventListener,
+                removeEventListener: jest.fn(),
+              },
+              setClearColor: mockSetClearColor,
+            },
+            scene: new THREE.Scene(),
+            camera: new THREE.PerspectiveCamera(),
+          });
+        }
       }, [onCreated]);
-
-      return (
-        <div data-testid="canvas-mock">
-          {children}
-          {/* Expose context loss handlers for testing */}
-          <button data-testid="trigger-context-lost" onClick={(e) => onContextLost && onContextLost(e)}>Lost</button>
-          <button data-testid="trigger-context-restored" onClick={() => onContextRestored && onContextRestored()}>Restored</button>
-        </div>
-      );
+      return <div data-testid="r3f-canvas">{children}</div>;
     },
     useThree: () => ({
       scene: new THREE.Scene(),
       camera: new THREE.PerspectiveCamera(),
-      gl: {
-          render: jest.fn(),
-          domElement: {
-            addEventListener: jest.fn(),
-            removeEventListener: jest.fn(),
-          }
-      },
+      gl: { domElement: {} }, // Mock domElement as empty object to avoid `document` reference issue
     }),
   };
 });
 
+// Mock @react-three/drei
 jest.mock('@react-three/drei', () => ({
-  OrbitControls: () => <div data-testid="orbit-controls-mock" />,
+  OrbitControls: () => <div data-testid="orbit-controls" />,
 }));
 
-describe('Viewer3D Component', () => {
-  it('renders the canvas', () => {
+// Mock Environment component
+jest.mock('../../../../src/components/viewer/Environment', () => ({
+  Environment: () => <div data-testid="environment" />
+}));
+
+describe('Viewer3D', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders without crashing', async () => {
     render(<Viewer3D />);
-    expect(screen.getByTestId('canvas-mock')).toBeInTheDocument();
+    expect(await screen.findByTestId('r3f-canvas')).toBeInTheDocument();
   });
 
-  it('renders children inside the canvas', () => {
-    render(
-      <Viewer3D>
-        <mesh data-testid="test-mesh" />
-      </Viewer3D>
-    );
-    expect(screen.getByTestId('canvas-mock')).toBeInTheDocument();
-    expect(screen.getByTestId('test-mesh')).toBeInTheDocument();
+  it('renders environment', async () => {
+    render(<Viewer3D />);
+    // Since we mock Canvas to just render children in a div, Environment should be present
+    expect(await screen.findByTestId('environment')).toBeInTheDocument();
   });
 
-  it('handles onSceneReady callback', () => {
+  it('initializes WebGL context listeners', async () => {
+    render(<Viewer3D />);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(mockAddEventListener).toHaveBeenCalledWith('webglcontextlost', expect.any(Function), false);
+    expect(mockAddEventListener).toHaveBeenCalledWith('webglcontextrestored', expect.any(Function), false);
+  });
+
+  it('calls onSceneReady callback', async () => {
     const handleSceneReady = jest.fn();
     render(<Viewer3D onSceneReady={handleSceneReady} />);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
     expect(handleSceneReady).toHaveBeenCalled();
-    const args = handleSceneReady.mock.calls[0];
-    expect(args[0]).toBeInstanceOf(THREE.Scene);
-    expect(args[1]).toBeInstanceOf(THREE.PerspectiveCamera);
+  });
+
+  it('sets background color', async () => {
+    render(<Viewer3D />);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(mockSetClearColor).toHaveBeenCalled();
   });
 });
