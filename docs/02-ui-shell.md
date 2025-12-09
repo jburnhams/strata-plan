@@ -249,7 +249,7 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.5.1** Create collapsible section component:
+- [x] **2.5.1** Create collapsible section component:
   ```typescript
   interface SidebarSectionProps {
     title: string
@@ -262,7 +262,7 @@ This section builds the application shell including the main layout, top toolbar
   - Collapsible content area
   - Keyboard accessible (Enter/Space to toggle)
 
-- [ ] **2.5.2** Create Rooms section:
+- [x] **2.5.2** Create Rooms section:
   - Header: "Rooms (N)"
   - List of room items
   - Each item: color swatch, name, area
@@ -270,32 +270,32 @@ This section builds the application shell including the main layout, top toolbar
   - Right-click context menu (Rename, Duplicate, Delete)
   - "+ Add Room" button at bottom
 
-- [ ] **2.5.3** Create Walls section (for canvas mode):
+- [x] **2.5.3** Create Walls section (for canvas mode):
   - Header: "Walls (N)"
   - List of wall items
   - Each item: wall ID, length
   - Click to select
 
-- [ ] **2.5.4** Create Doors section:
+- [x] **2.5.4** Create Doors section:
   - Header: "Doors (N)"
   - List items with room association
 
-- [ ] **2.5.5** Create Windows section:
+- [x] **2.5.5** Create Windows section:
   - Header: "Windows (N)"
   - List items with room association
 
-- [ ] **2.5.6** Implement search/filter box at top:
+- [x] **2.5.6** Implement search/filter box at top:
   - Filters visible items across all sections
   - Debounced input (300ms)
 
-- [ ] **2.5.7** Collapsed state shows only icons for sections
+- [x] **2.5.7** Collapsed state shows only icons for sections
 
 ### Unit Tests
 
-- [ ] Sections expand/collapse correctly
-- [ ] Room list shows correct count
-- [ ] Click on room item triggers selection
-- [ ] Filter filters items in all sections
+- [x] Sections expand/collapse correctly
+- [x] Room list shows correct count
+- [x] Click on room item triggers selection
+- [x] Filter filters items in all sections
 - [ ] Context menu shows on right-click
 
 ---
