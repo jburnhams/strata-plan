@@ -5,7 +5,7 @@
 import { create } from 'zustand';
 import type { Floorplan, Room, MeasurementUnit, EditorMode } from '../types';
 import { generateUUID } from '../services/geometry';
-import { calculateArea, calculateVolume } from '../services/geometry/room';
+import { calculateArea, calculateVolume, getRoomBounds } from '../services/geometry/room';
 import { DEFAULT_ROOM_GAP } from '../constants/defaults';
 
 /**
