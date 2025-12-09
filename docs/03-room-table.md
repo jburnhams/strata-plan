@@ -24,9 +24,9 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
 
 ### Subtasks
 
-- [ ] **3.1.1** Create table container component with sticky header
+- [x] **3.1.1** Create table container component with sticky header
 
-- [ ] **3.1.2** Define table columns:
+- [x] **3.1.2** Define table columns:
   | Column | Width | Type | Details |
   |--------|-------|------|---------|
   | Room Name | 150px | Text input | Max 100 chars, required |
@@ -37,26 +37,26 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
   | Area | 80px | Display | Read-only, calculated |
   | Actions | 48px | Buttons | Delete button |
 
-- [ ] **3.1.3** Implement row color coding by room type:
+- [x] **3.1.3** Implement row color coding by room type:
   - Apply background color from `ROOM_TYPE_COLORS`
   - Subtle tint (10-15% opacity)
   - Selected row has stronger highlight
 
-- [ ] **3.1.4** Create table footer:
+- [x] **3.1.4** Create table footer:
   - "+ Add Room" button (full width, dashed border)
   - Totals row showing: Total Area, Total Volume, Room Count
 
-- [ ] **3.1.5** Implement empty state:
+- [x] **3.1.5** Implement empty state:
   - Message: "No rooms yet. Add your first room to get started."
   - Large "+ Add Room" button
 
 ### Unit Tests (`tests/unit/components/table/RoomTable.test.tsx`)
 
-- [ ] Table renders empty state when no rooms
-- [ ] Table renders correct number of rows for rooms
-- [ ] Row colors match room types
-- [ ] Totals calculate correctly
-- [ ] Add Room button renders in footer
+- [x] Table renders empty state when no rooms
+- [x] Table renders correct number of rows for rooms
+- [x] Row colors match room types
+- [x] Totals calculate correctly
+- [x] Add Room button renders in footer
 
 ---
 
@@ -66,32 +66,32 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
 
 ### Subtasks
 
-- [ ] **3.2.1** Create `TextCell` component:
+- [x] **3.2.1** Create `TextCell` component:
   - Displays text, editable on click
   - Auto-select all on focus
   - Commit on blur or Enter
   - Cancel on Escape
   - Max length validation
 
-- [ ] **3.2.2** Create `NumberCell` component:
+- [x] **3.2.2** Create `NumberCell` component:
   - Number input with increment/decrement buttons
   - Unit suffix display (m or ft)
   - Min/max validation
   - Step increment (0.1 for dimensions)
   - Shows validation error/warning inline
 
-- [ ] **3.2.3** Create `SelectCell` component:
+- [x] **3.2.3** Create `SelectCell` component:
   - Dropdown for room type
   - Shows color swatch + label
   - Opens on click or Enter
   - Keyboard navigable (arrow keys)
 
-- [ ] **3.2.4** Create `DisplayCell` component:
+- [x] **3.2.4** Create `DisplayCell` component:
   - Read-only calculated value
   - Shows unit suffix
   - Formatted number (1 decimal place)
 
-- [ ] **3.2.5** Create `ActionCell` component:
+- [x] **3.2.5** Create `ActionCell` component:
   - Delete button with confirm tooltip
   - Icon-only in collapsed view
 
@@ -102,12 +102,12 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
 
 ### Unit Tests
 
-- [ ] TextCell commits value on Enter
-- [ ] TextCell cancels on Escape
-- [ ] NumberCell respects min/max bounds
-- [ ] NumberCell shows validation error
-- [ ] SelectCell opens dropdown on click
-- [ ] SelectCell navigable with arrow keys
+- [x] TextCell commits value on Enter
+- [x] TextCell cancels on Escape
+- [x] NumberCell respects min/max bounds
+- [x] NumberCell shows validation error
+- [x] SelectCell opens dropdown on click
+- [x] SelectCell navigable with arrow keys
 
 ---
 
@@ -117,7 +117,7 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
 
 ### Subtasks
 
-- [ ] **3.3.1** Create row component receiving room data:
+- [x] **3.3.1** Create row component receiving room data:
   ```typescript
   interface RoomTableRowProps {
     room: Room
@@ -129,37 +129,37 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
   }
   ```
 
-- [ ] **3.3.2** Implement row selection:
+- [x] **3.3.2** Implement row selection:
   - Click row background (not cell) to select
   - Selected row has highlight border
   - Updates `floorplanStore.selectedRoomId`
 
-- [ ] **3.3.3** Implement cell change handlers:
+- [x] **3.3.3** Implement cell change handlers:
   - Debounce updates (300ms) for number inputs
   - Immediate update for dropdowns
   - Validate before dispatching to store
 
-- [ ] **3.3.4** Calculate and display area:
+- [x] **3.3.4** Calculate and display area:
   - `length × width`
   - Format: "20.0 m²" or "215.3 ft²"
   - Update in real-time as dimensions change
 
-- [ ] **3.3.5** Implement delete with confirmation:
+- [x] **3.3.5** Implement delete with confirmation:
   - Show confirm dialog: "Delete [Room Name]?"
   - On confirm: call `floorplanStore.deleteRoom(id)`
   - Toast: "Room deleted"
 
-- [ ] **3.3.6** Add row hover state:
+- [x] **3.3.6** Add row hover state:
   - Slight background change
   - Show actions that are normally hidden
 
 ### Unit Tests
 
-- [ ] Row renders all cells with correct values
-- [ ] Click selects row
-- [ ] Number change triggers debounced update
-- [ ] Delete shows confirmation
-- [ ] Delete removes row from store
+- [x] Row renders all cells with correct values
+- [x] Click selects row
+- [x] Number change triggers debounced update
+- [x] Delete shows confirmation
+- [x] Delete removes row from store
 
 ---
 
@@ -169,46 +169,46 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
 
 ### Subtasks
 
-- [ ] **3.4.1** Implement Tab navigation:
+- [x] **3.4.1** Implement Tab navigation:
   - Tab moves to next cell in row
   - At end of row, Tab moves to first cell of next row
   - At last cell of last row, Tab goes to "Add Room" button
 
-- [ ] **3.4.2** Implement Shift+Tab navigation:
+- [x] **3.4.2** Implement Shift+Tab navigation:
   - Reverse of Tab navigation
 
-- [ ] **3.4.3** Implement Enter behavior:
+- [x] **3.4.3** Implement Enter behavior:
   - In text/number cell: commit and move to next row same column
   - At last row: create new row and focus name cell
 
-- [ ] **3.4.4** Implement Escape behavior:
+- [x] **3.4.4** Implement Escape behavior:
   - Cancel current edit
   - Restore previous value
   - Blur cell
 
-- [ ] **3.4.5** Implement Arrow key navigation:
+- [x] **3.4.5** Implement Arrow key navigation:
   - Up/Down: move between rows (same column)
   - Left/Right: move between cells (within row)
   - Only when cell not in edit mode
 
-- [ ] **3.4.6** Implement Ctrl+Enter:
+- [x] **3.4.6** Implement Ctrl+Enter:
   - Add new room
   - Focus new row's name cell
 
-- [ ] **3.4.7** Implement Delete key:
+- [x] **3.4.7** Implement Delete key:
   - When row selected (not editing cell): delete row with confirmation
 
-- [ ] **3.4.8** Create focus management:
+- [x] **3.4.8** Create focus management:
   - Track currently focused cell
   - Restore focus after operations
 
 ### Unit Tests
 
-- [ ] Tab moves through cells correctly
-- [ ] Enter on last row creates new row
-- [ ] Escape cancels edit
-- [ ] Arrow keys navigate between rows/cells
-- [ ] Ctrl+Enter adds new room
+- [x] Tab moves through cells correctly
+- [x] Enter on last row creates new row
+- [x] Escape cancels edit
+- [x] Arrow keys navigate between rows/cells
+- [x] Ctrl+Enter adds new room
 
 ---
 
@@ -218,13 +218,13 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
 
 ### Subtasks
 
-- [ ] **3.5.1** Create "Add Room" button component:
+- [x] **3.5.1** Create "Add Room" button component:
   - Full-width button in table footer
   - Dashed border style
   - Icon: "+" plus sign
   - Hover state with background
 
-- [ ] **3.5.2** Create `useAddRoom` hook:
+- [x] **3.5.2** Create `useAddRoom` hook:
   ```typescript
   interface UseAddRoomReturn {
     addRoom: (type?: RoomType) => Room
@@ -232,28 +232,28 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
   }
   ```
 
-- [ ] **3.5.3** Implement add room logic:
+- [x] **3.5.3** Implement add room logic:
   - Generate default name: "Room 1", "Room 2", etc.
   - Default type: 'other'
   - Default dimensions: 4m × 4m × 2.7m
   - Auto-position: after last room + gap
 
-- [ ] **3.5.4** Focus new row's name field after creation
+- [x] **3.5.4** Focus new row's name field after creation
 
 - [ ] **3.5.5** Toast notification: "Room added"
 
-- [ ] **3.5.6** Implement quick-add buttons for room types:
+- [x] **3.5.6** Implement quick-add buttons for room types:
   - Row of small buttons above "Add Room"
   - Icons for: Bedroom, Kitchen, Bathroom, Living
   - Click creates room with that type and default dimensions
 
 ### Unit Tests
 
-- [ ] Add room creates room in store
-- [ ] Default name increments correctly
-- [ ] Auto-position calculates correctly
-- [ ] Focus moves to new row
-- [ ] Quick-add creates correct room type
+- [x] Add room creates room in store
+- [x] Default name increments correctly
+- [x] Auto-position calculates correctly
+- [x] Focus moves to new row
+- [x] Quick-add creates correct room type
 
 ---
 
