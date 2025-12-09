@@ -306,11 +306,11 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.6.1** Create panel container:
+- [x] **2.6.1** Create panel container:
   - Header showing selection type ("Room Properties", "No Selection", etc.)
   - Scrollable content area
 
-- [ ] **2.6.2** Create `NoSelectionPanel`:
+- [x] **2.6.2** Create `NoSelectionPanel`:
   - Message: "Select a room to edit its properties"
   - Project summary stats (total area, room count)
 
