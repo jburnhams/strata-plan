@@ -24,19 +24,19 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [ ] **5.1.1** Install Three.js dependencies:
+- [x] **5.1.1** Install Three.js dependencies:
   ```bash
   npm install three @types/three
   npm install @react-three/fiber @react-three/drei
   ```
 
-- [ ] **5.1.2** Create `Viewer3D` container component:
+- [x] **5.1.2** Create `Viewer3D` container component:
   - Full viewport size
   - WebGL canvas
   - Loading state indicator
   - Error boundary for WebGL failures
 
-- [ ] **5.1.3** Create `useThreeScene` hook:
+- [x] **5.1.3** Create `useThreeScene` hook:
   ```typescript
   interface UseThreeSceneReturn {
     scene: THREE.Scene
@@ -46,18 +46,18 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   }
   ```
 
-- [ ] **5.1.4** Initialize Three.js scene:
+- [x] **5.1.4** Initialize Three.js scene:
   - Scene with background color (light gray or sky gradient)
   - Perspective camera with sensible defaults
   - WebGL renderer with antialiasing
   - Handle canvas resize on window resize
 
-- [ ] **5.1.5** Set up render loop:
+- [x] **5.1.5** Set up render loop:
   - requestAnimationFrame loop
   - Render only when needed (dirty flag or continuous)
   - FPS counter for debugging
 
-- [ ] **5.1.6** Handle WebGL context loss:
+- [x] **5.1.6** Handle WebGL context loss:
   - Show error message if WebGL unavailable
   - Attempt recovery on context restore
 
@@ -76,26 +76,26 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [ ] **5.2.1** Set up OrbitControls:
+- [x] **5.2.1** Set up OrbitControls:
   - Import from `three/examples/jsm/controls/OrbitControls`
   - Or use `@react-three/drei` OrbitControls
 
-- [ ] **5.2.2** Configure orbit behavior:
+- [x] **5.2.2** Configure orbit behavior:
   - Target: center of floorplan
   - Enable rotate (left mouse drag)
   - Enable pan (right mouse drag or Shift+left drag)
   - Enable zoom (scroll wheel)
   - Damping for smooth movement
 
-- [ ] **5.2.3** Set zoom limits:
+- [x] **5.2.3** Set zoom limits:
   - Min distance: 2m (don't clip through floor)
   - Max distance: 100m (don't lose the model)
 
-- [ ] **5.2.4** Set vertical rotation limits:
+- [x] **5.2.4** Set vertical rotation limits:
   - Min polar angle: 0.1 (nearly top-down allowed)
   - Max polar angle: Math.PI/2 - 0.1 (don't go below floor)
 
-- [ ] **5.2.5** Implement preset camera views:
+- [x] **5.2.5** Implement preset camera views:
   - **Isometric**: 45° angle, looking at center
   - **Top-down**: directly above, looking down
   - **Front**: looking from south to north
@@ -107,7 +107,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Icons for each preset
   - Current view highlighted
 
-- [ ] **5.2.7** Implement "Fit to View":
+- [x] **5.2.7** Implement "Fit to View":
   - Calculate bounding box of all rooms
   - Position camera to see entire model
   - Add padding around edges
