@@ -22,26 +22,26 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.1.1** Install Tailwind CSS:
+- [x] **2.1.1** Install Tailwind CSS:
   ```bash
   npm install -D tailwindcss postcss autoprefixer
   npx tailwindcss init -p
   ```
 
-- [ ] **2.1.2** Configure `tailwind.config.js`:
+- [x] **2.1.2** Configure `tailwind.config.js`:
   - Set content paths for `src/**/*.{ts,tsx}`
   - Add custom colors for room types
   - Configure dark mode as 'class'
   - Add container and breakpoint configuration
 
-- [ ] **2.1.3** Set up `src/index.css` with Tailwind directives:
+- [x] **2.1.3** Set up `src/index.css` with Tailwind directives:
   ```css
   @tailwind base;
   @tailwind components;
   @tailwind utilities;
   ```
 
-- [ ] **2.1.4** Initialize Shadcn/ui:
+- [x] **2.1.4** Initialize Shadcn/ui:
   ```bash
   npx shadcn-ui@latest init
   ```
@@ -49,7 +49,7 @@ This section builds the application shell including the main layout, top toolbar
   - Base color: Slate
   - CSS variables: Yes
 
-- [ ] **2.1.5** Install core Shadcn components:
+- [x] **2.1.5** Install core Shadcn components:
   ```bash
   npx shadcn-ui@latest add button
   npx shadcn-ui@latest add input
@@ -67,18 +67,18 @@ This section builds the application shell including the main layout, top toolbar
   npx shadcn-ui@latest add scroll-area
   ```
 
-- [ ] **2.1.6** Install additional dependencies:
+- [x] **2.1.6** Install additional dependencies:
   ```bash
   npm install lucide-react clsx tailwind-merge
   npm install @radix-ui/react-icons
   ```
 
-- [ ] **2.1.7** Create `src/lib/utils.ts` with `cn()` helper for class merging
+- [x] **2.1.7** Create `src/lib/utils.ts` with `cn()` helper for class merging
 
 ### Unit Tests
 
-- [ ] Verify Tailwind classes are being applied (render component, check classList)
-- [ ] Verify Shadcn Button renders correctly
+- [x] Verify Tailwind classes are being applied (render component, check classList)
+- [x] Verify Shadcn Button renders correctly
 
 ---
 
@@ -88,13 +88,13 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.2.1** Create `ThemeProvider` component:
+- [x] **2.2.1** Create `ThemeProvider` component:
   - Wraps app with theme context
   - Reads initial theme from localStorage or system preference
   - Applies `dark` class to document root when dark mode active
   - Syncs with `uiStore.theme`
 
-- [ ] **2.2.2** Create `useTheme` hook:
+- [x] **2.2.2** Create `useTheme` hook:
   ```typescript
   interface UseThemeReturn {
     theme: 'light' | 'dark' | 'system'
@@ -104,21 +104,21 @@ This section builds the application shell including the main layout, top toolbar
   }
   ```
 
-- [ ] **2.2.3** Handle system preference changes via `matchMedia` listener
+- [x] **2.2.3** Handle system preference changes via `matchMedia` listener
 
-- [ ] **2.2.4** Persist theme preference to localStorage
+- [x] **2.2.4** Persist theme preference to localStorage
 
-- [ ] **2.2.5** Create `ThemeToggle` component:
+- [x] **2.2.5** Create `ThemeToggle` component:
   - Icon button showing sun/moon
   - Dropdown with Light / Dark / System options
   - Keyboard accessible
 
 ### Unit Tests (`tests/unit/components/layout/ThemeProvider.test.tsx`)
 
-- [ ] Theme defaults to 'system'
-- [ ] `setTheme('dark')` adds dark class to root
-- [ ] Theme persists across remounts (mock localStorage)
-- [ ] System preference changes update resolved theme
+- [x] Theme defaults to 'system'
+- [x] `setTheme('dark')` adds dark class to root
+- [x] Theme persists across remounts (mock localStorage)
+- [x] System preference changes update resolved theme
 
 ---
 
@@ -128,7 +128,7 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.3.1** Create main layout structure:
+- [x] **2.3.1** Create main layout structure:
   ```
   ┌──────────────────────────────────────────────────────┐
   │                    TopToolbar                         │
@@ -143,29 +143,29 @@ This section builds the application shell including the main layout, top toolbar
   └──────────────────────────────────────────────────────┘
   ```
 
-- [ ] **2.3.2** Implement collapsible left sidebar:
+- [x] **2.3.2** Implement collapsible left sidebar:
   - Default width: 280px
   - Collapsed width: 48px (icons only)
   - Collapse button with chevron icon
   - Respects `uiStore.sidebarOpen`
 
-- [ ] **2.3.3** Implement collapsible right properties panel:
+- [x] **2.3.3** Implement collapsible right properties panel:
   - Default width: 320px
   - Can be fully hidden
   - Respects `uiStore.propertiesPanelOpen`
 
-- [ ] **2.3.4** Main content area fills remaining space
+- [x] **2.3.4** Main content area fills remaining space
 
-- [ ] **2.3.5** Add CSS transitions for sidebar collapse/expand (200ms ease)
+- [x] **2.3.5** Add CSS transitions for sidebar collapse/expand (200ms ease)
 
-- [ ] **2.3.6** Handle keyboard shortcut: `[` to toggle left sidebar, `]` to toggle right panel
+- [x] **2.3.6** Handle keyboard shortcut: `[` to toggle left sidebar, `]` to toggle right panel
 
 ### Unit Tests
 
-- [ ] Layout renders all sections
-- [ ] Sidebar toggles correctly
-- [ ] Properties panel toggles correctly
-- [ ] Keyboard shortcuts trigger toggles
+- [x] Layout renders all sections
+- [x] Sidebar toggles correctly
+- [x] Properties panel toggles correctly
+- [x] Keyboard shortcuts trigger toggles
 
 ---
 
@@ -175,12 +175,12 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.4.1** Create toolbar container:
+- [x] **2.4.1** Create toolbar container:
   - Fixed height: 48px
   - Background with blur effect
   - Border bottom
 
-- [ ] **2.4.2** Implement File menu (dropdown):
+- [x] **2.4.2** Implement File menu (dropdown):
   - New Project (Ctrl+N)
   - Open Project (Ctrl+O)
   - Recent Projects (submenu, shows last 5)
@@ -193,7 +193,7 @@ This section builds the application shell including the main layout, top toolbar
   - Separator
   - Project Settings
 
-- [ ] **2.4.3** Implement Edit menu (dropdown):
+- [x] **2.4.3** Implement Edit menu (dropdown):
   - Undo (Ctrl+Z)
   - Redo (Ctrl+Y)
   - Separator
@@ -206,7 +206,7 @@ This section builds the application shell including the main layout, top toolbar
   - Select All (Ctrl+A)
   - Deselect (Esc)
 
-- [ ] **2.4.4** Implement View menu (dropdown):
+- [x] **2.4.4** Implement View menu (dropdown):
   - Table View (Ctrl+1)
   - 2D Editor (Ctrl+2)
   - 3D Preview (Ctrl+3)
@@ -221,25 +221,25 @@ This section builds the application shell including the main layout, top toolbar
   - Separator
   - Dark Mode toggle
 
-- [ ] **2.4.5** Create tool buttons group:
+- [x] **2.4.5** Create tool buttons group:
   - View 3D button (prominent, primary color)
   - Export dropdown button
 
-- [ ] **2.4.6** Add right section:
+- [x] **2.4.6** Add right section:
   - Theme toggle
   - Help button (?)
   - Settings button (gear icon)
 
-- [ ] **2.4.7** Show keyboard shortcuts in menu items
+- [x] **2.4.7** Show keyboard shortcuts in menu items
 
-- [ ] **2.4.8** Disable menu items when not applicable (e.g., Undo when nothing to undo)
+- [x] **2.4.8** Disable menu items when not applicable (e.g., Undo when nothing to undo)
 
 ### Unit Tests
 
-- [ ] All menus render and open
-- [ ] Menu items have correct keyboard shortcuts displayed
-- [ ] Disabled state works correctly
-- [ ] Menu closes on item click
+- [x] All menus render and open
+- [x] Menu items have correct keyboard shortcuts displayed
+- [x] Disabled state works correctly
+- [x] Menu closes on item click
 
 ---
 
@@ -249,7 +249,7 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.5.1** Create collapsible section component:
+- [x] **2.5.1** Create collapsible section component:
   ```typescript
   interface SidebarSectionProps {
     title: string
@@ -262,7 +262,7 @@ This section builds the application shell including the main layout, top toolbar
   - Collapsible content area
   - Keyboard accessible (Enter/Space to toggle)
 
-- [ ] **2.5.2** Create Rooms section:
+- [x] **2.5.2** Create Rooms section:
   - Header: "Rooms (N)"
   - List of room items
   - Each item: color swatch, name, area
@@ -270,32 +270,32 @@ This section builds the application shell including the main layout, top toolbar
   - Right-click context menu (Rename, Duplicate, Delete)
   - "+ Add Room" button at bottom
 
-- [ ] **2.5.3** Create Walls section (for canvas mode):
+- [x] **2.5.3** Create Walls section (for canvas mode):
   - Header: "Walls (N)"
   - List of wall items
   - Each item: wall ID, length
   - Click to select
 
-- [ ] **2.5.4** Create Doors section:
+- [x] **2.5.4** Create Doors section:
   - Header: "Doors (N)"
   - List items with room association
 
-- [ ] **2.5.5** Create Windows section:
+- [x] **2.5.5** Create Windows section:
   - Header: "Windows (N)"
   - List items with room association
 
-- [ ] **2.5.6** Implement search/filter box at top:
+- [x] **2.5.6** Implement search/filter box at top:
   - Filters visible items across all sections
   - Debounced input (300ms)
 
-- [ ] **2.5.7** Collapsed state shows only icons for sections
+- [x] **2.5.7** Collapsed state shows only icons for sections
 
 ### Unit Tests
 
-- [ ] Sections expand/collapse correctly
-- [ ] Room list shows correct count
-- [ ] Click on room item triggers selection
-- [ ] Filter filters items in all sections
+- [x] Sections expand/collapse correctly
+- [x] Room list shows correct count
+- [x] Click on room item triggers selection
+- [x] Filter filters items in all sections
 - [ ] Context menu shows on right-click
 
 ---
