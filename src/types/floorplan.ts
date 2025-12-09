@@ -1,0 +1,58 @@
+/**
+ * Floorplan and project-level types
+ */
+
+import { Room, Wall, Door, Window } from './room';
+import { WallSide } from './geometry';
+
+/**
+ * Measurement unit system
+ */
+export type MeasurementUnit = 'meters' | 'feet';
+
+/**
+ * Editor mode for UI state
+ */
+export type EditorMode = 'table' | 'canvas' | 'view3d';
+
+/**
+ * Connection between two adjacent rooms
+ */
+export interface RoomConnection {
+  id: string;
+  room1Id: string;
+  room2Id: string;
+  room1Wall: WallSide;
+  room2Wall: WallSide;
+  sharedWallLength: number;
+  doors: string[]; // Door IDs
+}
+
+/**
+ * Complete floorplan with all entities and metadata
+ */
+export interface Floorplan {
+  id: string;
+  name: string;
+  units: MeasurementUnit;
+  rooms: Room[];
+  walls: Wall[]; // For canvas mode
+  doors: Door[];
+  windows: Window[];
+  connections: RoomConnection[];
+  createdAt: Date;
+  updatedAt: Date;
+  version: string; // Schema version for migrations
+}
+
+/**
+ * Lightweight metadata for project list
+ */
+export interface FloorplanMetadata {
+  id: string;
+  name: string;
+  roomCount: number;
+  totalArea: number;
+  updatedAt: Date;
+  thumbnailDataUrl?: string;
+}
