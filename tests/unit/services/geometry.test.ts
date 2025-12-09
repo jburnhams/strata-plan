@@ -16,6 +16,8 @@ import {
   clamp,
   worldToLocal,
   localToWorld,
+  distance,
+  lerp,
 } from '../../../src/services/geometry';
 import type { Room } from '../../../src/types';
 
@@ -345,6 +347,24 @@ describe('Geometry Utilities', () => {
     it('should handle edge cases', () => {
       expect(clamp(0, 0, 10)).toBe(0);
       expect(clamp(10, 0, 10)).toBe(10);
+    });
+  });
+
+  describe('distance', () => {
+    it('should calculate distance between two points', () => {
+      expect(distance(0, 0, 3, 4)).toBe(5);
+      expect(distance(1, 1, 1, 1)).toBe(0);
+      expect(distance(0, 0, 0, 10)).toBe(10);
+      expect(distance(-1, -1, 1, 1)).toBeCloseTo(2.828, 3);
+    });
+  });
+
+  describe('lerp', () => {
+    it('should interpolate between two values', () => {
+      expect(lerp(0, 10, 0.5)).toBe(5);
+      expect(lerp(0, 10, 0)).toBe(0);
+      expect(lerp(0, 10, 1)).toBe(10);
+      expect(lerp(10, 20, 0.25)).toBe(12.5);
     });
   });
 
