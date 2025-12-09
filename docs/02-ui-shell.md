@@ -175,12 +175,12 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.4.1** Create toolbar container:
+- [x] **2.4.1** Create toolbar container:
   - Fixed height: 48px
   - Background with blur effect
   - Border bottom
 
-- [ ] **2.4.2** Implement File menu (dropdown):
+- [x] **2.4.2** Implement File menu (dropdown):
   - New Project (Ctrl+N)
   - Open Project (Ctrl+O)
   - Recent Projects (submenu, shows last 5)
@@ -193,7 +193,7 @@ This section builds the application shell including the main layout, top toolbar
   - Separator
   - Project Settings
 
-- [ ] **2.4.3** Implement Edit menu (dropdown):
+- [x] **2.4.3** Implement Edit menu (dropdown):
   - Undo (Ctrl+Z)
   - Redo (Ctrl+Y)
   - Separator
@@ -206,7 +206,7 @@ This section builds the application shell including the main layout, top toolbar
   - Select All (Ctrl+A)
   - Deselect (Esc)
 
-- [ ] **2.4.4** Implement View menu (dropdown):
+- [x] **2.4.4** Implement View menu (dropdown):
   - Table View (Ctrl+1)
   - 2D Editor (Ctrl+2)
   - 3D Preview (Ctrl+3)
@@ -221,25 +221,25 @@ This section builds the application shell including the main layout, top toolbar
   - Separator
   - Dark Mode toggle
 
-- [ ] **2.4.5** Create tool buttons group:
+- [x] **2.4.5** Create tool buttons group:
   - View 3D button (prominent, primary color)
   - Export dropdown button
 
-- [ ] **2.4.6** Add right section:
+- [x] **2.4.6** Add right section:
   - Theme toggle
   - Help button (?)
   - Settings button (gear icon)
 
-- [ ] **2.4.7** Show keyboard shortcuts in menu items
+- [x] **2.4.7** Show keyboard shortcuts in menu items
 
-- [ ] **2.4.8** Disable menu items when not applicable (e.g., Undo when nothing to undo)
+- [x] **2.4.8** Disable menu items when not applicable (e.g., Undo when nothing to undo)
 
 ### Unit Tests
 
-- [ ] All menus render and open
-- [ ] Menu items have correct keyboard shortcuts displayed
-- [ ] Disabled state works correctly
-- [ ] Menu closes on item click
+- [x] All menus render and open
+- [x] Menu items have correct keyboard shortcuts displayed
+- [x] Disabled state works correctly
+- [x] Menu closes on item click
 
 ---
 
