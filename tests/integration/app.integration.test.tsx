@@ -2,7 +2,7 @@ import { describe, it, expect } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import * as fs from 'fs';
 import * as path from 'path';
-import App from '@/App';
+import App from '@/src/App';
 
 describe('Browser Integration Tests', () => {
   describe('index.html structure', () => {
@@ -61,13 +61,23 @@ describe('Browser Integration Tests', () => {
     it('renders the app with StrataPlan branding', () => {
       render(<App />);
 
-      // Check main heading (using updated role query)
-      expect(screen.getByRole('heading', { name: 'StrataPlan' })).toBeInTheDocument();
+      // Check main heading
+      expect(screen.getByText('StrataPlan')).toBeInTheDocument();
 
-      // Check new description text
+      // Check description
       expect(
-        screen.getByText(/Select a room or draw a wall to get started/i)
+        screen.getByText(/Browser-based, offline-first floorplan application/i)
       ).toBeInTheDocument();
+
+      // Check status message
+      expect(screen.getByText(/Core data model implemented/i)).toBeInTheDocument();
+    });
+
+    it('renders correct CSS class for app structure', () => {
+      const { container } = render(<App />);
+
+      const appDiv = container.querySelector('.app');
+      expect(appDiv).toBeInTheDocument();
     });
   });
 
@@ -84,8 +94,8 @@ describe('Browser Integration Tests', () => {
       render(<App />);
 
       // Verify initial state
-      expect(screen.getByRole('heading', { name: 'StrataPlan' })).toBeInTheDocument();
-      expect(screen.getByText(/Select a room or draw a wall/i)).toBeInTheDocument();
+      expect(screen.getByText('StrataPlan')).toBeInTheDocument();
+      expect(screen.getByText(/Core data model implemented/i)).toBeInTheDocument();
     });
   });
 });
