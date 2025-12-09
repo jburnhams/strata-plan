@@ -76,26 +76,26 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [ ] **5.2.1** Set up OrbitControls:
+- [x] **5.2.1** Set up OrbitControls:
   - Import from `three/examples/jsm/controls/OrbitControls`
   - Or use `@react-three/drei` OrbitControls
 
-- [ ] **5.2.2** Configure orbit behavior:
+- [x] **5.2.2** Configure orbit behavior:
   - Target: center of floorplan
   - Enable rotate (left mouse drag)
   - Enable pan (right mouse drag or Shift+left drag)
   - Enable zoom (scroll wheel)
   - Damping for smooth movement
 
-- [ ] **5.2.3** Set zoom limits:
+- [x] **5.2.3** Set zoom limits:
   - Min distance: 2m (don't clip through floor)
   - Max distance: 100m (don't lose the model)
 
-- [ ] **5.2.4** Set vertical rotation limits:
+- [x] **5.2.4** Set vertical rotation limits:
   - Min polar angle: 0.1 (nearly top-down allowed)
   - Max polar angle: Math.PI/2 - 0.1 (don't go below floor)
 
-- [ ] **5.2.5** Implement preset camera views:
+- [x] **5.2.5** Implement preset camera views:
   - **Isometric**: 45° angle, looking at center
   - **Top-down**: directly above, looking down
   - **Front**: looking from south to north
@@ -106,13 +106,14 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Button group in viewer toolbar
   - Icons for each preset
   - Current view highlighted
+  - *Partially done (logic implemented), UI deferred to Task 5.9*
 
-- [ ] **5.2.7** Implement "Fit to View":
+- [x] **5.2.7** Implement "Fit to View":
   - Calculate bounding box of all rooms
   - Position camera to see entire model
   - Add padding around edges
 
-- [ ] **5.2.8** Keyboard camera controls:
+- [x] **5.2.8** Keyboard camera controls:
   - Arrow keys: rotate view
   - +/-: zoom
   - R: reset to default view
@@ -120,10 +121,10 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Unit Tests
 
-- [ ] OrbitControls initialize correctly
-- [ ] Zoom limits are enforced
-- [ ] Preset views set correct camera position
-- [ ] Fit to view encompasses all rooms
+- [x] OrbitControls initialize correctly
+- [x] Zoom limits are enforced
+- [x] Preset views set correct camera position
+- [x] Fit to view encompasses all rooms
 
 ---
 

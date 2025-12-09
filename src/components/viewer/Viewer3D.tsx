@@ -1,7 +1,8 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stats } from '@react-three/drei';
+import { Stats } from '@react-three/drei';
 import { useThreeScene } from '../../hooks/useThreeScene';
+import { CameraControls } from './CameraControls';
 
 // Internal component to initialize the scene using our hook
 const SceneSetup = () => {
@@ -113,8 +114,8 @@ export const Viewer3D: React.FC = () => {
             {/* 5.1.3 & 5.1.4 Initialize Scene */}
             <SceneSetup />
 
-            {/* 5.1.2 Basic Setup - Controls to ensure useThreeScene finds them */}
-            <OrbitControls makeDefault />
+            {/* 5.2 Camera Controls */}
+            <CameraControls />
 
             {/* 5.1.5 FPS Counter for debugging */}
             <Stats />
