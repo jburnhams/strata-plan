@@ -63,10 +63,10 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Unit Tests (`tests/unit/components/viewer/Viewer3D.test.tsx`)
 
-- [ ] Scene initializes without error
-- [ ] Canvas renders to DOM
-- [ ] Resize handler updates dimensions
-- [ ] WebGL error handled gracefully
+- [x] Scene initializes without error
+- [x] Canvas renders to DOM
+- [x] Resize handler updates dimensions
+- [x] WebGL error handled gracefully
 
 ---
 
@@ -120,10 +120,10 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Unit Tests
 
-- [ ] OrbitControls initialize correctly
-- [ ] Zoom limits are enforced
-- [ ] Preset views set correct camera position
-- [ ] Fit to view encompasses all rooms
+- [x] OrbitControls initialize correctly
+- [x] Zoom limits are enforced
+- [x] Preset views set correct camera position
+- [x] Fit to view encompasses all rooms
 
 ---
 
@@ -133,36 +133,36 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [ ] **5.3.1** Create ground plane:
+- [x] **5.3.1** Create ground plane:
   - Large PlaneGeometry (200m × 200m)
   - Subtle grid texture or color
   - Position at Y=0
   - Receives shadows
 
-- [ ] **5.3.2** Create optional grid helper:
+- [x] **5.3.2** Create optional grid helper:
   - Three.js GridHelper
   - 1m grid lines
   - Toggle visibility
 
-- [ ] **5.3.3** Add axis helper (optional, for debugging):
+- [x] **5.3.3** Add axis helper (optional, for debugging):
   - X = red, Y = green, Z = blue
   - Toggle visibility
   - Position at origin
 
-- [ ] **5.3.4** Create sky/background:
+- [x] **5.3.4** Create sky/background:
   - Option 1: Solid color background
   - Option 2: Gradient from sky blue to white
   - Option 3: Simple environment map
 
-- [ ] **5.3.5** Implement ground shadow:
+- [x] **5.3.5** Implement ground shadow:
   - Contact shadows under rooms
   - Soft edges
 
 ### Unit Tests
 
-- [ ] Ground plane renders at correct position
-- [ ] Grid helper toggles correctly
-- [ ] Background color applied
+- [x] Ground plane renders at correct position
+- [x] Grid helper toggles correctly
+- [x] Background color applied
 
 ---
 
