@@ -135,11 +135,32 @@ describe('Floorplan Store', () => {
       expect(room2.position.x).toBe(5.0); // 4 (room1 length) + 1 (gap)
       expect(room2.position.z).toBe(0);
     });
+
+    it('should throw error if no floorplan is loaded', () => {
+      useFloorplanStore.getState().clearFloorplan();
+      const roomData: Omit<Room, 'id'> = {
+        name: 'Room',
+        length: 4,
+        width: 3,
+        height: 2.7,
+        type: 'bedroom',
+        position: { x: 0, z: 0 },
+        rotation: 0,
+      };
+
+      expect(() => useFloorplanStore.getState().addRoom(roomData)).toThrow('No floorplan loaded');
+    });
   });
 
   describe('updateRoom', () => {
     beforeEach(() => {
       useFloorplanStore.getState().createFloorplan('Test', 'meters');
+    });
+
+    it('should return early if no floorplan is loaded', () => {
+      useFloorplanStore.getState().clearFloorplan();
+      // Should not throw
+      useFloorplanStore.getState().updateRoom('some-id', { name: 'New Name' });
     });
 
     it('should merge partial updates correctly', () => {
@@ -183,6 +204,12 @@ describe('Floorplan Store', () => {
       useFloorplanStore.getState().createFloorplan('Test', 'meters');
     });
 
+    it('should return early if no floorplan is loaded', () => {
+      useFloorplanStore.getState().clearFloorplan();
+      // Should not throw
+      useFloorplanStore.getState().deleteRoom('some-id');
+    });
+
     it('should remove room from array', () => {
       const roomData: Omit<Room, 'id'> = {
         name: 'Bedroom',
@@ -200,6 +227,40 @@ describe('Floorplan Store', () => {
       const state = useFloorplanStore.getState();
       expect(state.currentFloorplan?.rooms).toHaveLength(0);
       expect(state.isDirty).toBe(true);
+    });
+
+    it('should remove associated doors, windows, and connections', () => {
+      // Setup room
+      const roomData: Omit<Room, 'id'> = {
+        name: 'Bedroom',
+        length: 4,
+        width: 3,
+        height: 2.7,
+        type: 'bedroom',
+        position: { x: 0, z: 0 },
+        rotation: 0,
+      };
+      const room = useFloorplanStore.getState().addRoom(roomData);
+
+      // Manually add door and window for testing (since we don't have helper methods yet)
+      const store = useFloorplanStore.getState();
+      const newDoor = { id: 'door-1', roomId: room.id } as any;
+      const newWindow = { id: 'window-1', roomId: room.id } as any;
+      const newConnection = { id: 'conn-1', room1Id: room.id, room2Id: 'other' } as any;
+
+      if (store.currentFloorplan) {
+         store.currentFloorplan.doors.push(newDoor);
+         store.currentFloorplan.windows.push(newWindow);
+         store.currentFloorplan.connections.push(newConnection);
+      }
+
+      useFloorplanStore.getState().deleteRoom(room.id);
+
+      const state = useFloorplanStore.getState();
+      expect(state.currentFloorplan?.rooms).toHaveLength(0);
+      expect(state.currentFloorplan?.doors).toHaveLength(0);
+      expect(state.currentFloorplan?.windows).toHaveLength(0);
+      expect(state.currentFloorplan?.connections).toHaveLength(0);
     });
 
     it('should clear selection if deleted room was selected', () => {
@@ -242,6 +303,20 @@ describe('Floorplan Store', () => {
       expect(state.selectedWallId).toBe('wall-1');
     });
 
+    it('should select door', () => {
+      useFloorplanStore.getState().selectDoor('door-1');
+      const state = useFloorplanStore.getState();
+      expect(state.selectedDoorId).toBe('door-1');
+      expect(state.selectedRoomId).toBeNull();
+    });
+
+    it('should select window', () => {
+      useFloorplanStore.getState().selectWindow('window-1');
+      const state = useFloorplanStore.getState();
+      expect(state.selectedWindowId).toBe('window-1');
+      expect(state.selectedRoomId).toBeNull();
+    });
+
     it('should clear all selections', () => {
       useFloorplanStore.getState().selectRoom('room-1');
       useFloorplanStore.getState().clearSelection();
@@ -254,9 +329,21 @@ describe('Floorplan Store', () => {
     });
   });
 
+  describe('Editor Mode', () => {
+    it('should set editor mode', () => {
+      useFloorplanStore.getState().setEditorMode('graph');
+      expect(useFloorplanStore.getState().editorMode).toBe('graph');
+    });
+  });
+
   describe('Computed getters', () => {
     beforeEach(() => {
       useFloorplanStore.getState().createFloorplan('Test', 'meters');
+    });
+
+    it('should return 0 area if no floorplan', () => {
+      useFloorplanStore.getState().clearFloorplan();
+      expect(useFloorplanStore.getState().getTotalArea()).toBe(0);
     });
 
     it('should calculate total area', () => {
@@ -285,6 +372,28 @@ describe('Floorplan Store', () => {
 
       const totalArea = useFloorplanStore.getState().getTotalArea();
       expect(totalArea).toBe(22); // (4*3) + (5*2) = 12 + 10 = 22
+    });
+
+    it('should return 0 volume if no floorplan', () => {
+      useFloorplanStore.getState().clearFloorplan();
+      expect(useFloorplanStore.getState().getTotalVolume()).toBe(0);
+    });
+
+    it('should calculate total volume', () => {
+      const room1Data: Omit<Room, 'id'> = {
+        name: 'Room 1',
+        length: 4,
+        width: 3,
+        height: 2.7,
+        type: 'bedroom',
+        position: { x: 0, z: 0 },
+        rotation: 0,
+      };
+
+      useFloorplanStore.getState().addRoom(room1Data);
+
+      const totalVolume = useFloorplanStore.getState().getTotalVolume();
+      expect(totalVolume).toBeCloseTo(32.4); // 4*3*2.7
     });
 
     it('should get room count', () => {
@@ -339,6 +448,17 @@ describe('Floorplan Store', () => {
 
       expect(foundRoom).toBeDefined();
       expect(foundRoom?.id).toBe(room.id);
+    });
+
+    it('should return undefined if room ID not found', () => {
+      const foundRoom = useFloorplanStore.getState().getRoomById('non-existent');
+      expect(foundRoom).toBeUndefined();
+    });
+
+    it('should return undefined from getRoomById if no floorplan', () => {
+      useFloorplanStore.getState().clearFloorplan();
+      const foundRoom = useFloorplanStore.getState().getRoomById('some-id');
+      expect(foundRoom).toBeUndefined();
     });
   });
 
