@@ -288,7 +288,7 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Subtasks
 
-- [ ] **9.6.1** Generate 2D thumbnail:
+- [x] **9.6.1** Generate 2D thumbnail:
   ```typescript
   async function generateThumbnail(floorplan: Floorplan): Promise<string>
   ```
@@ -296,25 +296,25 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Scale to thumbnail size (200×150)
   - Return as data URL
 
-- [ ] **9.6.2** Configure thumbnail appearance:
+- [x] **9.6.2** Configure thumbnail appearance:
   - White background
   - Room colors as fill
   - No labels or UI elements
   - Fit all rooms with padding
 
-- [ ] **9.6.3** Generate on save:
+- [x] **9.6.3** Generate on save:
   - Update thumbnail when project saved
   - Asynchronous, doesn't block save
 
-- [ ] **9.6.4** Handle empty projects:
+- [x] **9.6.4** Handle empty projects:
   - Return placeholder image
   - Or: null (show default icon in list)
 
 ### Unit Tests
 
-- [ ] Thumbnail generated as data URL
-- [ ] Thumbnail has correct dimensions
-- [ ] Empty project returns placeholder
+- [x] Thumbnail generated as data URL
+- [x] Thumbnail has correct dimensions
+- [x] Empty project returns placeholder
 
 ---
 

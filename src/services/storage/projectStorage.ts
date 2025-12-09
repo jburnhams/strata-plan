@@ -1,5 +1,6 @@
 import { initDatabase, StoredProject } from './database';
 import { serializeFloorplan, deserializeFloorplan } from './serialization';
+import { generateThumbnail } from './thumbnails';
 import { Floorplan, FloorplanMetadata } from '@/types/floorplan';
 
 export interface ProjectMetadata extends FloorplanMetadata {}
@@ -14,11 +15,22 @@ export const saveProject = async (floorplan: Floorplan, thumbnail?: string): Pro
   const db = await initDatabase();
   const serialized = serializeFloorplan(floorplan);
 
+  // If thumbnail is not provided, generate one
+  let thumbnailData = thumbnail;
+  if (!thumbnailData) {
+    try {
+      thumbnailData = await generateThumbnail(floorplan);
+    } catch (error) {
+      console.warn('Failed to generate thumbnail during save:', error);
+      // Proceed without thumbnail rather than failing the save
+    }
+  }
+
   const storedProject: StoredProject = {
     id: floorplan.id,
     name: floorplan.name,
     data: serialized,
-    thumbnail,
+    thumbnail: thumbnailData,
     createdAt: floorplan.createdAt,
     updatedAt: floorplan.updatedAt,
     version: serialized.version
