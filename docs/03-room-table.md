@@ -95,7 +95,7 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
   - Delete button with confirm tooltip
   - Icon-only in collapsed view
 
-- [ ] **3.2.6** Implement cell validation states:
+- [x] **3.2.6** Implement cell validation states:
   - Valid: no indicator
   - Warning: yellow border, info icon with tooltip
   - Error: red border, error icon with tooltip
@@ -387,27 +387,27 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
 
 ### Subtasks
 
-- [ ] **3.9.1** Create validation indicator component:
+- [x] **3.9.1** Create validation indicator component:
   - Icon + tooltip for errors/warnings
   - Red circle with "!" for errors
   - Yellow triangle for warnings
 
-- [ ] **3.9.2** Implement dimension validation:
+- [x] **3.9.2** Implement dimension validation:
   - Error: value < 0.1m → "Room dimension too small. Minimum 0.1m"
   - Warning: value < 1m → "Dimension seems small. Are you sure?"
   - Warning: value > 50m → "Dimension seems large. Are you sure?"
 
-- [ ] **3.9.3** Implement height validation:
+- [x] **3.9.3** Implement height validation:
   - Error: < 1.5m → "Ceiling too low. Minimum 1.5m"
   - Error: > 4.0m → "Ceiling too high. Maximum 4.0m"
   - Warning: < 2.2m → "Low ceiling height"
   - Warning: > 3.5m → "Unusually high ceiling"
 
-- [ ] **3.9.4** Implement name validation:
+- [x] **3.9.4** Implement name validation:
   - Error: empty → "Room name is required"
   - Warning: duplicate → "Another room has this name"
 
-- [ ] **3.9.5** Show row-level validation summary:
+- [x] **3.9.5** Show row-level validation summary:
   - Row border color indicates worst validation state
   - Tooltip summarizes all issues
 

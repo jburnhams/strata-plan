@@ -7,7 +7,8 @@ describe('NumberCell', () => {
   it('renders value with unit', () => {
     const onCommit = jest.fn();
     render(<NumberCell value={10} unit="m" onCommit={onCommit} />);
-    expect(screen.getByText('10 m')).toBeInTheDocument();
+    expect(screen.getByText('10')).toBeInTheDocument();
+    expect(screen.getByText('m')).toBeInTheDocument();
   });
 
   it('switches to edit mode on click', () => {
@@ -15,7 +16,6 @@ describe('NumberCell', () => {
     render(<NumberCell value={10} onCommit={onCommit} />);
     fireEvent.click(screen.getByText('10'));
     // input type="number" does not have implicit role="textbox" in some queries or role="spinbutton"
-    // best to use getByDisplayValue or similar if role is tricky, but here spinbutton is standard for number
     const input = screen.getByRole('spinbutton');
     expect(input).toBeInTheDocument();
     expect(input).toHaveValue(10);
@@ -38,11 +38,54 @@ describe('NumberCell', () => {
     const input = screen.getByRole('spinbutton');
     fireEvent.change(input, { target: { value: '25' } });
 
-    expect(screen.getByText('Value must be between 0 and 20')).toBeInTheDocument();
+    // New: Error is in tooltip (title attribute) of ValidationIndicator
+    const indicator = screen.getByTitle('Value must be between 0 and 20');
+    expect(indicator).toBeInTheDocument();
 
     fireEvent.blur(input);
     expect(onCommit).not.toHaveBeenCalled();
     // Should revert to original value display
     expect(screen.getByText('10')).toBeInTheDocument();
+  });
+
+  it('displays external validation state', () => {
+    const onCommit = jest.fn();
+    render(
+      <NumberCell
+        value={10}
+        onCommit={onCommit}
+        validationState="warning"
+        validationMessage="Warning message"
+      />
+    );
+
+    const indicator = screen.getByTitle('Warning message');
+    expect(indicator).toBeInTheDocument();
+  });
+
+  it('internal error overrides external validation state', () => {
+    const onCommit = jest.fn();
+    render(
+      <NumberCell
+        value={10}
+        min={0}
+        max={20}
+        onCommit={onCommit}
+        validationState="warning"
+        validationMessage="Warning message"
+      />
+    );
+
+    // Initially shows warning
+    expect(screen.getByTitle('Warning message')).toBeInTheDocument();
+
+    // Edit and create internal error
+    fireEvent.click(screen.getByText('10'));
+    const input = screen.getByRole('spinbutton');
+    fireEvent.change(input, { target: { value: '25' } });
+
+    // Now shows internal error
+    expect(screen.queryByTitle('Warning message')).not.toBeInTheDocument();
+    expect(screen.getByTitle('Value must be between 0 and 20')).toBeInTheDocument();
   });
 });

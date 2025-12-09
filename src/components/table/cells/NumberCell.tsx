@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { ValidationIndicator, ValidationState } from '../ValidationIndicator';
 
 interface NumberCellProps {
   value: number;
@@ -9,6 +10,8 @@ interface NumberCellProps {
   unit?: string;
   className?: string;
   isFocused?: boolean;
+  validationState?: ValidationState;
+  validationMessage?: string;
 }
 
 export const NumberCell: React.FC<NumberCellProps> = ({
@@ -19,11 +22,13 @@ export const NumberCell: React.FC<NumberCellProps> = ({
   step = 0.1,
   unit,
   className,
-  isFocused = false
+  isFocused = false,
+  validationState = 'valid',
+  validationMessage
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(String(value));
-  const [error, setError] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +61,7 @@ export const NumberCell: React.FC<NumberCellProps> = ({
 
     if (validate(numValue)) {
       setIsEditing(false);
-      setError(null);
+      setLocalError(null);
       if (numValue !== value) {
         onCommit(numValue);
       }
@@ -64,7 +69,7 @@ export const NumberCell: React.FC<NumberCellProps> = ({
       // Revert if invalid
       setCurrentValue(String(value));
       setIsEditing(false);
-      setError(null);
+      setLocalError(null);
     }
   };
 
@@ -73,9 +78,9 @@ export const NumberCell: React.FC<NumberCellProps> = ({
     const numValue = parseFloat(e.target.value);
 
     if (!isNaN(numValue) && (numValue < min || numValue > max)) {
-        setError(`Value must be between ${min} and ${max}`);
+        setLocalError(`Value must be between ${min} and ${max}`);
     } else {
-        setError(null);
+        setLocalError(null);
     }
   };
 
@@ -85,8 +90,34 @@ export const NumberCell: React.FC<NumberCellProps> = ({
     } else if (e.key === 'Escape') {
       setCurrentValue(String(value));
       setIsEditing(false);
-      setError(null);
+      setLocalError(null);
     }
+  };
+
+  // Determine effective validation state
+  let effectiveState: ValidationState = validationState;
+  let effectiveMessage = validationMessage;
+
+  if (localError) {
+    effectiveState = 'error';
+    effectiveMessage = localError;
+  }
+
+  // Border and ring classes based on state
+  const getContainerClasses = () => {
+    const base = "cursor-pointer p-1 min-h-[1.5em] rounded flex items-center justify-between relative";
+    if (isEditing) return "relative";
+
+    let stateClasses = "hover:bg-gray-100";
+    if (isFocused) stateClasses += " ring-2 ring-blue-400";
+
+    if (effectiveState === 'error') {
+        stateClasses += " border border-red-500 bg-red-50";
+    } else if (effectiveState === 'warning') {
+        stateClasses += " border border-yellow-500 bg-yellow-50";
+    }
+
+    return `${base} ${stateClasses} ${className || ''}`;
   };
 
   if (isEditing) {
@@ -102,12 +133,15 @@ export const NumberCell: React.FC<NumberCellProps> = ({
           step={step}
           min={min}
           max={max}
-          className={`w-full p-1 border rounded ${error ? 'border-red-500' : ''} ${className || ''}`}
+          className={`w-full p-1 border rounded ${
+            effectiveState === 'error' ? 'border-red-500 focus:ring-red-500' :
+            effectiveState === 'warning' ? 'border-yellow-500 focus:ring-yellow-500' : ''
+          } ${className || ''}`}
           aria-label="Edit number"
         />
-        {error && (
-            <div className="absolute top-full left-0 bg-red-100 text-red-800 text-xs p-1 rounded z-10 w-full">
-                {error}
+        {(effectiveState !== 'valid') && (
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                <ValidationIndicator state={effectiveState} message={effectiveMessage} />
             </div>
         )}
       </div>
@@ -118,14 +152,19 @@ export const NumberCell: React.FC<NumberCellProps> = ({
     <div
       ref={containerRef}
       onClick={() => setIsEditing(true)}
-      className={`cursor-pointer p-1 min-h-[1.5em] hover:bg-gray-100 rounded ${isFocused ? 'ring-2 ring-blue-400' : ''} ${className || ''}`}
+      className={getContainerClasses()}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter') setIsEditing(true);
       }}
     >
-      {value} {unit}
+      <span className="truncate flex-1">
+        {value} <span className="text-gray-500 text-xs">{unit}</span>
+      </span>
+      {effectiveState !== 'valid' && (
+        <ValidationIndicator state={effectiveState} message={effectiveMessage} className="ml-1" />
+      )}
     </div>
   );
 };

@@ -95,7 +95,7 @@ export function validateCeilingHeight(value: number): ValidationResult {
 /**
  * Validate room name
  */
-export function validateRoomName(name: string): ValidationResult {
+export function validateRoomName(name: string, otherNames: string[] = []): ValidationResult {
   if (!name || name.trim().length === 0) {
     return {
       valid: false,
@@ -107,6 +107,13 @@ export function validateRoomName(name: string): ValidationResult {
     return {
       valid: false,
       error: `Room name cannot exceed ${MAX_ROOM_NAME_LENGTH} characters`,
+    };
+  }
+
+  if (otherNames.includes(name)) {
+    return {
+      valid: true,
+      warning: 'Another room has this name'
     };
   }
 
