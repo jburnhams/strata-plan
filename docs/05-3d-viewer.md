@@ -24,19 +24,19 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [x] **5.1.1** Install Three.js dependencies:
+- [ ] **5.1.1** Install Three.js dependencies:
   ```bash
   npm install three @types/three
   npm install @react-three/fiber @react-three/drei
   ```
 
-- [x] **5.1.2** Create `Viewer3D` container component:
+- [ ] **5.1.2** Create `Viewer3D` container component:
   - Full viewport size
   - WebGL canvas
   - Loading state indicator
   - Error boundary for WebGL failures
 
-- [x] **5.1.3** Create `useThreeScene` hook:
+- [ ] **5.1.3** Create `useThreeScene` hook:
   ```typescript
   interface UseThreeSceneReturn {
     scene: THREE.Scene
@@ -46,27 +46,27 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   }
   ```
 
-- [x] **5.1.4** Initialize Three.js scene:
+- [ ] **5.1.4** Initialize Three.js scene:
   - Scene with background color (light gray or sky gradient)
   - Perspective camera with sensible defaults
   - WebGL renderer with antialiasing
   - Handle canvas resize on window resize
 
-- [x] **5.1.5** Set up render loop:
+- [ ] **5.1.5** Set up render loop:
   - requestAnimationFrame loop
   - Render only when needed (dirty flag or continuous)
   - FPS counter for debugging
 
-- [x] **5.1.6** Handle WebGL context loss:
+- [ ] **5.1.6** Handle WebGL context loss:
   - Show error message if WebGL unavailable
   - Attempt recovery on context restore
 
 ### Unit Tests (`tests/unit/components/viewer/Viewer3D.test.tsx`)
 
-- [x] Scene initializes without error
-- [x] Canvas renders to DOM
-- [x] Resize handler updates dimensions
-- [x] WebGL error handled gracefully
+- [ ] Scene initializes without error
+- [ ] Canvas renders to DOM
+- [ ] Resize handler updates dimensions
+- [ ] WebGL error handled gracefully
 
 ---
 
