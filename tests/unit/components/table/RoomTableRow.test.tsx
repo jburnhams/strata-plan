@@ -91,6 +91,82 @@ describe('RoomTableRow', () => {
     expect(defaultProps.onUpdate).toHaveBeenCalledWith({ name: 'New Name' });
   });
 
+  it('calls onUpdate when length changes', () => {
+    render(
+      <table>
+        <tbody>
+          <RoomTableRow {...defaultProps} />
+        </tbody>
+      </table>
+    );
+
+    // Click on length cell (value is 5)
+    fireEvent.click(screen.getByText('5 meters'));
+    const input = screen.getByLabelText('Edit number');
+    fireEvent.change(input, { target: { value: '6' } });
+    fireEvent.blur(input);
+
+    expect(defaultProps.onUpdate).toHaveBeenCalledWith({ length: 6 });
+  });
+
+  it('calls onUpdate when width changes', () => {
+    render(
+      <table>
+        <tbody>
+          <RoomTableRow {...defaultProps} />
+        </tbody>
+      </table>
+    );
+
+    // Click on width cell (value is 4)
+    fireEvent.click(screen.getByText('4 meters'));
+    const input = screen.getByLabelText('Edit number');
+    fireEvent.change(input, { target: { value: '4.5' } });
+    fireEvent.blur(input);
+
+    expect(defaultProps.onUpdate).toHaveBeenCalledWith({ width: 4.5 });
+  });
+
+  it('calls onUpdate when height changes', () => {
+    render(
+      <table>
+        <tbody>
+          <RoomTableRow {...defaultProps} />
+        </tbody>
+      </table>
+    );
+
+    // Click on height cell (value is 3)
+    fireEvent.click(screen.getByText('3 meters'));
+    const input = screen.getByLabelText('Edit number');
+    fireEvent.change(input, { target: { value: '2.5' } });
+    fireEvent.blur(input);
+
+    expect(defaultProps.onUpdate).toHaveBeenCalledWith({ height: 2.5 });
+  });
+
+  it('calls onUpdate when type changes', () => {
+    render(
+      <table>
+        <tbody>
+          <RoomTableRow {...defaultProps} />
+        </tbody>
+      </table>
+    );
+
+    // Click on type cell (value is bedroom)
+    // Note: SelectCell renders text "bedroom" which matches value
+    const cell = screen.getAllByText('bedroom').find(el => el.tagName === 'DIV' || el.parentElement?.tagName === 'DIV');
+    if (!cell) throw new Error('Could not find type cell');
+
+    fireEvent.click(cell);
+    const select = screen.getByLabelText('Select room type');
+    fireEvent.change(select, { target: { value: 'kitchen' } });
+    // SelectCell commits on change
+
+    expect(defaultProps.onUpdate).toHaveBeenCalledWith({ type: 'kitchen' });
+  });
+
   it('calls onDelete when delete button clicked (and confirmed)', () => {
     // Mock window.confirm
     const confirmSpy = jest.spyOn(window, 'confirm');
