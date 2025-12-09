@@ -17,7 +17,9 @@ const baseConfig = {
       },
     ],
   },
-  transformIgnorePatterns: ['node_modules/(?!(uuid|lucide-react)/)'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(uuid|lucide-react|three|@react-three/fiber|@react-three/drei)/)',
+  ],
   setupFilesAfterEnv: ['<rootDir>/tests/utils/setup.ts'],
   maxWorkers: 2,
   workerIdleMemoryLimit: '512MB',
