@@ -7,6 +7,13 @@ import { NumberCell } from './cells/NumberCell';
 import { SelectCell } from './cells/SelectCell';
 import { DisplayCell } from './cells/DisplayCell';
 import { ActionCell } from './cells/ActionCell';
+import {
+  validateRoomName,
+  validateRoomDimension,
+  validateCeilingHeight,
+  ValidationResult
+} from '../../utils/validation';
+import { ValidationState } from './ValidationIndicator';
 
 interface RoomTableRowProps {
   room: Room;
@@ -16,6 +23,7 @@ interface RoomTableRowProps {
   onDelete: () => void;
   units: MeasurementUnit;
   focusedColIndex?: number | null;
+  otherNames?: string[];
 }
 
 export const RoomTableRow: React.FC<RoomTableRowProps> = ({
@@ -25,7 +33,8 @@ export const RoomTableRow: React.FC<RoomTableRowProps> = ({
   onUpdate,
   onDelete,
   units,
-  focusedColIndex
+  focusedColIndex,
+  otherNames = []
 }) => {
   // We manage local state for inputs to allow smooth typing,
   // but commit to store via onUpdate (which can be debounced or immediate)
@@ -35,15 +44,6 @@ export const RoomTableRow: React.FC<RoomTableRowProps> = ({
   };
 
   const handleLengthChange = (length: number) => {
-    // Immediate update for better UX in 2D view usually, but task says debounce.
-    // However, NumberCell commits on blur/enter, so it's already "discrete".
-    // If we wanted real-time typing update, we'd need to change NumberCell to fire onChange.
-    // The task "3.3.3 Implement cell change handlers: Debounce updates (300ms) for number inputs"
-    // implies we might be getting frequent updates or should protect the store.
-    // Since NumberCell as implemented currently only fires onCommit (blur/enter),
-    // we are complying with "discrete" updates.
-    // If we wanted "live" updates while typing (increment/decrement buttons), we might need to adjust.
-    // For now, let's stick to the onCommit behavior of the cells which is robust.
     onUpdate({ length });
   };
 
@@ -67,12 +67,40 @@ export const RoomTableRow: React.FC<RoomTableRowProps> = ({
     'office', 'hallway', 'closet', 'garage', 'other'
   ];
 
+  // Validation
+  const nameValidation = validateRoomName(room.name, otherNames);
+  const lengthValidation = validateRoomDimension(room.length, 'Length');
+  const widthValidation = validateRoomDimension(room.width, 'Width');
+  const heightValidation = validateCeilingHeight(room.height);
+
+  const getValidationState = (res: ValidationResult): ValidationState => {
+      if (!res.valid) return 'error';
+      if (res.warning) return 'warning';
+      return 'valid';
+  };
+
+  const getValidationMessage = (res: ValidationResult): string | undefined => {
+      if (!res.valid) return res.error;
+      return res.warning;
+  };
+
+  const validations = [nameValidation, lengthValidation, widthValidation, heightValidation];
+  const hasError = validations.some(v => !v.valid);
+  const hasWarning = validations.some(v => v.warning);
+
+  const validationSummary = validations
+    .flatMap(v => [v.error, v.warning])
+    .filter((msg): msg is string => !!msg)
+    .join('\n');
+
   return (
     <tr
       onClick={onSelect}
+      title={validationSummary}
       className={`
         group
         ${isSelected ? 'bg-blue-50 ring-2 ring-blue-400 z-10 relative' : ''}
+        ${hasError ? 'border-l-4 border-l-red-500' : hasWarning ? 'border-l-4 border-l-yellow-500' : 'border-l-4 border-l-transparent'}
         hover:bg-opacity-80
         transition-colors
       `}
@@ -82,16 +110,47 @@ export const RoomTableRow: React.FC<RoomTableRowProps> = ({
       data-testid={`room-row-${room.id}`}
     >
       <td className="p-0 border-b border-gray-200">
-        <TextCell value={room.name} onCommit={handleNameChange} isFocused={focusedColIndex === 0} />
+        <TextCell
+          value={room.name}
+          onCommit={handleNameChange}
+          isFocused={focusedColIndex === 0}
+          validationState={getValidationState(nameValidation)}
+          validationMessage={getValidationMessage(nameValidation)}
+        />
       </td>
       <td className="p-0 border-b border-gray-200">
-        <NumberCell value={room.length} unit={units} onCommit={handleLengthChange} min={0.1} isFocused={focusedColIndex === 1} />
+        <NumberCell
+          value={room.length}
+          unit={units}
+          onCommit={handleLengthChange}
+          min={0.1}
+          isFocused={focusedColIndex === 1}
+          validationState={getValidationState(lengthValidation)}
+          validationMessage={getValidationMessage(lengthValidation)}
+        />
       </td>
       <td className="p-0 border-b border-gray-200">
-        <NumberCell value={room.width} unit={units} onCommit={handleWidthChange} min={0.1} isFocused={focusedColIndex === 2} />
+        <NumberCell
+          value={room.width}
+          unit={units}
+          onCommit={handleWidthChange}
+          min={0.1}
+          isFocused={focusedColIndex === 2}
+          validationState={getValidationState(widthValidation)}
+          validationMessage={getValidationMessage(widthValidation)}
+        />
       </td>
       <td className="p-0 border-b border-gray-200">
-        <NumberCell value={room.height} unit={units} onCommit={handleHeightChange} min={1.5} max={4.0} isFocused={focusedColIndex === 3} />
+        <NumberCell
+          value={room.height}
+          unit={units}
+          onCommit={handleHeightChange}
+          min={1.5}
+          max={4.0}
+          isFocused={focusedColIndex === 3}
+          validationState={getValidationState(heightValidation)}
+          validationMessage={getValidationMessage(heightValidation)}
+        />
       </td>
       <td className="p-0 border-b border-gray-200">
         <SelectCell value={room.type} options={roomTypes} onCommit={handleTypeChange} isFocused={focusedColIndex === 4} />

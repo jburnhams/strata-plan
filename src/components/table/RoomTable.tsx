@@ -79,6 +79,7 @@ export const RoomTable: React.FC = () => {
               onDelete={() => deleteRoom(room.id)}
               units={units}
               focusedColIndex={focusedCell?.roomId === room.id ? focusedCell.colIndex : undefined}
+              otherNames={rooms.filter(r => r.id !== room.id).map(r => r.name)}
             />
           ))}
         </tbody>
