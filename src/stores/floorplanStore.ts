@@ -132,7 +132,7 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
     if (room.position.x === 0 && room.position.z === 0 && state.currentFloorplan.rooms.length > 0) {
       // Left-to-right layout with gaps
       const lastRoom = state.currentFloorplan.rooms[state.currentFloorplan.rooms.length - 1];
-      const lastRoomEndX = lastRoom.position.x + lastRoom.length;
+      const lastRoomEndX = getRoomBounds(lastRoom).maxX;
       room.position = {
         x: lastRoomEndX + DEFAULT_ROOM_GAP,
         z: 0,
