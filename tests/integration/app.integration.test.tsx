@@ -2,7 +2,7 @@ import { describe, it, expect } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import * as fs from 'fs';
 import * as path from 'path';
-import App from '@/src/App';
+import App from '@/App';
 
 describe('Browser Integration Tests', () => {
   describe('index.html structure', () => {

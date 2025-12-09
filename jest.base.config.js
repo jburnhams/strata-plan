@@ -3,7 +3,7 @@ const baseConfig = {
   testEnvironment: 'jsdom',
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1',
+    '^@/(.*)$': '<rootDir>/src/$1',
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   transform: {
@@ -17,7 +17,7 @@ const baseConfig = {
       },
     ],
   },
-  transformIgnorePatterns: ['node_modules/(?!(your-esm-package-here)/)'],
+  transformIgnorePatterns: ['node_modules/(?!(uuid|lucide-react)/)'],
   setupFilesAfterEnv: ['<rootDir>/tests/utils/setup.ts'],
   maxWorkers: 2,
   workerIdleMemoryLimit: '512MB',
