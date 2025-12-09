@@ -131,10 +131,11 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
     // Auto-calculate position if not provided
     if (room.position.x === 0 && room.position.z === 0 && state.currentFloorplan.rooms.length > 0) {
       // Left-to-right layout with gaps
+      // Use getRoomBounds to account for rotation
       const lastRoom = state.currentFloorplan.rooms[state.currentFloorplan.rooms.length - 1];
-      const lastRoomEndX = getRoomBounds(lastRoom).maxX;
+      const lastRoomBounds = getRoomBounds(lastRoom);
       room.position = {
-        x: lastRoomEndX + DEFAULT_ROOM_GAP,
+        x: lastRoomBounds.maxX + DEFAULT_ROOM_GAP,
         z: 0,
       };
     }

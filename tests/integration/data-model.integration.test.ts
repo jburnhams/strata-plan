@@ -6,6 +6,7 @@ import { describe, it, expect, beforeEach } from '@jest/globals';
 import { useFloorplanStore } from '../../src/stores/floorplanStore';
 import { createRoom, createDefaultRoom, cloneRoom } from '../../src/services/room/factory';
 import { validateFloorplan, hasErrors } from '../../src/utils/validation';
+import { getRoomBounds, doRoomsOverlap } from '../../src/services/geometry';
 import type { Room } from '../../src/types';
 
 describe('Data Model Integration', () => {
@@ -118,6 +119,84 @@ describe('Data Model Integration', () => {
       // Fifth room: after fourth room + gap
       expect(addedRooms[4].position.x).toBe(18); // 15 + 2 + 1 gap
       expect(addedRooms[4].position.z).toBe(0);
+    });
+
+    it('should correctly handle auto-layout with rotated rooms', () => {
+      let store = useFloorplanStore.getState();
+      store.createFloorplan('Test Rotated', 'meters');
+
+      // First room: 4m × 3m, rotated 90° (so occupies 3m × 4m in world space)
+      const room1 = store.addRoom({
+        name: 'Room 1',
+        length: 4,
+        width: 3,
+        height: 2.7,
+        type: 'bedroom',
+        position: { x: 0, z: 0 },
+        rotation: 90,
+      });
+
+      // Second room: 3m × 2m, not rotated (position should be auto-calculated)
+      const room2 = store.addRoom({
+        name: 'Room 2',
+        length: 3,
+        width: 2,
+        height: 2.7,
+        type: 'kitchen',
+        position: { x: 0, z: 0 }, // Will be auto-positioned
+        rotation: 0,
+      });
+
+      store = useFloorplanStore.getState(); // Re-fetch
+
+      // First room should be at origin
+      expect(room1.position.x).toBe(0);
+      expect(room1.position.z).toBe(0);
+
+      // Second room should be positioned after first room's ROTATED width (3m) + gap (1m)
+      // For 90° rotation, the room's width becomes its world-space X extent
+      const bounds1 = getRoomBounds(room1);
+      const expectedX = bounds1.maxX + 1.0; // After rotated room + gap
+
+      const actualRoom2 = store.getRoomById(room2.id);
+      expect(actualRoom2?.position.x).toBe(expectedX); // Should be 3 + 1 = 4
+      expect(actualRoom2?.position.z).toBe(0);
+    });
+
+    it('should handle mixed rotations in auto-layout', () => {
+      let store = useFloorplanStore.getState();
+      store.createFloorplan('Mixed Rotations', 'meters');
+
+      const rooms: Array<Omit<Room, 'id'>> = [
+        { name: 'Room 1', length: 4, width: 3, height: 2.7, type: 'bedroom', position: { x: 0, z: 0 }, rotation: 0 },
+        { name: 'Room 2', length: 3, width: 2, height: 2.7, type: 'kitchen', position: { x: 0, z: 0 }, rotation: 90 },
+        { name: 'Room 3', length: 5, width: 4, height: 2.7, type: 'living', position: { x: 0, z: 0 }, rotation: 0 },
+        { name: 'Room 4', length: 3, width: 3, height: 2.7, type: 'bathroom', position: { x: 0, z: 0 }, rotation: 180 },
+      ];
+
+      const addedRooms: Room[] = [];
+      for (const roomData of rooms) {
+        addedRooms.push(store.addRoom(roomData));
+        store = useFloorplanStore.getState();
+      }
+
+      // Verify each room is positioned correctly based on previous room's bounds
+      let expectedX = 0;
+      for (let i = 0; i < addedRooms.length; i++) {
+        expect(addedRooms[i].position.x).toBe(expectedX);
+        expect(addedRooms[i].position.z).toBe(0);
+
+        // Calculate next position based on this room's bounds
+        const bounds = getRoomBounds(addedRooms[i]);
+        expectedX = bounds.maxX + 1.0; // Add gap
+      }
+
+      // Verify no rooms overlap
+      for (let i = 0; i < addedRooms.length; i++) {
+        for (let j = i + 1; j < addedRooms.length; j++) {
+          expect(doRoomsOverlap(addedRooms[i], addedRooms[j])).toBe(false);
+        }
+      }
     });
   });
 

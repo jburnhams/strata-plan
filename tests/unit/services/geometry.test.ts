@@ -349,46 +349,316 @@ describe('Geometry Utilities', () => {
   });
 
   describe('worldToLocal and localToWorld', () => {
-    it('should convert between coordinate systems for non-rotated room', () => {
-      const room: Room = {
-        id: '1',
-        name: 'Test',
-        length: 4,
-        width: 3,
-        height: 2.7,
-        type: 'bedroom',
-        position: { x: 10, z: 5 },
-        rotation: 0,
-      };
+    describe('0 degree rotation (no rotation)', () => {
+      it('should convert between coordinate systems correctly', () => {
+        const room: Room = {
+          id: '1',
+          name: 'Test',
+          length: 4,
+          width: 3,
+          height: 2.7,
+          type: 'bedroom',
+          position: { x: 10, z: 5 },
+          rotation: 0,
+        };
 
-      const worldPoint = { x: 12, z: 7 };
-      const local = worldToLocal(worldPoint, room);
-      expect(local.x).toBe(2);
-      expect(local.z).toBe(2);
+        const worldPoint = { x: 12, z: 7 };
+        const local = worldToLocal(worldPoint, room);
+        expect(local.x).toBe(2);
+        expect(local.z).toBe(2);
 
-      const backToWorld = localToWorld(local, room);
-      expect(backToWorld.x).toBe(12);
-      expect(backToWorld.z).toBe(7);
+        const backToWorld = localToWorld(local, room);
+        expect(backToWorld.x).toBe(12);
+        expect(backToWorld.z).toBe(7);
+      });
+
+      it('should maintain round-trip consistency for multiple points', () => {
+        const room: Room = {
+          id: '1',
+          name: 'Test',
+          length: 4,
+          width: 3,
+          height: 2.7,
+          type: 'bedroom',
+          position: { x: 5, z: 5 },
+          rotation: 0,
+        };
+
+        const testPoints = [
+          { x: 0, z: 0 },     // Origin
+          { x: 2, z: 1.5 },   // Center
+          { x: 4, z: 3 },     // Far corner
+          { x: 0, z: 3 },     // Edge
+          { x: 4, z: 0 },     // Edge
+        ];
+
+        for (const localPoint of testPoints) {
+          const world = localToWorld(localPoint, room);
+          const backToLocal = worldToLocal(world, room);
+
+          expect(backToLocal.x).toBeCloseTo(localPoint.x, 10);
+          expect(backToLocal.z).toBeCloseTo(localPoint.z, 10);
+        }
+      });
     });
 
-    it('should maintain consistency for round-trip conversion', () => {
-      const room: Room = {
-        id: '1',
-        name: 'Test',
-        length: 4,
-        width: 3,
-        height: 2.7,
-        type: 'bedroom',
-        position: { x: 5, z: 5 },
-        rotation: 0,
-      };
+    describe('90 degree rotation', () => {
+      it('should correctly transform local origin to world space', () => {
+        const room: Room = {
+          id: '1',
+          name: 'Test',
+          length: 4,
+          width: 3,
+          height: 2.7,
+          type: 'bedroom',
+          position: { x: 0, z: 0 },
+          rotation: 90,
+        };
 
-      const localPoint = { x: 2, z: 1.5 };
-      const world = localToWorld(localPoint, room);
-      const backToLocal = worldToLocal(world, room);
+        // Local origin (0, 0) should map to (width, 0) in world space for 90° rotation
+        const world = localToWorld({ x: 0, z: 0 }, room);
+        expect(world.x).toBeCloseTo(3, 10); // room.width
+        expect(world.z).toBeCloseTo(0, 10);
+      });
 
-      expect(backToLocal.x).toBeCloseTo(localPoint.x, 10);
-      expect(backToLocal.z).toBeCloseTo(localPoint.z, 10);
+      it('should correctly transform local far corner to world space', () => {
+        const room: Room = {
+          id: '1',
+          name: 'Test',
+          length: 4,
+          width: 3,
+          height: 2.7,
+          type: 'bedroom',
+          position: { x: 0, z: 0 },
+          rotation: 90,
+        };
+
+        // Local corner (length, width) should map correctly
+        const world = localToWorld({ x: 4, z: 3 }, room);
+        expect(world.x).toBeCloseTo(0, 10);
+        expect(world.z).toBeCloseTo(4, 10);
+      });
+
+      it('should maintain round-trip consistency', () => {
+        const room: Room = {
+          id: '1',
+          name: 'Test',
+          length: 4,
+          width: 3,
+          height: 2.7,
+          type: 'bedroom',
+          position: { x: 10, z: 20 },
+          rotation: 90,
+        };
+
+        const testPoints = [
+          { x: 0, z: 0 },
+          { x: 2, z: 1.5 },
+          { x: 4, z: 0 },
+          { x: 0, z: 3 },
+          { x: 4, z: 3 },
+        ];
+
+        for (const localPoint of testPoints) {
+          const world = localToWorld(localPoint, room);
+          const backToLocal = worldToLocal(world, room);
+
+          expect(backToLocal.x).toBeCloseTo(localPoint.x, 10);
+          expect(backToLocal.z).toBeCloseTo(localPoint.z, 10);
+        }
+      });
+    });
+
+    describe('180 degree rotation', () => {
+      it('should correctly transform local origin to world space', () => {
+        const room: Room = {
+          id: '1',
+          name: 'Test',
+          length: 4,
+          width: 3,
+          height: 2.7,
+          type: 'bedroom',
+          position: { x: 0, z: 0 },
+          rotation: 180,
+        };
+
+        // Local origin (0, 0) should map to (length, width) for 180° rotation
+        const world = localToWorld({ x: 0, z: 0 }, room);
+        expect(world.x).toBeCloseTo(4, 10); // room.length
+        expect(world.z).toBeCloseTo(3, 10); // room.width
+      });
+
+      it('should correctly transform local far corner to world space', () => {
+        const room: Room = {
+          id: '1',
+          name: 'Test',
+          length: 4,
+          width: 3,
+          height: 2.7,
+          type: 'bedroom',
+          position: { x: 0, z: 0 },
+          rotation: 180,
+        };
+
+        // Local corner (length, width) should map to origin
+        const world = localToWorld({ x: 4, z: 3 }, room);
+        expect(world.x).toBeCloseTo(0, 10);
+        expect(world.z).toBeCloseTo(0, 10);
+      });
+
+      it('should maintain round-trip consistency', () => {
+        const room: Room = {
+          id: '1',
+          name: 'Test',
+          length: 4,
+          width: 3,
+          height: 2.7,
+          type: 'bedroom',
+          position: { x: 15, z: 25 },
+          rotation: 180,
+        };
+
+        const testPoints = [
+          { x: 0, z: 0 },
+          { x: 2, z: 1.5 },
+          { x: 4, z: 0 },
+          { x: 0, z: 3 },
+          { x: 4, z: 3 },
+        ];
+
+        for (const localPoint of testPoints) {
+          const world = localToWorld(localPoint, room);
+          const backToLocal = worldToLocal(world, room);
+
+          expect(backToLocal.x).toBeCloseTo(localPoint.x, 10);
+          expect(backToLocal.z).toBeCloseTo(localPoint.z, 10);
+        }
+      });
+    });
+
+    describe('270 degree rotation', () => {
+      it('should correctly transform local origin to world space', () => {
+        const room: Room = {
+          id: '1',
+          name: 'Test',
+          length: 4,
+          width: 3,
+          height: 2.7,
+          type: 'bedroom',
+          position: { x: 0, z: 0 },
+          rotation: 270,
+        };
+
+        // Local origin (0, 0) should map to (0, length) for 270° rotation
+        const world = localToWorld({ x: 0, z: 0 }, room);
+        expect(world.x).toBeCloseTo(0, 10);
+        expect(world.z).toBeCloseTo(4, 10); // room.length
+      });
+
+      it('should correctly transform local far corner to world space', () => {
+        const room: Room = {
+          id: '1',
+          name: 'Test',
+          length: 4,
+          width: 3,
+          height: 2.7,
+          type: 'bedroom',
+          position: { x: 0, z: 0 },
+          rotation: 270,
+        };
+
+        // Local corner (length, width) should map correctly
+        const world = localToWorld({ x: 4, z: 3 }, room);
+        expect(world.x).toBeCloseTo(3, 10); // room.width
+        expect(world.z).toBeCloseTo(0, 10);
+      });
+
+      it('should maintain round-trip consistency', () => {
+        const room: Room = {
+          id: '1',
+          name: 'Test',
+          length: 4,
+          width: 3,
+          height: 2.7,
+          type: 'bedroom',
+          position: { x: 7, z: 13 },
+          rotation: 270,
+        };
+
+        const testPoints = [
+          { x: 0, z: 0 },
+          { x: 2, z: 1.5 },
+          { x: 4, z: 0 },
+          { x: 0, z: 3 },
+          { x: 4, z: 3 },
+        ];
+
+        for (const localPoint of testPoints) {
+          const world = localToWorld(localPoint, room);
+          const backToLocal = worldToLocal(world, room);
+
+          expect(backToLocal.x).toBeCloseTo(localPoint.x, 10);
+          expect(backToLocal.z).toBeCloseTo(localPoint.z, 10);
+        }
+      });
+    });
+
+    describe('Rotation invariants', () => {
+      it('should maintain consistent behavior across all rotations', () => {
+        const rotations: Array<0 | 90 | 180 | 270> = [0, 90, 180, 270];
+        const testPoint = { x: 1, z: 1 };
+
+        for (const rotation of rotations) {
+          const room: Room = {
+            id: '1',
+            name: 'Test',
+            length: 4,
+            width: 3,
+            height: 2.7,
+            type: 'bedroom',
+            position: { x: 50, z: 60 },
+            rotation,
+          };
+
+          // Round-trip should always return to original point
+          const world = localToWorld(testPoint, room);
+          const backToLocal = worldToLocal(world, room);
+
+          expect(backToLocal.x).toBeCloseTo(testPoint.x, 10);
+          expect(backToLocal.z).toBeCloseTo(testPoint.z, 10);
+        }
+      });
+
+      it('should keep all transformed points within positive coordinate space', () => {
+        const rotations: Array<0 | 90 | 180 | 270> = [0, 90, 180, 270];
+
+        for (const rotation of rotations) {
+          const room: Room = {
+            id: '1',
+            name: 'Test',
+            length: 4,
+            width: 3,
+            height: 2.7,
+            type: 'bedroom',
+            position: { x: 0, z: 0 },
+            rotation,
+          };
+
+          // All corners of the room should be in positive space
+          const corners = [
+            { x: 0, z: 0 },
+            { x: 4, z: 0 },
+            { x: 0, z: 3 },
+            { x: 4, z: 3 },
+          ];
+
+          for (const corner of corners) {
+            const world = localToWorld(corner, room);
+            expect(world.x).toBeGreaterThanOrEqual(0);
+            expect(world.z).toBeGreaterThanOrEqual(0);
+          }
+        }
+      });
     });
   });
 });

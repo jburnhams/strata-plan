@@ -161,47 +161,95 @@ export function getWallLength(room: Room, side: WallSide): number {
 
 /**
  * Convert world coordinates to room-local coordinates
+ * Rotations are performed around the room's local origin (0, 0) consistently.
  */
 export function worldToLocal(point: Position2D, room: Room): Position2D {
-  const local = {
+  // First, translate to room's coordinate system
+  const translated = {
     x: point.x - room.position.x,
     z: point.z - room.position.z,
   };
 
-  // Apply inverse rotation
+  // Apply inverse rotation around origin (0, 0)
+  // Inverse of CCW rotation is CW rotation (or negative angle)
   switch (room.rotation) {
+    case 0:
+      // No rotation
+      return translated;
     case 90:
-      return { x: local.z, z: room.length - local.x };
+      // Inverse of 90° CCW is 90° CW: (x, z) → (z, -x)
+      // But we rotated with dimension compensation, so invert that
+      return {
+        x: translated.z,
+        z: room.width - translated.x,
+      };
     case 180:
-      return { x: room.length - local.x, z: room.width - local.z };
+      // Inverse of 180° is 180°: (x, z) → (-x, -z)
+      return {
+        x: room.length - translated.x,
+        z: room.width - translated.z,
+      };
     case 270:
-      return { x: room.width - local.z, z: local.x };
+      // Inverse of 270° CCW is 270° CW: (x, z) → (-z, x)
+      return {
+        x: room.length - translated.z,
+        z: translated.x,
+      };
     default:
-      return local;
+      return translated;
   }
 }
 
 /**
  * Convert room-local coordinates to world coordinates
+ * Rotations are performed around the room's local origin (0, 0) consistently.
+ *
+ * For a room at local coords (x, z) with rotation:
+ * - 0°: (x, z) stays (x, z)
+ * - 90° CCW: (x, z) → (-z, x), then translate by width to keep in positive space
+ * - 180°: (x, z) → (-x, -z), then translate by (length, width)
+ * - 270° CCW: (x, z) → (z, -x), then translate by length
  */
 export function localToWorld(point: Position2D, room: Room): Position2D {
-  let local = { ...point };
+  let rotated: Position2D;
 
-  // Apply rotation
+  // Apply rotation around local origin (0, 0)
   switch (room.rotation) {
+    case 0:
+      // No rotation
+      rotated = { ...point };
+      break;
     case 90:
-      local = { x: room.width - point.z, z: point.x };
+      // 90° CCW: (x, z) → (-z, x)
+      // Translate by width to keep in positive space
+      rotated = {
+        x: room.width - point.z,
+        z: point.x,
+      };
       break;
     case 180:
-      local = { x: room.length - point.x, z: room.width - point.z };
+      // 180°: (x, z) → (-x, -z)
+      // Translate by (length, width) to keep in positive space
+      rotated = {
+        x: room.length - point.x,
+        z: room.width - point.z,
+      };
       break;
     case 270:
-      local = { x: point.z, z: room.length - point.x };
+      // 270° CCW (90° CW): (x, z) → (z, -x)
+      // Translate by length to keep in positive space
+      rotated = {
+        x: point.z,
+        z: room.length - point.x,
+      };
       break;
+    default:
+      rotated = { ...point };
   }
 
+  // Translate to world coordinates
   return {
-    x: room.position.x + local.x,
-    z: room.position.z + local.z,
+    x: room.position.x + rotated.x,
+    z: room.position.z + rotated.z,
   };
 }
