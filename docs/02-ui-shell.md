@@ -22,26 +22,26 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.1.1** Install Tailwind CSS:
+- [x] **2.1.1** Install Tailwind CSS:
   ```bash
   npm install -D tailwindcss postcss autoprefixer
   npx tailwindcss init -p
   ```
 
-- [ ] **2.1.2** Configure `tailwind.config.js`:
+- [x] **2.1.2** Configure `tailwind.config.js`:
   - Set content paths for `src/**/*.{ts,tsx}`
   - Add custom colors for room types
   - Configure dark mode as 'class'
   - Add container and breakpoint configuration
 
-- [ ] **2.1.3** Set up `src/index.css` with Tailwind directives:
+- [x] **2.1.3** Set up `src/index.css` with Tailwind directives:
   ```css
   @tailwind base;
   @tailwind components;
   @tailwind utilities;
   ```
 
-- [ ] **2.1.4** Initialize Shadcn/ui:
+- [x] **2.1.4** Initialize Shadcn/ui:
   ```bash
   npx shadcn-ui@latest init
   ```
@@ -49,7 +49,7 @@ This section builds the application shell including the main layout, top toolbar
   - Base color: Slate
   - CSS variables: Yes
 
-- [ ] **2.1.5** Install core Shadcn components:
+- [x] **2.1.5** Install core Shadcn components:
   ```bash
   npx shadcn-ui@latest add button
   npx shadcn-ui@latest add input
@@ -67,18 +67,18 @@ This section builds the application shell including the main layout, top toolbar
   npx shadcn-ui@latest add scroll-area
   ```
 
-- [ ] **2.1.6** Install additional dependencies:
+- [x] **2.1.6** Install additional dependencies:
   ```bash
   npm install lucide-react clsx tailwind-merge
   npm install @radix-ui/react-icons
   ```
 
-- [ ] **2.1.7** Create `src/lib/utils.ts` with `cn()` helper for class merging
+- [x] **2.1.7** Create `src/lib/utils.ts` with `cn()` helper for class merging
 
 ### Unit Tests
 
-- [ ] Verify Tailwind classes are being applied (render component, check classList)
-- [ ] Verify Shadcn Button renders correctly
+- [x] Verify Tailwind classes are being applied (render component, check classList)
+- [x] Verify Shadcn Button renders correctly
 
 ---
 
@@ -88,13 +88,13 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.2.1** Create `ThemeProvider` component:
+- [x] **2.2.1** Create `ThemeProvider` component:
   - Wraps app with theme context
   - Reads initial theme from localStorage or system preference
   - Applies `dark` class to document root when dark mode active
   - Syncs with `uiStore.theme`
 
-- [ ] **2.2.2** Create `useTheme` hook:
+- [x] **2.2.2** Create `useTheme` hook:
   ```typescript
   interface UseThemeReturn {
     theme: 'light' | 'dark' | 'system'
@@ -104,21 +104,21 @@ This section builds the application shell including the main layout, top toolbar
   }
   ```
 
-- [ ] **2.2.3** Handle system preference changes via `matchMedia` listener
+- [x] **2.2.3** Handle system preference changes via `matchMedia` listener
 
-- [ ] **2.2.4** Persist theme preference to localStorage
+- [x] **2.2.4** Persist theme preference to localStorage
 
-- [ ] **2.2.5** Create `ThemeToggle` component:
+- [x] **2.2.5** Create `ThemeToggle` component:
   - Icon button showing sun/moon
   - Dropdown with Light / Dark / System options
   - Keyboard accessible
 
 ### Unit Tests (`tests/unit/components/layout/ThemeProvider.test.tsx`)
 
-- [ ] Theme defaults to 'system'
-- [ ] `setTheme('dark')` adds dark class to root
-- [ ] Theme persists across remounts (mock localStorage)
-- [ ] System preference changes update resolved theme
+- [x] Theme defaults to 'system'
+- [x] `setTheme('dark')` adds dark class to root
+- [x] Theme persists across remounts (mock localStorage)
+- [x] System preference changes update resolved theme
 
 ---
 
@@ -128,7 +128,7 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.3.1** Create main layout structure:
+- [x] **2.3.1** Create main layout structure:
   ```
   ┌──────────────────────────────────────────────────────┐
   │                    TopToolbar                         │
@@ -143,29 +143,29 @@ This section builds the application shell including the main layout, top toolbar
   └──────────────────────────────────────────────────────┘
   ```
 
-- [ ] **2.3.2** Implement collapsible left sidebar:
+- [x] **2.3.2** Implement collapsible left sidebar:
   - Default width: 280px
   - Collapsed width: 48px (icons only)
   - Collapse button with chevron icon
   - Respects `uiStore.sidebarOpen`
 
-- [ ] **2.3.3** Implement collapsible right properties panel:
+- [x] **2.3.3** Implement collapsible right properties panel:
   - Default width: 320px
   - Can be fully hidden
   - Respects `uiStore.propertiesPanelOpen`
 
-- [ ] **2.3.4** Main content area fills remaining space
+- [x] **2.3.4** Main content area fills remaining space
 
-- [ ] **2.3.5** Add CSS transitions for sidebar collapse/expand (200ms ease)
+- [x] **2.3.5** Add CSS transitions for sidebar collapse/expand (200ms ease)
 
-- [ ] **2.3.6** Handle keyboard shortcut: `[` to toggle left sidebar, `]` to toggle right panel
+- [x] **2.3.6** Handle keyboard shortcut: `[` to toggle left sidebar, `]` to toggle right panel
 
 ### Unit Tests
 
-- [ ] Layout renders all sections
-- [ ] Sidebar toggles correctly
-- [ ] Properties panel toggles correctly
-- [ ] Keyboard shortcuts trigger toggles
+- [x] Layout renders all sections
+- [x] Sidebar toggles correctly
+- [x] Properties panel toggles correctly
+- [x] Keyboard shortcuts trigger toggles
 
 ---
 
