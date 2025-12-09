@@ -14,6 +14,8 @@ import {
   getWallLength,
   snapToGrid,
   clamp,
+  distance,
+  lerp,
   worldToLocal,
   localToWorld,
 } from '../../../src/services/geometry';
@@ -89,6 +91,40 @@ describe('Geometry Utilities', () => {
         type: 'bedroom',
         position: { x: 0, z: 0 },
         rotation: 90,
+      };
+
+      const center = getRoomCenter(room);
+      expect(center.x).toBe(1.5);
+      expect(center.z).toBe(2);
+    });
+
+    it('should calculate center for 180 rotated room', () => {
+      const room: Room = {
+        id: '1',
+        name: 'Test',
+        length: 4,
+        width: 3,
+        height: 2.7,
+        type: 'bedroom',
+        position: { x: 0, z: 0 },
+        rotation: 180,
+      };
+
+      const center = getRoomCenter(room);
+      expect(center.x).toBe(2);
+      expect(center.z).toBe(1.5);
+    });
+
+    it('should calculate center for 270 rotated room', () => {
+      const room: Room = {
+        id: '1',
+        name: 'Test',
+        length: 4,
+        width: 3,
+        height: 2.7,
+        type: 'bedroom',
+        position: { x: 0, z: 0 },
+        rotation: 270,
       };
 
       const center = getRoomCenter(room);
@@ -345,6 +381,23 @@ describe('Geometry Utilities', () => {
     it('should handle edge cases', () => {
       expect(clamp(0, 0, 10)).toBe(0);
       expect(clamp(10, 0, 10)).toBe(10);
+    });
+  });
+
+  describe('distance', () => {
+    it('should calculate distance between two points', () => {
+      expect(distance(0, 0, 3, 4)).toBe(5);
+      expect(distance(1, 1, 4, 5)).toBe(5);
+      expect(distance(0, 0, 0, 0)).toBe(0);
+    });
+  });
+
+  describe('lerp', () => {
+    it('should linear interpolate between values', () => {
+      expect(lerp(0, 10, 0.5)).toBe(5);
+      expect(lerp(0, 10, 0)).toBe(0);
+      expect(lerp(0, 10, 1)).toBe(10);
+      expect(lerp(10, 20, 0.5)).toBe(15);
     });
   });
 

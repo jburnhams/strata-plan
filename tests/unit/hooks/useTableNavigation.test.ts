@@ -140,4 +140,84 @@ describe('useTableNavigation', () => {
 
     expect(onAddRoom).toHaveBeenCalled();
   });
+
+  it('moves left/right with Arrow keys', () => {
+    const { result } = renderHook(() => useTableNavigation({ rooms: mockRooms, onAddRoom, onDeleteRoom }));
+
+    act(() => {
+      result.current.setFocusedCell({ roomId: '1', colIndex: 1 });
+    });
+
+    act(() => {
+        const eventRight = new KeyboardEvent('keydown', { key: 'ArrowRight' });
+        window.dispatchEvent(eventRight);
+    });
+    expect(result.current.focusedCell).toEqual({ roomId: '1', colIndex: 2 });
+
+    act(() => {
+        const eventLeft = new KeyboardEvent('keydown', { key: 'ArrowLeft' });
+        window.dispatchEvent(eventLeft);
+    });
+    expect(result.current.focusedCell).toEqual({ roomId: '1', colIndex: 1 });
+  });
+
+  it('Tab at last cell clears focus', () => {
+    const { result } = renderHook(() => useTableNavigation({ rooms: mockRooms, onAddRoom, onDeleteRoom }));
+
+    act(() => {
+      // Last room, last column
+      result.current.setFocusedCell({ roomId: '2', colIndex: 4 });
+    });
+
+    act(() => {
+        const event = new KeyboardEvent('keydown', { key: 'Tab' });
+        window.dispatchEvent(event);
+    });
+
+    expect(result.current.focusedCell).toBeNull();
+  });
+
+  it('Delete key triggers delete room', () => {
+    const { result } = renderHook(() => useTableNavigation({ rooms: mockRooms, onAddRoom, onDeleteRoom }));
+
+    act(() => {
+      result.current.setFocusedCell({ roomId: '1', colIndex: 0 });
+    });
+
+    act(() => {
+        const event = new KeyboardEvent('keydown', { key: 'Delete' });
+        window.dispatchEvent(event);
+    });
+
+    expect(onDeleteRoom).toHaveBeenCalledWith('1');
+  });
+
+  it('ignores Arrow keys and Delete when editing input', () => {
+    const { result } = renderHook(() => useTableNavigation({ rooms: mockRooms, onAddRoom, onDeleteRoom }));
+    onDeleteRoom.mockClear();
+
+    act(() => {
+      result.current.setFocusedCell({ roomId: '1', colIndex: 1 });
+    });
+
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    input.focus();
+
+    act(() => {
+        const eventRight = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true });
+        input.dispatchEvent(eventRight);
+    });
+    // Should not move
+    expect(result.current.focusedCell).toEqual({ roomId: '1', colIndex: 1 });
+
+    act(() => {
+        const eventDelete = new KeyboardEvent('keydown', { key: 'Delete', bubbles: true });
+        input.dispatchEvent(eventDelete);
+    });
+    // Should not delete
+    expect(onDeleteRoom).not.toHaveBeenCalled();
+
+    document.body.removeChild(input);
+  });
 });
