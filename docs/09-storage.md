@@ -23,13 +23,13 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Subtasks
 
-- [ ] **9.1.1** Install IndexedDB wrapper:
+- [x] **9.1.1** Install IndexedDB wrapper:
   ```bash
   npm install idb
   ```
   The `idb` library provides a Promise-based wrapper around IndexedDB.
 
-- [ ] **9.1.2** Define database schema:
+- [x] **9.1.2** Define database schema:
   ```typescript
   interface StrataPlanDB extends DBSchema {
     projects: {
@@ -57,7 +57,7 @@ This section implements client-side persistence using IndexedDB. All project dat
   }
   ```
 
-- [ ] **9.1.3** Create database initialization:
+- [x] **9.1.3** Create database initialization:
   ```typescript
   async function initDatabase(): Promise<IDBPDatabase<StrataPlanDB>>
   ```
@@ -65,21 +65,21 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Version: 1 (increment on schema changes)
   - Create object stores and indexes
 
-- [ ] **9.1.4** Handle database versioning:
+- [x] **9.1.4** Handle database versioning:
   - onupgradeneeded callback for migrations
   - Create stores if not exist
   - Run migrations for version bumps
 
-- [ ] **9.1.5** Export database instance:
+- [x] **9.1.5** Export database instance:
   - Singleton pattern
   - Lazy initialization
 
 ### Unit Tests (`tests/unit/services/storage/database.test.ts`)
 
-- [ ] Database initializes without error
-- [ ] Object stores created correctly
-- [ ] Indexes created correctly
-- [ ] Re-initialization returns same instance
+- [x] Database initializes without error
+- [x] Object stores created correctly
+- [x] Indexes created correctly
+- [x] Re-initialization returns same instance
 
 ---
 
@@ -89,7 +89,7 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Subtasks
 
-- [ ] **9.2.1** Create serialization function:
+- [x] **9.2.1** Create serialization function:
   ```typescript
   function serializeFloorplan(floorplan: Floorplan): SerializedFloorplan
   ```
@@ -97,7 +97,7 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Converts Date objects to ISO strings
   - Handles undefined optional values
 
-- [ ] **9.2.2** Create deserialization function:
+- [x] **9.2.2** Create deserialization function:
   ```typescript
   function deserializeFloorplan(data: SerializedFloorplan): Floorplan
   ```
@@ -105,28 +105,28 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Parses ISO strings to Date objects
   - Validates data structure
 
-- [ ] **9.2.3** Define SerializedFloorplan type:
+- [x] **9.2.3** Define SerializedFloorplan type:
   - Mirror of Floorplan but JSON-safe
   - Dates as strings
   - All properties defined (no undefined)
 
-- [ ] **9.2.4** Version tagging:
+- [x] **9.2.4** Version tagging:
   - Add `version` field to serialized data
   - Current version: "1.0.0"
   - Used for migration detection
 
-- [ ] **9.2.5** Validation on deserialize:
+- [x] **9.2.5** Validation on deserialize:
   - Check required fields exist
   - Validate data types
   - Return errors if invalid
 
 ### Unit Tests
 
-- [ ] Serialization produces valid JSON
-- [ ] Deserialization restores original structure
-- [ ] Round-trip maintains data integrity
-- [ ] Dates serialize/deserialize correctly
-- [ ] Invalid data throws/returns error
+- [x] Serialization produces valid JSON
+- [x] Deserialization restores original structure
+- [x] Round-trip maintains data integrity
+- [x] Dates serialize/deserialize correctly
+- [x] Invalid data throws/returns error
 
 ---
 
@@ -136,7 +136,7 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Subtasks
 
-- [ ] **9.3.1** Create project:
+- [x] **9.3.1** Create project:
   ```typescript
   async function saveProject(floorplan: Floorplan): Promise<void>
   ```
@@ -145,7 +145,7 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Store in IndexedDB
   - Update timestamps
 
-- [ ] **9.3.2** Read project:
+- [x] **9.3.2** Read project:
   ```typescript
   async function loadProject(id: string): Promise<Floorplan | null>
   ```
@@ -154,21 +154,21 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Run migrations if needed
   - Return null if not found
 
-- [ ] **9.3.3** Update project:
+- [x] **9.3.3** Update project:
   ```typescript
   async function updateProject(id: string, floorplan: Floorplan): Promise<void>
   ```
   - Update existing record
   - Update updatedAt timestamp
 
-- [ ] **9.3.4** Delete project:
+- [x] **9.3.4** Delete project:
   ```typescript
   async function deleteProject(id: string): Promise<void>
   ```
   - Remove from IndexedDB
   - Confirm deletion succeeded
 
-- [ ] **9.3.5** List projects:
+- [x] **9.3.5** List projects:
   ```typescript
   async function listProjects(): Promise<ProjectMetadata[]>
   ```
@@ -176,19 +176,19 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Sorted by updatedAt (newest first)
   - Doesn't load full floorplan data
 
-- [ ] **9.3.6** Check project exists:
+- [x] **9.3.6** Check project exists:
   ```typescript
   async function projectExists(id: string): Promise<boolean>
   ```
 
 ### Unit Tests
 
-- [ ] Save stores project correctly
-- [ ] Load retrieves saved project
-- [ ] Update modifies existing project
-- [ ] Delete removes project
-- [ ] List returns all projects sorted
-- [ ] Non-existent project returns null
+- [x] Save stores project correctly
+- [x] Load retrieves saved project
+- [x] Update modifies existing project
+- [x] Delete removes project
+- [x] List returns all projects sorted
+- [x] Non-existent project returns null
 
 ---
 
@@ -198,7 +198,7 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Subtasks
 
-- [ ] **9.4.1** Create auto-save hook:
+- [x] **9.4.1** Create auto-save hook:
   ```typescript
   function useAutoSave(floorplan: Floorplan | null, enabled: boolean): AutoSaveState
 
@@ -209,35 +209,35 @@ This section implements client-side persistence using IndexedDB. All project dat
   }
   ```
 
-- [ ] **9.4.2** Implement debounced save:
+- [x] **9.4.2** Implement debounced save:
   - Save triggers 30 seconds after last change
   - Or immediately on specific events (project close)
   - Cancel pending save if new changes occur
 
-- [ ] **9.4.3** Track dirty state:
+- [x] **9.4.3** Track dirty state:
   - Subscribe to store changes
   - Set dirty flag on any mutation
   - Clear dirty flag after successful save
 
-- [ ] **9.4.4** Update save status in UI store:
+- [x] **9.4.4** Update save status in UI store:
   - `uiStore.saveStatus`: 'saved' | 'saving' | 'error' | 'unsaved'
   - `uiStore.lastSaveTime`: Date
 
-- [ ] **9.4.5** Handle save errors:
+- [x] **9.4.5** Handle save errors:
   - Retry once on failure
   - Update status to 'error' if retry fails
   - Log error for debugging
 
-- [ ] **9.4.6** Prevent data loss:
+- [x] **9.4.6** Prevent data loss:
   - beforeunload event handler
   - Warn if unsaved changes: "You have unsaved changes"
 
 ### Unit Tests
 
-- [ ] Auto-save triggers after delay
-- [ ] Rapid changes debounce correctly
-- [ ] Error state set on failure
-- [ ] Dirty flag cleared after save
+- [x] Auto-save triggers after delay
+- [x] Rapid changes debounce correctly
+- [x] Error state set on failure
+- [x] Dirty flag cleared after save
 
 ---
 
@@ -247,14 +247,14 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Subtasks
 
-- [ ] **9.5.1** Implement manual save:
+- [x] **9.5.1** Implement manual save:
   ```typescript
   async function saveNow(): Promise<void>
   ```
   - Immediate save, bypasses debounce
   - Updates status during save
 
-- [ ] **9.5.2** Implement save-as:
+- [x] **9.5.2** Implement save-as:
   ```typescript
   async function saveAs(newName: string): Promise<string>
   ```
@@ -262,7 +262,7 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Keeps original project unchanged
   - Returns new project ID
 
-- [ ] **9.5.3** Implement revert:
+- [x] **9.5.3** Implement revert:
   ```typescript
   async function revertToSaved(projectId: string): Promise<Floorplan>
   ```
@@ -276,9 +276,9 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Unit Tests
 
-- [ ] Manual save stores immediately
-- [ ] Save-as creates new project
-- [ ] Revert loads last saved version
+- [x] Manual save stores immediately
+- [x] Save-as creates new project
+- [x] Revert loads last saved version
 
 ---
 
