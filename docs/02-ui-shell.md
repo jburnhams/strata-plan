@@ -22,26 +22,26 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.1.1** Install Tailwind CSS:
+- [x] **2.1.1** Install Tailwind CSS:
   ```bash
   npm install -D tailwindcss postcss autoprefixer
   npx tailwindcss init -p
   ```
 
-- [ ] **2.1.2** Configure `tailwind.config.js`:
+- [x] **2.1.2** Configure `tailwind.config.js`:
   - Set content paths for `src/**/*.{ts,tsx}`
   - Add custom colors for room types
   - Configure dark mode as 'class'
   - Add container and breakpoint configuration
 
-- [ ] **2.1.3** Set up `src/index.css` with Tailwind directives:
+- [x] **2.1.3** Set up `src/index.css` with Tailwind directives:
   ```css
   @tailwind base;
   @tailwind components;
   @tailwind utilities;
   ```
 
-- [ ] **2.1.4** Initialize Shadcn/ui:
+- [x] **2.1.4** Initialize Shadcn/ui:
   ```bash
   npx shadcn-ui@latest init
   ```
@@ -49,7 +49,7 @@ This section builds the application shell including the main layout, top toolbar
   - Base color: Slate
   - CSS variables: Yes
 
-- [ ] **2.1.5** Install core Shadcn components:
+- [x] **2.1.5** Install core Shadcn components:
   ```bash
   npx shadcn-ui@latest add button
   npx shadcn-ui@latest add input
@@ -67,18 +67,18 @@ This section builds the application shell including the main layout, top toolbar
   npx shadcn-ui@latest add scroll-area
   ```
 
-- [ ] **2.1.6** Install additional dependencies:
+- [x] **2.1.6** Install additional dependencies:
   ```bash
   npm install lucide-react clsx tailwind-merge
   npm install @radix-ui/react-icons
   ```
 
-- [ ] **2.1.7** Create `src/lib/utils.ts` with `cn()` helper for class merging
+- [x] **2.1.7** Create `src/lib/utils.ts` with `cn()` helper for class merging
 
 ### Unit Tests
 
-- [ ] Verify Tailwind classes are being applied (render component, check classList)
-- [ ] Verify Shadcn Button renders correctly
+- [x] Verify Tailwind classes are being applied (render component, check classList)
+- [x] Verify Shadcn Button renders correctly
 
 ---
 
