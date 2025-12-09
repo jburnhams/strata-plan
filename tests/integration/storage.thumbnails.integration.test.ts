@@ -7,8 +7,9 @@ describe('Thumbnail Generation Integration', () => {
   let createElementSpy: jest.SpyInstance;
 
   beforeAll(() => {
+    const originalCreateElement = document.createElement.bind(document);
     // Spy on document.createElement to return a real canvas from @napi-rs/canvas
-    createElementSpy = jest.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+    createElementSpy = jest.spyOn(document, 'createElement').mockImplementation((tagName: string, options) => {
       if (tagName === 'canvas') {
         const canvas = createCanvas(200, 150);
         // We need to cast it to any or HTMLCanvasElement because the types don't perfectly overlap
@@ -16,7 +17,7 @@ describe('Thumbnail Generation Integration', () => {
         return canvas as unknown as HTMLCanvasElement;
       }
       // For other elements, use the original implementation (provided by JSDOM)
-      return (jest.requireActual('jsdom').JSDOM.fragment(`<${tagName}></${tagName}>`).firstChild) as HTMLElement;
+      return originalCreateElement(tagName, options);
     });
   });
 

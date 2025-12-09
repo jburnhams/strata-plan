@@ -1,4 +1,6 @@
 import 'fake-indexeddb/auto';
+import { createCanvas } from '@napi-rs/canvas';
+
 if (!global.structuredClone) {
   global.structuredClone = (val: any) => JSON.parse(JSON.stringify(val));
 }
@@ -8,6 +10,26 @@ import { Floorplan } from '@/types/floorplan';
 import { _resetDatabaseInstance } from '@/services/storage/database';
 
 describe('Storage Integration', () => {
+  let createElementSpy: jest.SpyInstance;
+
+  beforeAll(() => {
+    const originalCreateElement = document.createElement.bind(document);
+    // Spy on document.createElement to return a real canvas from @napi-rs/canvas
+    createElementSpy = jest.spyOn(document, 'createElement').mockImplementation((tagName: string, options) => {
+      if (tagName === 'canvas') {
+        const canvas = createCanvas(200, 150);
+        return canvas as unknown as HTMLCanvasElement;
+      }
+      return originalCreateElement(tagName, options);
+    });
+  });
+
+  afterAll(() => {
+    if (createElementSpy) {
+      createElementSpy.mockRestore();
+    }
+  });
+
   // Ensure we start with fresh DB
   beforeEach(async () => {
     await _resetDatabaseInstance();
@@ -69,7 +91,7 @@ describe('Storage Integration', () => {
     // Should be sorted by updatedAt descending
     expect(list[0].id).toBe('p2');
     expect(list[1].id).toBe('p1');
-    expect(list[0].thumbnailDataUrl).toBeUndefined(); // We didn't save thumbnail
+    expect(list[0].thumbnailDataUrl).toBeDefined();
   });
 
   it('updates existing project', async () => {
