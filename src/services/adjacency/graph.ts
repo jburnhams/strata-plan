@@ -130,7 +130,36 @@ export function buildGraph(rooms: Room[]): AdjacencyGraph {
  * Rebuilds connections for a set of rooms, returning the new list of connections.
  * This helper is used to update the store when room geometry changes.
  */
-export function calculateAllConnections(rooms: Room[]): RoomConnection[] {
+/**
+ * Merges newly detected connections with existing ones to preserve IDs and properties.
+ */
+export function mergeConnections(newConnections: RoomConnection[], oldConnections: RoomConnection[]): RoomConnection[] {
+  return newConnections.map(newConn => {
+    // Find matching existing connection (order-insensitive)
+    const existing = oldConnections.find(oldConn =>
+      (oldConn.room1Id === newConn.room1Id && oldConn.room2Id === newConn.room2Id) ||
+      (oldConn.room1Id === newConn.room2Id && oldConn.room2Id === newConn.room1Id)
+    );
+
+    if (existing) {
+      // Keep existing ID and doors
+      return {
+        ...newConn,
+        id: existing.id,
+        doors: existing.doors
+      };
+    }
+
+    return newConn;
+  });
+}
+
+/**
+ * Rebuilds connections for a set of rooms, returning the new list of connections.
+ * This helper is used to update the store when room geometry changes.
+ */
+export function calculateAllConnections(rooms: Room[], oldConnections: RoomConnection[] = []): RoomConnection[] {
   const graph = buildGraph(rooms);
-  return graph.getAllConnections();
+  const newConnections = graph.getAllConnections();
+  return mergeConnections(newConnections, oldConnections);
 }

@@ -4,6 +4,7 @@ import { LeftSidebar } from './LeftSidebar';
 import { PropertiesPanel } from './PropertiesPanel';
 import { StatusBar } from './StatusBar';
 import { useUIStore } from '../../stores/uiStore';
+import { useConnectionSync } from '../../hooks/useAdjacency';
 
 interface AppShellProps {
   children?: React.ReactNode;
@@ -11,6 +12,9 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const { toggleSidebar, togglePropertiesPanel } = useUIStore();
+
+  // Enable automatic connection recalculation
+  useConnectionSync();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
