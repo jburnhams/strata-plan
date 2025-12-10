@@ -4,7 +4,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Position2D } from '../types';
+import type { Position2D, EditorMode } from '../types';
 import {
   DEFAULT_GRID_SIZE,
   DEFAULT_ZOOM_LEVEL,
@@ -37,6 +37,7 @@ export interface UIState {
   showMeasurements: boolean;
   zoomLevel: number;
   panOffset: Position2D;
+  mode: EditorMode;
   saveStatus: SaveStatus;
   lastSaveTime: Date | null;
 }
@@ -46,6 +47,7 @@ export interface UIState {
  */
 export interface UIActions {
   setTheme: (theme: Theme) => void;
+  setMode: (mode: EditorMode) => void;
   toggleSidebar: () => void;
   togglePropertiesPanel: () => void;
   toggleGrid: () => void;
@@ -81,6 +83,7 @@ const initialState: UIState = {
   showMeasurements: true,
   zoomLevel: DEFAULT_ZOOM_LEVEL,
   panOffset: { x: 0, z: 0 },
+  mode: 'table',
   saveStatus: 'saved',
   lastSaveTime: null,
 };
@@ -95,6 +98,10 @@ export const useUIStore = create<UIStore>()(
 
       setTheme: (theme: Theme) => {
         set({ theme });
+      },
+
+      setMode: (mode: EditorMode) => {
+        set({ mode });
       },
 
       toggleSidebar: () => {
@@ -167,6 +174,7 @@ export const useUIStore = create<UIStore>()(
       name: 'strataPlan-ui-preferences',
       partialize: (state) => ({
         theme: state.theme,
+        mode: state.mode,
         gridSize: state.gridSize,
         snapToGrid: state.snapToGrid,
         showGrid: state.showGrid,

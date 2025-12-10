@@ -20,3 +20,4 @@ export const DEFAULT_WINDOW_SILL = 0.9; // meters (from floor)
 export const DEFAULT_GRID_SIZE = 0.5; // meters
 export const DEFAULT_ZOOM_LEVEL = 1.0;
 export const ZOOM_INCREMENT = 1.25;
+export const PIXELS_PER_METER = 50; // pixels
