@@ -214,7 +214,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [ ] **5.5.1** Create material factory:
+- [x] **5.5.1** Create material factory:
   ```typescript
   function createRoomMaterial(room: Room): {
     floor: THREE.Material
@@ -223,35 +223,35 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   }
   ```
 
-- [ ] **5.5.2** Implement floor materials:
+- [x] **5.5.2** Implement floor materials:
   - Use room color as base
   - MeshStandardMaterial for lighting interaction
   - Slight roughness for realistic look
 
-- [ ] **5.5.3** Implement wall materials:
+- [x] **5.5.3** Implement wall materials:
   - Lighter shade of room color
   - Or white/cream for neutral walls
   - Double-sided rendering for interior views
 
-- [ ] **5.5.4** Implement ceiling materials:
+- [x] **5.5.4** Implement ceiling materials:
   - White or very light color
   - Flat shading
 
-- [ ] **5.5.5** Create material quality levels:
+- [x] **5.5.5** Create material quality levels:
   - **Simple**: MeshBasicMaterial (no lighting, fastest)
   - **Standard**: MeshStandardMaterial (balanced)
   - **Detailed**: MeshPhysicalMaterial with textures (future)
 
-- [ ] **5.5.6** Handle transparency:
+- [x] **5.5.6** Handle transparency:
   - Optional: Make walls semi-transparent
   - Slider to control wall opacity (0-100%)
   - Helps see interior layout
 
 ### Unit Tests
 
-- [ ] Material created with correct color
-- [ ] Quality levels produce different material types
-- [ ] Transparency affects opacity value
+- [x] Material created with correct color
+- [x] Quality levels produce different material types
+- [x] Transparency affects opacity value
 
 ---
 
