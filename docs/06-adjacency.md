@@ -23,26 +23,26 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.1.1** Create `detectAdjacency(room1: Room, room2: Room): AdjacencyInfo | null`
+- [x] **6.1.1** Create `detectAdjacency(room1: Room, room2: Room): AdjacencyInfo | null`
   - Returns adjacency info if rooms are adjacent
   - Returns null if rooms don't touch
 
-- [ ] **6.1.2** Define adjacency criteria:
+- [x] **6.1.2** Define adjacency criteria:
   - Two rooms are adjacent if they share a wall edge
   - Tolerance: 0.01m (1cm) for floating point comparison
   - Overlap required: minimum 0.1m shared wall length
 
-- [ ] **6.1.3** Implement edge comparison:
+- [x] **6.1.3** Implement edge comparison:
   - Get all 4 edges of each room
   - Check if any edges overlap (same line, overlapping segments)
   - Calculate overlap length
 
-- [ ] **6.1.4** Determine which walls touch:
+- [x] **6.1.4** Determine which walls touch:
   - room1.north touches room2.south (and vice versa)
   - room1.east touches room2.west (and vice versa)
   - Return wall sides for both rooms
 
-- [ ] **6.1.5** Calculate shared wall segment:
+- [x] **6.1.5** Calculate shared wall segment:
   ```typescript
   interface SharedWall {
     room1Wall: WallSide
@@ -53,18 +53,18 @@ The adjacency system automatically detects which rooms share walls, calculates s
   }
   ```
 
-- [ ] **6.1.6** Handle rotated rooms:
+- [x] **6.1.6** Handle rotated rooms:
   - Account for room rotation when determining wall sides
   - Transform room coordinates before comparison
 
 ### Unit Tests (`tests/unit/services/adjacency/detection.test.ts`)
 
-- [ ] Adjacent rooms detected correctly (horizontal)
-- [ ] Adjacent rooms detected correctly (vertical)
-- [ ] Non-adjacent rooms return null
-- [ ] Partial overlap calculated correctly
-- [ ] Tolerance handles floating point errors
-- [ ] Rotated rooms detected correctly
+- [x] Adjacent rooms detected correctly (horizontal)
+- [x] Adjacent rooms detected correctly (vertical)
+- [x] Non-adjacent rooms return null
+- [x] Partial overlap calculated correctly
+- [x] Tolerance handles floating point errors
+- [x] Rotated rooms detected correctly
 
 ---
 
@@ -74,7 +74,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.2.1** Create `AdjacencyGraph` class:
+- [x] **6.2.1** Create `AdjacencyGraph` class:
   ```typescript
   class AdjacencyGraph {
     private connections: Map<string, RoomConnection[]>
@@ -88,11 +88,11 @@ The adjacency system automatically detects which rooms share walls, calculates s
   }
   ```
 
-- [ ] **6.2.2** Implement graph data structure:
+- [x] **6.2.2** Implement graph data structure:
   - Bidirectional edges (A→B implies B→A)
   - Store connection data on edges
 
-- [ ] **6.2.3** Create `buildGraph(rooms: Room[]): AdjacencyGraph`
+- [x] **6.2.3** Create `buildGraph(rooms: Room[]): AdjacencyGraph`
   - Iterate all room pairs
   - Detect adjacencies
   - Build graph from results
@@ -108,10 +108,10 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Unit Tests
 
-- [ ] Graph stores connections correctly
-- [ ] Bidirectional lookup works
-- [ ] getAdjacentRoomIds returns correct rooms
-- [ ] buildGraph creates correct connections
+- [x] Graph stores connections correctly
+- [x] Bidirectional lookup works
+- [x] getAdjacentRoomIds returns correct rooms
+- [x] buildGraph creates correct connections
 - [ ] Rebuild clears and recreates
 
 ---
