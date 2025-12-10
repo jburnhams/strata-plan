@@ -81,7 +81,9 @@ function checkSharedWall(w1: WallSegment, w2: WallSegment): SharedWall | null {
   const overlapEnd = Math.min(end1, end2);
   const overlapLen = overlapEnd - overlapStart;
 
-  if (overlapLen < MIN_SHARED_LENGTH) return null;
+  // Check if overlap length is within meaningful range
+  // Using a slightly smaller epsilon for float comparison safety
+  if (overlapLen < MIN_SHARED_LENGTH - 0.0001) return null;
 
   // Calculate start/end position (0.0-1.0) along room1's wall
   const len1 = end1 - start1;
