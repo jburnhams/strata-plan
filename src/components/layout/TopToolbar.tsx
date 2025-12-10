@@ -54,6 +54,7 @@ export function TopToolbar({ className }: TopToolbarProps) {
     zoomIn,
     zoomOut,
     resetZoom,
+    setMode,
   } = useUIStore();
 
   const openDialog = useDialogStore((state) => state.openDialog);
@@ -185,15 +186,15 @@ export function TopToolbar({ className }: TopToolbarProps) {
             <Button variant="ghost" size="sm" className="h-8">View</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setMode('table')}>
               <span>Table View</span>
               <span className="ml-auto text-xs tracking-widest opacity-60">Ctrl+1</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setMode('canvas')}>
               <span>2D Editor</span>
               <span className="ml-auto text-xs tracking-widest opacity-60">Ctrl+2</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setMode('view3d')}>
               <span>3D Preview</span>
               <span className="ml-auto text-xs tracking-widest opacity-60">Ctrl+3</span>
             </DropdownMenuItem>
