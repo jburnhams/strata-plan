@@ -58,12 +58,19 @@ describe('RoomLayer', () => {
     const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
     const roomId = rooms[0].id;
 
-    const rect = screen.getByTestId(`room-shape-${roomId}`);
+    // getByTestId returns the <g> element
+    const group = screen.getByTestId(`room-shape-${roomId}`);
+    const rect = group.querySelector('rect');
+
     expect(rect).toBeInTheDocument();
     expect(rect).toHaveAttribute('x', '1');
     expect(rect).toHaveAttribute('y', '2');
     expect(rect).toHaveAttribute('width', '5');
     expect(rect).toHaveAttribute('height', '4');
+    // Note: fill is on the rect
+    // But ROOM_TYPE_COLORS.bedroom might be uppercase/lowercase sensitive in test match?
+    // It should be exact match.
+    // Also, rect fill in component is set via attribute `fill={fill}`
     expect(rect).toHaveAttribute('fill', ROOM_TYPE_COLORS.bedroom);
   });
 
@@ -87,12 +94,12 @@ describe('RoomLayer', () => {
 
     const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
     const room = rooms[0];
-    const rect = screen.getByTestId(`room-shape-${room.id}`);
+    const group = screen.getByTestId(`room-shape-${room.id}`);
 
     const cx = 10 + 2; // x + length/2
     const cy = 10 + 1; // z + width/2
 
-    expect(rect).toHaveAttribute('transform', `rotate(90, ${cx}, ${cy})`);
+    expect(group).toHaveAttribute('transform', `rotate(90, ${cx}, ${cy})`);
   });
 
   it('handles click selection', () => {
@@ -111,9 +118,9 @@ describe('RoomLayer', () => {
 
     const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
     const room = rooms[0];
-    const rect = screen.getByTestId(`room-shape-${room.id}`);
+    const group = screen.getByTestId(`room-shape-${room.id}`);
 
-    fireEvent.click(rect);
+    fireEvent.click(group);
 
     expect(useFloorplanStore.getState().selectedRoomId).toBe(room.id);
   });
@@ -158,12 +165,12 @@ describe('RoomLayer', () => {
 
     const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
     const r1 = rooms[0];
-    const rect = screen.getByTestId(`room-shape-${r1.id}`);
+    const group = screen.getByTestId(`room-shape-${r1.id}`);
 
-    fireEvent.mouseEnter(rect);
+    fireEvent.mouseEnter(group);
     expect(useUIStore.getState().hoveredRoomId).toBe(r1.id);
 
-    fireEvent.mouseLeave(rect);
+    fireEvent.mouseLeave(group);
     expect(useUIStore.getState().hoveredRoomId).toBe(null);
   });
 
@@ -179,7 +186,8 @@ describe('RoomLayer', () => {
 
     const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
     const r1 = rooms[0];
-    const rect = screen.getByTestId(`room-shape-${r1.id}`);
+    const group = screen.getByTestId(`room-shape-${r1.id}`);
+    const rect = group.querySelector('rect');
 
     // Default
     expect(rect).toHaveAttribute('stroke-width', '0.05');
