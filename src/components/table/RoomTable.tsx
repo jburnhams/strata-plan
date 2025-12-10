@@ -7,6 +7,7 @@ import { AddRoomButton } from './AddRoomButton';
 import { TableTotals } from './TableTotals';
 import { useToast } from '../../hooks/use-toast';
 import { useTableSort, SortColumn } from '../../hooks/useTableSort';
+import { useTableFilter } from '../../hooks/useTableFilter';
 import { calculateAutoLayout } from '../../services/layout/autoLayout';
 import { TableControls } from './TableControls';
 
@@ -24,11 +25,19 @@ export const RoomTable: React.FC = () => {
   const units = currentFloorplan?.units || 'meters';
 
   const {
+    searchTerm,
+    setSearchTerm,
+    filterType,
+    setFilterType,
+    filteredRooms
+  } = useTableFilter(rooms);
+
+  const {
     sortColumn,
     sortDirection,
     sortedRooms,
     toggleSort
-  } = useTableSort(rooms);
+  } = useTableSort(filteredRooms);
 
   const handleDeleteRoom = (id: string) => {
     deleteRoom(id);
@@ -121,7 +130,13 @@ export const RoomTable: React.FC = () => {
 
   return (
     <div className="room-table-container flex flex-col">
-      <TableControls onAutoLayout={handleAutoLayout} />
+      <TableControls
+        onAutoLayout={handleAutoLayout}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        filterType={filterType}
+        onFilterTypeChange={setFilterType}
+      />
       <table className="room-table w-full border-collapse">
         <thead className="sticky top-0 z-10 bg-white shadow-sm">
           <tr className="bg-gray-50 border-b border-gray-300">
