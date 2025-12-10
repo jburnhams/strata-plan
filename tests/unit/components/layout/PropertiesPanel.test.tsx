@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { PropertiesPanel } from '../../../../src/components/layout/PropertiesPanel';
 import { useUIStore } from '../../../../src/stores/uiStore';
 import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
-import { Room } from '../../../../src/types';
+import { Room, Wall, Door, Window } from '../../../../src/types';
 
 // Mock stores
 jest.mock('../../../../src/stores/uiStore');
@@ -23,6 +23,12 @@ describe('PropertiesPanel', () => {
   const mockTogglePropertiesPanel = jest.fn();
   const mockUpdateRoom = jest.fn();
   const mockDeleteRoom = jest.fn();
+  const mockUpdateWall = jest.fn();
+  const mockDeleteWall = jest.fn();
+  const mockUpdateDoor = jest.fn();
+  const mockDeleteDoor = jest.fn();
+  const mockUpdateWindow = jest.fn();
+  const mockDeleteWindow = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -42,8 +48,17 @@ describe('PropertiesPanel', () => {
         getRoomCount: () => 0,
         getTotalArea: () => 0,
         getSelectedRoom: () => null,
+        getWallById: () => null,
+        getDoorById: () => null,
+        getWindowById: () => null,
         updateRoom: mockUpdateRoom,
         deleteRoom: mockDeleteRoom,
+        updateWall: mockUpdateWall,
+        deleteWall: mockDeleteWall,
+        updateDoor: mockUpdateDoor,
+        deleteDoor: mockDeleteDoor,
+        updateWindow: mockUpdateWindow,
+        deleteWindow: mockDeleteWindow,
       };
       return selector(state);
     });
@@ -270,5 +285,100 @@ describe('PropertiesPanel', () => {
 
     fireEvent.change(lengthInput, { target: { value: 'abc' } });
     expect(mockUpdateRoom).not.toHaveBeenCalled();
+  });
+
+  it('renders WallPropertiesPanel when a wall is selected', () => {
+    const mockWall: Wall = {
+      id: 'wall-1',
+      from: { x: 0, z: 0 },
+      to: { x: 5, z: 0 },
+      thickness: 0.2,
+      material: 'drywall',
+    };
+
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        selectedRoomId: null,
+        selectedWallId: 'wall-1',
+        selectedDoorId: null,
+        selectedWindowId: null,
+        currentFloorplan: { units: 'meters' },
+        getWallById: () => mockWall,
+        updateWall: mockUpdateWall,
+        deleteWall: mockDeleteWall,
+      };
+      return selector(state);
+    });
+
+    render(<PropertiesPanel />);
+    expect(screen.getByTestId('wall-properties-panel')).toBeInTheDocument();
+    expect(screen.getByText('Wall Properties')).toBeInTheDocument();
+
+    // Check if thickness is displayed
+    expect(screen.getByText('0.20')).toBeInTheDocument();
+  });
+
+  it('renders DoorPropertiesPanel when a door is selected', () => {
+    const mockDoor: Door = {
+      id: 'door-1',
+      roomId: 'room-1',
+      wallSide: 'north',
+      position: 0.5,
+      width: 0.9,
+      height: 2.1,
+      type: 'single',
+      swing: 'inward',
+      handleSide: 'right',
+    };
+
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        selectedRoomId: null,
+        selectedWallId: null,
+        selectedDoorId: 'door-1',
+        selectedWindowId: null,
+        currentFloorplan: { units: 'meters' },
+        getDoorById: () => mockDoor,
+        updateDoor: mockUpdateDoor,
+        deleteDoor: mockDeleteDoor,
+      };
+      return selector(state);
+    });
+
+    render(<PropertiesPanel />);
+    expect(screen.getByTestId('door-properties-panel')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('0.9')).toBeInTheDocument();
+  });
+
+  it('renders WindowPropertiesPanel when a window is selected', () => {
+    const mockWindow: Window = {
+      id: 'window-1',
+      roomId: 'room-1',
+      wallSide: 'north',
+      position: 0.5,
+      width: 1.2,
+      height: 1.2,
+      sillHeight: 0.9,
+      frameType: 'single',
+    };
+
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        selectedRoomId: null,
+        selectedWallId: null,
+        selectedDoorId: null,
+        selectedWindowId: 'window-1',
+        currentFloorplan: { units: 'meters' },
+        getWindowById: () => mockWindow,
+        updateWindow: mockUpdateWindow,
+        deleteWindow: mockDeleteWindow,
+      };
+      return selector(state);
+    });
+
+    render(<PropertiesPanel />);
+    expect(screen.getByTestId('window-properties-panel')).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Width/)).toHaveValue(1.2);
+    expect(screen.getByLabelText(/^Height/)).toHaveValue(1.2);
   });
 });

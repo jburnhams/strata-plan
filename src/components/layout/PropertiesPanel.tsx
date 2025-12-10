@@ -7,6 +7,9 @@ import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { NoSelectionPanel } from '../properties/NoSelectionPanel';
 import { RoomPropertiesPanel } from '../properties/RoomPropertiesPanel';
+import { WallPropertiesPanel } from '../properties/WallPropertiesPanel';
+import { DoorPropertiesPanel } from '../properties/DoorPropertiesPanel';
+import { WindowPropertiesPanel } from '../properties/WindowPropertiesPanel';
 
 interface PropertiesPanelProps {
   className?: string;
@@ -25,15 +28,14 @@ export function PropertiesPanel({ className }: PropertiesPanelProps) {
     if (selectedRoomId) {
       return <RoomPropertiesPanel />;
     }
-    // TODO: Add Wall, Door, Window panels
     if (selectedWallId) {
-      return <div className="p-4 text-center text-muted-foreground">Wall properties not implemented yet</div>;
+      return <WallPropertiesPanel />;
     }
     if (selectedDoorId) {
-      return <div className="p-4 text-center text-muted-foreground">Door properties not implemented yet</div>;
+      return <DoorPropertiesPanel />;
     }
     if (selectedWindowId) {
-      return <div className="p-4 text-center text-muted-foreground">Window properties not implemented yet</div>;
+      return <WindowPropertiesPanel />;
     }
     return <NoSelectionPanel />;
   };
