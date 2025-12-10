@@ -306,15 +306,15 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.6.1** Create panel container:
+- [x] **2.6.1** Create panel container:
   - Header showing selection type ("Room Properties", "No Selection", etc.)
   - Scrollable content area
 
-- [ ] **2.6.2** Create `NoSelectionPanel`:
+- [x] **2.6.2** Create `NoSelectionPanel`:
   - Message: "Select a room to edit its properties"
   - Project summary stats (total area, room count)
 
-- [ ] **2.6.3** Create `RoomPropertiesPanel`:
+- [x] **2.6.3** Create `RoomPropertiesPanel`:
   - Name input field
   - Type dropdown
   - Dimensions: Length, Width, Height inputs with unit suffix
@@ -348,16 +348,16 @@ This section builds the application shell including the main layout, top toolbar
   - Common properties editable (batch edit)
   - Shows "Mixed" for differing values
 
-- [ ] **2.6.8** Connect panels to Zustand store:
+- [x] **2.6.8** Connect panels to Zustand store:
   - Read from store
   - Dispatch updates on change
 
 ### Unit Tests
 
-- [ ] Correct panel shown based on selection type
-- [ ] Input changes dispatch store updates
-- [ ] Validation errors display inline
-- [ ] Delete shows confirmation dialog
+- [x] Correct panel shown based on selection type
+- [x] Input changes dispatch store updates
+- [x] Validation errors display inline
+- [x] Delete shows confirmation dialog
 - [ ] Multi-selection shows common properties
 
 ---

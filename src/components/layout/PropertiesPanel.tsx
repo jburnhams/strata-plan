@@ -1,8 +1,12 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
 import { useUIStore } from '../../stores/uiStore';
-import { ChevronRight, Settings2 } from 'lucide-react';
+import { useFloorplanStore } from '../../stores/floorplanStore';
+import { ChevronRight } from 'lucide-react';
 import { Button } from '../ui/button';
+import { ScrollArea } from '../ui/scroll-area';
+import { NoSelectionPanel } from '../properties/NoSelectionPanel';
+import { RoomPropertiesPanel } from '../properties/RoomPropertiesPanel';
 
 interface PropertiesPanelProps {
   className?: string;
@@ -10,18 +14,39 @@ interface PropertiesPanelProps {
 
 export function PropertiesPanel({ className }: PropertiesPanelProps) {
   const { propertiesPanelOpen, togglePropertiesPanel } = useUIStore();
+  const selectedRoomId = useFloorplanStore(state => state.selectedRoomId);
+  const selectedWallId = useFloorplanStore(state => state.selectedWallId);
+  const selectedDoorId = useFloorplanStore(state => state.selectedDoorId);
+  const selectedWindowId = useFloorplanStore(state => state.selectedWindowId);
 
   if (!propertiesPanelOpen) return null;
+
+  const renderContent = () => {
+    if (selectedRoomId) {
+      return <RoomPropertiesPanel />;
+    }
+    // TODO: Add Wall, Door, Window panels
+    if (selectedWallId) {
+      return <div className="p-4 text-center text-muted-foreground">Wall properties not implemented yet</div>;
+    }
+    if (selectedDoorId) {
+      return <div className="p-4 text-center text-muted-foreground">Door properties not implemented yet</div>;
+    }
+    if (selectedWindowId) {
+      return <div className="p-4 text-center text-muted-foreground">Window properties not implemented yet</div>;
+    }
+    return <NoSelectionPanel />;
+  };
 
   return (
     <aside
       className={cn(
-        "flex w-[320px] flex-col border-l bg-muted/10 transition-all duration-200 ease-in-out",
+        "flex w-[320px] flex-col border-l bg-background transition-all duration-200 ease-in-out",
         className
       )}
       data-testid="properties-panel"
     >
-      <div className="flex h-12 items-center justify-between border-b px-4">
+      <div className="flex h-12 items-center justify-between border-b px-4 shrink-0">
         <span className="text-sm font-semibold">Properties</span>
         <Button
           variant="ghost"
@@ -33,12 +58,11 @@ export function PropertiesPanel({ className }: PropertiesPanelProps) {
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
-      <div className="flex-1 p-4">
-        <div className="flex flex-col items-center justify-center h-32 text-muted-foreground space-y-2 border-2 border-dashed rounded-lg">
-          <Settings2 className="h-8 w-8" />
-          <span className="text-sm">Select an item</span>
+      <ScrollArea className="flex-1">
+        <div className="p-4">
+          {renderContent()}
         </div>
-      </div>
+      </ScrollArea>
     </aside>
   );
 }
