@@ -1,17 +1,16 @@
 import React from 'react';
+import { AppShell } from './components/layout/AppShell';
+import { ThemeProvider } from './components/layout/ThemeProvider';
 
 function App() {
   return (
-    <div className="app">
-      <h1>StrataPlan</h1>
-      <p>Browser-based, offline-first floorplan application</p>
-      <p>
-        <strong>Status:</strong> Core data model implemented ✅
-      </p>
-      <p>
-        <em>UI components coming soon...</em>
-      </p>
-    </div>
+    <ThemeProvider defaultTheme="system" storageKey="strata-plan-theme">
+      <AppShell>
+        <div className="flex items-center justify-center h-full">
+          <p className="text-muted-foreground">Canvas Area</p>
+        </div>
+      </AppShell>
+    </ThemeProvider>
   );
 }
 

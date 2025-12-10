@@ -128,7 +128,7 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.3.1** Create main layout structure:
+- [x] **2.3.1** Create main layout structure:
   ```
   ┌──────────────────────────────────────────────────────┐
   │                    TopToolbar                         │
@@ -143,29 +143,29 @@ This section builds the application shell including the main layout, top toolbar
   └──────────────────────────────────────────────────────┘
   ```
 
-- [ ] **2.3.2** Implement collapsible left sidebar:
+- [x] **2.3.2** Implement collapsible left sidebar:
   - Default width: 280px
   - Collapsed width: 48px (icons only)
   - Collapse button with chevron icon
   - Respects `uiStore.sidebarOpen`
 
-- [ ] **2.3.3** Implement collapsible right properties panel:
+- [x] **2.3.3** Implement collapsible right properties panel:
   - Default width: 320px
   - Can be fully hidden
   - Respects `uiStore.propertiesPanelOpen`
 
-- [ ] **2.3.4** Main content area fills remaining space
+- [x] **2.3.4** Main content area fills remaining space
 
-- [ ] **2.3.5** Add CSS transitions for sidebar collapse/expand (200ms ease)
+- [x] **2.3.5** Add CSS transitions for sidebar collapse/expand (200ms ease)
 
-- [ ] **2.3.6** Handle keyboard shortcut: `[` to toggle left sidebar, `]` to toggle right panel
+- [x] **2.3.6** Handle keyboard shortcut: `[` to toggle left sidebar, `]` to toggle right panel
 
 ### Unit Tests
 
-- [ ] Layout renders all sections
-- [ ] Sidebar toggles correctly
-- [ ] Properties panel toggles correctly
-- [ ] Keyboard shortcuts trigger toggles
+- [x] Layout renders all sections
+- [x] Sidebar toggles correctly
+- [x] Properties panel toggles correctly
+- [x] Keyboard shortcuts trigger toggles
 
 ---
 
