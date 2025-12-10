@@ -354,7 +354,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [ ] **5.8.1** Create `useSceneSync` hook:
+- [x] **5.8.1** Create `useSceneSync` hook:
   - Subscribes to floorplan store changes
   - Updates 3D scene when rooms change
   - Debounced updates (100ms) for performance
