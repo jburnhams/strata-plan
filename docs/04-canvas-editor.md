@@ -80,13 +80,13 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Subtasks
 
-- [ ] **4.2.1** Create grid overlay component:
+- [x] **4.2.1** Create grid overlay component:
   - SVG pattern for grid lines
   - Major lines every 1m (darker)
   - Minor lines every 0.1m (lighter, only at high zoom)
   - Grid follows viewport pan/zoom
 
-- [ ] **4.2.2** Implement adaptive grid density:
+- [x] **4.2.2** Implement adaptive grid density:
   - At zoom < 0.5: show only 1m lines
   - At zoom 0.5-1.0: show 0.5m and 1m lines
   - At zoom > 1.0: show 0.1m, 0.5m, and 1m lines
@@ -96,7 +96,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Update as viewport pans/zooms
   - Optional: origin marker at (0,0)
 
-- [ ] **4.2.4** Add grid toggle (from uiStore.showGrid)
+- [x] **4.2.4** Add grid toggle (from uiStore.showGrid)
 
 - [ ] **4.2.5** Create "snap to grid" indicator:
   - Show snap points as small dots when snap enabled
@@ -104,8 +104,8 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Unit Tests
 
-- [ ] Grid renders at correct density for zoom level
-- [ ] Grid respects showGrid toggle
+- [x] Grid renders at correct density for zoom level
+- [x] Grid respects showGrid toggle
 - [ ] Coordinate labels update with pan
 
 ---
