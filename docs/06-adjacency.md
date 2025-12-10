@@ -74,7 +74,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.2.1** Create `AdjacencyGraph` class:
+- [x] **6.2.1** Create `AdjacencyGraph` class:
   ```typescript
   class AdjacencyGraph {
     private connections: Map<string, RoomConnection[]>
@@ -88,11 +88,11 @@ The adjacency system automatically detects which rooms share walls, calculates s
   }
   ```
 
-- [ ] **6.2.2** Implement graph data structure:
+- [x] **6.2.2** Implement graph data structure:
   - Bidirectional edges (A→B implies B→A)
   - Store connection data on edges
 
-- [ ] **6.2.3** Create `buildGraph(rooms: Room[]): AdjacencyGraph`
+- [x] **6.2.3** Create `buildGraph(rooms: Room[]): AdjacencyGraph`
   - Iterate all room pairs
   - Detect adjacencies
   - Build graph from results
@@ -108,10 +108,10 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Unit Tests
 
-- [ ] Graph stores connections correctly
-- [ ] Bidirectional lookup works
-- [ ] getAdjacentRoomIds returns correct rooms
-- [ ] buildGraph creates correct connections
+- [x] Graph stores connections correctly
+- [x] Bidirectional lookup works
+- [x] getAdjacentRoomIds returns correct rooms
+- [x] buildGraph creates correct connections
 - [ ] Rebuild clears and recreates
 
 ---
