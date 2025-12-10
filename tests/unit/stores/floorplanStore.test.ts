@@ -370,4 +370,73 @@ describe('Floorplan Store', () => {
       expect(useFloorplanStore.getState().isDirty).toBe(false);
     });
   });
+
+  describe('Error handling', () => {
+    it('should throw error when adding room without floorplan', () => {
+      useFloorplanStore.getState().clearFloorplan();
+      expect(() => {
+        useFloorplanStore.getState().addRoom({} as any);
+      }).toThrow('No floorplan loaded');
+    });
+
+    it('should ignore updateRoom when no floorplan', () => {
+      useFloorplanStore.getState().clearFloorplan();
+      // Should not throw, just return
+      useFloorplanStore.getState().updateRoom('id', {});
+    });
+
+    it('should ignore deleteRoom when no floorplan', () => {
+      useFloorplanStore.getState().clearFloorplan();
+      useFloorplanStore.getState().deleteRoom('id');
+    });
+
+    it('should return undefined for getRoomById when no floorplan', () => {
+      useFloorplanStore.getState().clearFloorplan();
+      expect(useFloorplanStore.getState().getRoomById('id')).toBeUndefined();
+    });
+
+    it('should return 0 for getTotalArea/Volume when no floorplan', () => {
+      useFloorplanStore.getState().clearFloorplan();
+      expect(useFloorplanStore.getState().getTotalArea()).toBe(0);
+      expect(useFloorplanStore.getState().getTotalVolume()).toBe(0);
+    });
+  });
+
+  describe('Selection Helpers', () => {
+    it('should select door', () => {
+      useFloorplanStore.getState().selectDoor('d1');
+      expect(useFloorplanStore.getState().selectedDoorId).toBe('d1');
+      expect(useFloorplanStore.getState().selectedRoomId).toBeNull();
+    });
+
+    it('should select window', () => {
+      useFloorplanStore.getState().selectWindow('w1');
+      expect(useFloorplanStore.getState().selectedWindowId).toBe('w1');
+      expect(useFloorplanStore.getState().selectedRoomId).toBeNull();
+    });
+  });
+
+  describe('Editor Mode', () => {
+    it('should set editor mode', () => {
+      useFloorplanStore.getState().setEditorMode('3d');
+      expect(useFloorplanStore.getState().editorMode).toBe('3d');
+    });
+  });
+
+  describe('Volume Calculation', () => {
+    it('should calculate total volume', () => {
+      useFloorplanStore.getState().createFloorplan('Test', 'meters');
+      useFloorplanStore.getState().addRoom({
+        name: 'R1',
+        length: 5,
+        width: 4,
+        height: 3,
+        type: 'bedroom',
+        position: { x: 0, z: 0 },
+        rotation: 0,
+      });
+      // 5 * 4 * 3 = 60
+      expect(useFloorplanStore.getState().getTotalVolume()).toBe(60);
+    });
+  });
 });

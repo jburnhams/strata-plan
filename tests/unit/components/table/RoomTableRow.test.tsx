@@ -101,7 +101,7 @@ describe('RoomTableRow', () => {
     );
 
     // Click on length cell (value is 5)
-    fireEvent.click(screen.getByText('5 meters'));
+    fireEvent.click(screen.getByRole('button', { name: /5\s*meters/i }));
     const input = screen.getByLabelText('Edit number');
     fireEvent.change(input, { target: { value: '6' } });
     fireEvent.blur(input);
@@ -119,7 +119,7 @@ describe('RoomTableRow', () => {
     );
 
     // Click on width cell (value is 4)
-    fireEvent.click(screen.getByText('4 meters'));
+    fireEvent.click(screen.getByRole('button', { name: /4\s*meters/i }));
     const input = screen.getByLabelText('Edit number');
     fireEvent.change(input, { target: { value: '4.5' } });
     fireEvent.blur(input);
@@ -137,7 +137,7 @@ describe('RoomTableRow', () => {
     );
 
     // Click on height cell (value is 3)
-    fireEvent.click(screen.getByText('3 meters'));
+    fireEvent.click(screen.getByRole('button', { name: /3\s*meters/i }));
     const input = screen.getByLabelText('Edit number');
     fireEvent.change(input, { target: { value: '2.5' } });
     fireEvent.blur(input);
