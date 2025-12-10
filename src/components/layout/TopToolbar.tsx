@@ -247,10 +247,10 @@ export function TopToolbar({ className }: TopToolbarProps) {
 
          {/* Right Section */}
         <ThemeToggle />
-        <Button variant="ghost" size="icon" className="h-9 w-9">
+        <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Help">
             <HelpCircle className="h-[1.2rem] w-[1.2rem]" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => openDialog('projectSettings')}>
+        <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => openDialog('projectSettings')} aria-label="Settings">
             <Settings className="h-[1.2rem] w-[1.2rem]" />
         </Button>
       </div>
