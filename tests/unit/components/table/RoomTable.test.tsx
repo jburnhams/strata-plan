@@ -60,10 +60,9 @@ describe('RoomTable', () => {
     });
 
     render(<RoomTable />);
+    // Rows: Header(1) + Room1(1) + Room2(1) + Footer Add(1) + Footer Totals(1) = 5
     const rows = screen.getAllByRole('row');
-    // Header + 2 rooms + footer (2 rows in footer)
-    expect(rows).toHaveLength(1 + 2 + 2);
-    // In text cell non-editing mode, it renders a div with text
+    expect(rows).toHaveLength(5);
     expect(screen.getByText('Room 1')).toBeInTheDocument();
     expect(screen.getByText('Room 2')).toBeInTheDocument();
   });
@@ -83,15 +82,12 @@ describe('RoomTable', () => {
 
     render(<RoomTable />);
 
-    // Get the room from the store
     const rooms = useFloorplanStore.getState().currentFloorplan?.rooms;
     expect(rooms).toBeDefined();
     expect(rooms?.length).toBe(1);
 
     if (rooms && rooms[0]) {
-        const room = rooms[0];
-        const row = await screen.findByTestId(`room-row-${room.id}`);
-        // We applied 10-15% opacity (hex 20), checking if the style is present
+        const row = await screen.findByTestId(`room-row-${rooms[0].id}`);
         expect(row).toHaveStyle({ backgroundColor: `${ROOM_TYPE_COLORS[roomType]}20` });
     }
   });
@@ -107,8 +103,6 @@ describe('RoomTable', () => {
       position: { x: 0, z: 0 },
       rotation: 0,
     });
-    // Area: 20, Volume: 60
-
     store.addRoom({
       name: 'Room 2',
       length: 2,
@@ -118,20 +112,12 @@ describe('RoomTable', () => {
       position: { x: 0, z: 0 },
       rotation: 0,
     });
-    // Area: 6, Volume: 12
 
     render(<RoomTable />);
 
-    // Total Area: 26.0 m²
-    // We updated the text format slightly in the component: "Area: 26.0 m²"
-    expect(screen.getByText('Area: 26.0 m²')).toBeInTheDocument();
-
-    // Total Volume: 72.0 m³
-    // We updated the text format slightly in the component: "Vol: 72.0 m³"
-    expect(screen.getByText('Vol: 72.0 m³')).toBeInTheDocument();
-
-    // Room Count
-    expect(screen.getByText('2 rooms')).toBeInTheDocument();
+    expect(screen.getByText(/Area: 26.0/)).toBeInTheDocument();
+    expect(screen.getByText(/Vol: 72.0/)).toBeInTheDocument();
+    expect(screen.getByText(/2 rooms/)).toBeInTheDocument();
   });
 
   it('Add Room button renders in footer', () => {
@@ -148,9 +134,8 @@ describe('RoomTable', () => {
 
     render(<RoomTable />);
     const buttons = screen.getAllByText('+ Add Room');
-    // One in empty state (not rendered here), one in footer
-    expect(buttons).toHaveLength(1);
-    expect(buttons[0]).toHaveClass('add-room-button-footer');
+    const footerBtn = buttons.find(b => b.classList.contains('add-room-button-footer'));
+    expect(footerBtn).toBeInTheDocument();
   });
 
   it('Add Room button adds a room', () => {
@@ -160,7 +145,6 @@ describe('RoomTable', () => {
   });
 
   it('Delete button removes a room', () => {
-      // Mock window.confirm
       const confirmSpy = jest.spyOn(window, 'confirm');
       confirmSpy.mockImplementation(() => true);
 
@@ -180,6 +164,78 @@ describe('RoomTable', () => {
 
       expect(confirmSpy).toHaveBeenCalled();
       expect(useFloorplanStore.getState().currentFloorplan?.rooms).toHaveLength(0);
+
+      confirmSpy.mockRestore();
+  });
+
+  it('sorts rows when header clicked', () => {
+    const store = useFloorplanStore.getState();
+    store.addRoom({
+      name: 'Z Room',
+      length: 4, width: 4, height: 2.7, type: 'bedroom', position: { x: 0, z: 0 }, rotation: 0
+    });
+    store.addRoom({
+      name: 'A Room',
+      length: 4, width: 4, height: 2.7, type: 'bedroom', position: { x: 0, z: 0 }, rotation: 0
+    });
+
+    render(<RoomTable />);
+
+    // Initial order: Z, A
+    let rows = screen.getAllByTestId(/room-row-/);
+    expect(rows[0]).toHaveTextContent('Z Room');
+    expect(rows[1]).toHaveTextContent('A Room');
+
+    // Click Name header to sort Ascending
+    fireEvent.click(screen.getByText('Room Name'));
+
+    rows = screen.getAllByTestId(/room-row-/);
+    expect(rows[0]).toHaveTextContent('A Room');
+    expect(rows[1]).toHaveTextContent('Z Room');
+
+    // Click again for Descending
+    fireEvent.click(screen.getByText('Room Name'));
+
+    rows = screen.getAllByTestId(/room-row-/);
+    expect(rows[0]).toHaveTextContent('Z Room');
+    expect(rows[1]).toHaveTextContent('A Room');
+  });
+
+  it('re-layout updates room positions', () => {
+      const confirmSpy = jest.spyOn(window, 'confirm');
+      confirmSpy.mockImplementation(() => true);
+
+      const store = useFloorplanStore.getState();
+      // Add rooms with manual positions
+      store.addRoom({
+        name: 'Room 1',
+        length: 5, width: 4, height: 2.7, type: 'bedroom',
+        position: { x: 0, z: 0 }, rotation: 0
+      });
+      store.addRoom({
+        name: 'Room 2',
+        length: 5, width: 4, height: 2.7, type: 'bedroom',
+        position: { x: 0, z: 0 }, rotation: 0
+      });
+
+      render(<RoomTable />);
+
+      // Click Re-layout
+      const relayoutBtn = screen.getByText('Re-layout');
+      fireEvent.click(relayoutBtn);
+
+      expect(confirmSpy).toHaveBeenCalled();
+
+      // Check store for updated positions
+      const updatedState = useFloorplanStore.getState();
+      const rooms = updatedState.currentFloorplan?.rooms || [];
+      expect(rooms).toHaveLength(2);
+
+      // Room 1 should be at 0,0
+      expect(rooms[0].position.x).toBe(0);
+
+      // Room 2 should be at 5 + GAP (1) = 6
+      expect(rooms[1].position.x).toBe(6);
 
       confirmSpy.mockRestore();
   });

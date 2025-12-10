@@ -59,6 +59,12 @@ export const RoomTableRow: React.FC<RoomTableRowProps> = ({
     onUpdate({ type });
   };
 
+  const handleDeleteClick = () => {
+    if (window.confirm(`Delete ${room.name}?`)) {
+      onDelete();
+    }
+  };
+
   const area = calculateArea(room.length, room.width);
   const formattedArea = area.toFixed(1);
 
@@ -159,7 +165,7 @@ export const RoomTableRow: React.FC<RoomTableRowProps> = ({
         <DisplayCell value={formattedArea} unit={units === 'meters' ? 'm²' : 'ft²'} />
       </td>
       <td className="p-0 border-b border-gray-200">
-        <ActionCell onDelete={onDelete} className="opacity-0 group-hover:opacity-100 focus-within:opacity-100" />
+        <ActionCell onDelete={handleDeleteClick} className="opacity-0 group-hover:opacity-100 focus-within:opacity-100" />
       </td>
     </tr>
   );
