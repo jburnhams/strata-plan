@@ -3,9 +3,10 @@
  */
 
 import { create } from 'zustand';
-import type { Floorplan, Room, Wall, Door, Window, MeasurementUnit, EditorMode } from '../types';
+import type { Floorplan, Room, Wall, Door, Window, MeasurementUnit, EditorMode, RoomConnection } from '../types';
 import { generateUUID } from '../services/geometry';
 import { calculateArea, calculateVolume, getRoomBounds } from '../services/geometry/room';
+import { calculateAllConnections } from '../services/adjacency/graph';
 import { DEFAULT_ROOM_GAP } from '../constants/defaults';
 
 /**
@@ -47,6 +48,11 @@ export interface FloorplanActions {
   // Window operations
   updateWindow: (id: string, updates: Partial<Window>) => void;
   deleteWindow: (id: string) => void;
+
+  // Connection operations
+  recalculateConnections: () => void;
+  getAdjacentRooms: (roomId: string) => Room[];
+  getConnection: (room1Id: string, room2Id: string) => RoomConnection | null;
 
   // Selection
   selectRoom: (id: string | null) => void;
@@ -160,9 +166,13 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
       };
     }
 
+    const newRooms = [...state.currentFloorplan.rooms, room];
+    const newConnections = calculateAllConnections(newRooms, state.currentFloorplan.connections);
+
     const updatedFloorplan = {
       ...state.currentFloorplan,
-      rooms: [...state.currentFloorplan.rooms, room],
+      rooms: newRooms,
+      connections: newConnections,
       updatedAt: new Date(),
     };
 
@@ -212,10 +222,8 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
     // Remove associated windows
     const updatedWindows = state.currentFloorplan.windows.filter((w) => w.roomId !== id);
 
-    // Remove connections involving this room
-    const updatedConnections = state.currentFloorplan.connections.filter(
-      (c) => c.room1Id !== id && c.room2Id !== id
-    );
+    // Recalculate connections (removes invalid ones)
+    const updatedConnections = calculateAllConnections(updatedRooms, state.currentFloorplan.connections);
 
     const updatedFloorplan = {
       ...state.currentFloorplan,
@@ -371,6 +379,57 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
       selectedWindowId: state.selectedWindowId === id ? null : state.selectedWindowId,
       isDirty: true,
     });
+  },
+
+  // Connection operations
+  recalculateConnections: () => {
+    const state = get();
+    if (!state.currentFloorplan) return;
+
+    const connections = calculateAllConnections(
+      state.currentFloorplan.rooms,
+      state.currentFloorplan.connections || []
+    );
+
+    // Check if connections actually changed to avoid unnecessary updates and dirty flag
+    if (JSON.stringify(connections) === JSON.stringify(state.currentFloorplan.connections)) {
+      return;
+    }
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      connections,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      isDirty: true,
+    });
+  },
+
+  getAdjacentRooms: (roomId: string) => {
+    const state = get();
+    if (!state.currentFloorplan?.connections) return [];
+
+    const connectedRoomIds = state.currentFloorplan.connections
+      .filter((c) => c.room1Id === roomId || c.room2Id === roomId)
+      .map((c) => (c.room1Id === roomId ? c.room2Id : c.room1Id));
+
+    return state.currentFloorplan.rooms.filter((r) => connectedRoomIds.includes(r.id));
+  },
+
+  getConnection: (room1Id: string, room2Id: string) => {
+    const state = get();
+    if (!state.currentFloorplan?.connections) return null;
+
+    return (
+      state.currentFloorplan.connections.find(
+        (c) =>
+          (c.room1Id === room1Id && c.room2Id === room2Id) ||
+          (c.room1Id === room2Id && c.room2Id === room1Id)
+      ) || null
+    );
   },
 
   // Selection

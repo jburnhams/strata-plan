@@ -123,26 +123,26 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.3.1** Add connection state to store:
+- [x] **6.3.1** Add connection state to store:
   ```typescript
   connections: RoomConnection[]
   ```
 
-- [ ] **6.3.2** Add connection actions:
+- [x] **6.3.2** Add connection actions:
   ```typescript
   recalculateConnections(): void
   getAdjacentRooms(roomId: string): Room[]
   getConnection(room1Id: string, room2Id: string): RoomConnection | null
   ```
 
-- [ ] **6.3.3** Trigger recalculation:
+- [x] **6.3.3** Trigger recalculation:
   - When room added
   - When room deleted
   - When room position changes
   - When room dimensions change
   - Debounced (300ms)
 
-- [ ] **6.3.4** Create selector hooks:
+- [x] **6.3.4** Create selector hooks:
   ```typescript
   useAdjacentRooms(roomId: string): Room[]
   useRoomConnections(roomId: string): RoomConnection[]
@@ -150,9 +150,9 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Unit Tests
 
-- [ ] Connections recalculate on room add
-- [ ] Connections update on room move
-- [ ] Selectors return correct data
+- [x] Connections recalculate on room add
+- [x] Connections update on room move
+- [x] Selectors return correct data
 
 ---
 
