@@ -1,176 +1,242 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { LeftSidebar } from '../../../../src/components/layout/LeftSidebar';
-import { useUIStore } from '../../../../src/stores/uiStore';
 import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
-import { useAddRoom } from '../../../../src/hooks/useAddRoom';
+import { useUIStore } from '../../../../src/stores/uiStore';
 
-// Mock the Lucide icons
+// Mock dependencies
 jest.mock('lucide-react', () => ({
-  ChevronLeft: () => <div data-testid="chevron-left" />,
-  ChevronRight: () => <div data-testid="chevron-right" />,
-  LayoutDashboard: () => <div data-testid="layout-dashboard" />,
-  Search: () => <div data-testid="search-icon" />,
-  Plus: () => <div data-testid="plus-icon" />,
-  DoorOpen: () => <div data-testid="door-icon" />,
-  Maximize: () => <div data-testid="window-icon" />,
-  Box: () => <div data-testid="box-icon" />,
-  ChevronDown: () => <div data-testid="chevron-down" />,
+  ChevronLeft: () => <div data-testid="icon-chevron-left" />,
+  ChevronRight: () => <div data-testid="icon-chevron-right" />,
+  LayoutDashboard: () => <div data-testid="icon-dashboard" />,
+  Search: () => <div data-testid="icon-search" />,
+  Plus: () => <div data-testid="icon-plus" />,
+  DoorOpen: () => <div data-testid="icon-door" />,
+  Maximize: () => <div data-testid="icon-maximize" />,
+  Box: () => <div data-testid="icon-box" />,
+  ChevronDown: () => <div data-testid="icon-chevron-down" />,
 }));
 
-// Mock SidebarSection to avoid testing it again and focus on LeftSidebar logic
-jest.mock('../../../../src/components/layout/SidebarSection', () => ({
-  SidebarSection: ({ title, children, count }: any) => (
-    <div data-testid={`section-${title}`}>
-      <button>{title} ({count})</button>
-      <div>{children}</div>
-    </div>
-  ),
-}));
-
-// Mock useAddRoom
+// Mock useAddRoom hook
+const mockAddRoom = jest.fn();
 jest.mock('../../../../src/hooks/useAddRoom', () => ({
-  useAddRoom: jest.fn(),
+  useAddRoom: () => ({
+    addRoom: mockAddRoom,
+  }),
 }));
 
 describe('LeftSidebar', () => {
-  const initialState = useUIStore.getState();
   const mockSelectRoom = jest.fn();
+  const mockSetRoomSelection = jest.fn();
   const mockSelectWall = jest.fn();
   const mockSelectDoor = jest.fn();
   const mockSelectWindow = jest.fn();
-  const mockAddRoom = jest.fn();
+  const mockToggleSidebar = jest.fn();
 
   beforeEach(() => {
-    useUIStore.setState(initialState, true);
-    (useAddRoom as jest.Mock).mockReturnValue({ addRoom: mockAddRoom });
-    jest.clearAllMocks();
-
-    // Setup default floorplan store mock
+    // Reset store state
     useFloorplanStore.setState({
       currentFloorplan: {
-        id: '1',
-        name: 'Test Plan',
+        id: 'test',
+        name: 'test',
         units: 'meters',
-        rooms: [
-          { id: 'r1', name: 'Living Room', color: '#fff', position: {x:0,z:0}, length: 4, width: 4, height: 2.4, type: 'living' },
-          { id: 'r2', name: 'Kitchen', color: '#fff', position: {x:5,z:0}, length: 3, width: 3, height: 2.4, type: 'kitchen' }
-        ],
+        rooms: [],
         walls: [],
         doors: [],
         windows: [],
         connections: [],
         createdAt: new Date(),
         updatedAt: new Date(),
-        version: '1.0.0'
+        version: '1.0.0',
       },
-      selectRoom: mockSelectRoom,
       selectedRoomId: null,
+      selectedRoomIds: [],
       selectedWallId: null,
       selectedDoorId: null,
       selectedWindowId: null,
-      selectWall: mockSelectWall,
-      selectDoor: mockSelectDoor,
-      selectWindow: mockSelectWindow,
-    } as any);
+    });
+
+    useUIStore.setState({
+      sidebarOpen: true,
+    });
+
+    // Mock store actions
+    jest.spyOn(useFloorplanStore.getState(), 'selectRoom').mockImplementation(mockSelectRoom);
+    jest.spyOn(useFloorplanStore.getState(), 'setRoomSelection').mockImplementation(mockSetRoomSelection);
+    jest.spyOn(useFloorplanStore.getState(), 'selectWall').mockImplementation(mockSelectWall);
+    jest.spyOn(useFloorplanStore.getState(), 'selectDoor').mockImplementation(mockSelectDoor);
+    jest.spyOn(useFloorplanStore.getState(), 'selectWindow').mockImplementation(mockSelectWindow);
+    jest.spyOn(useUIStore.getState(), 'toggleSidebar').mockImplementation(mockToggleSidebar);
+
+    mockSelectRoom.mockClear();
+    mockSetRoomSelection.mockClear();
+    mockToggleSidebar.mockClear();
   });
 
-  it('renders expanded by default', () => {
+  const setupData = () => {
+    act(() => {
+      useFloorplanStore.setState({
+        currentFloorplan: {
+          ...useFloorplanStore.getState().currentFloorplan!,
+          rooms: [
+            { id: '1', name: 'Room 1', type: 'bedroom' } as any,
+            { id: '2', name: 'Room 2', type: 'kitchen' } as any,
+            { id: '3', name: 'Room 3', type: 'living' } as any,
+          ],
+          walls: [
+            { id: 'w1', from: {x:0,y:0}, to: {x:1,y:0} } as any
+          ],
+          doors: [
+            { id: 'd1' } as any
+          ],
+          windows: [
+            { id: 'win1' } as any
+          ]
+        }
+      });
+    });
+  };
+
+  it('renders collapsed state when sidebarOpen is false', () => {
+    act(() => {
+      useUIStore.setState({ sidebarOpen: false });
+    });
     render(<LeftSidebar />);
-    const sidebar = screen.getByTestId('left-sidebar');
-    expect(sidebar).toHaveClass('w-[280px]');
+    expect(screen.getByTestId('left-sidebar')).toHaveClass('w-[48px]');
+    expect(screen.getByTestId('icon-chevron-right')).toBeInTheDocument();
+  });
+
+  it('renders expanded state when sidebarOpen is true', () => {
+    render(<LeftSidebar />);
+    expect(screen.getByTestId('left-sidebar')).toHaveClass('w-[280px]');
     expect(screen.getByText('Navigation')).toBeInTheDocument();
   });
 
-  it('renders sections with correct counts', () => {
+  it('toggles sidebar on chevron click', () => {
     render(<LeftSidebar />);
-    expect(screen.getByText('Rooms (2)')).toBeInTheDocument();
-    expect(screen.getByText('Walls (0)')).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('Collapse sidebar'));
+    expect(mockToggleSidebar).toHaveBeenCalled();
   });
 
-  it('lists rooms', () => {
+  it('filters rooms based on search input', () => {
+    setupData();
     render(<LeftSidebar />);
-    expect(screen.getByText('Living Room')).toBeInTheDocument();
-    expect(screen.getByText('Kitchen')).toBeInTheDocument();
-  });
 
-  it('filters rooms based on search', () => {
-    render(<LeftSidebar />);
+    expect(screen.getByText('Room 1')).toBeInTheDocument();
+    expect(screen.getByText('Room 2')).toBeInTheDocument();
+
     const searchInput = screen.getByPlaceholderText('Search...');
-    fireEvent.change(searchInput, { target: { value: 'Living' } });
+    fireEvent.change(searchInput, { target: { value: 'Room 2' } });
 
-    expect(screen.getByText('Living Room')).toBeInTheDocument();
-    expect(screen.queryByText('Kitchen')).not.toBeInTheDocument();
+    expect(screen.queryByText('Room 1')).not.toBeInTheDocument();
+    expect(screen.getByText('Room 2')).toBeInTheDocument();
   });
 
-  it('selects a room on click', () => {
+  it('selects a single room on click', () => {
+    setupData();
     render(<LeftSidebar />);
-    const roomItem = screen.getByText('Living Room');
-    fireEvent.click(roomItem);
-    expect(mockSelectRoom).toHaveBeenCalledWith('r1');
+
+    fireEvent.click(screen.getByText('Room 1'));
+    expect(mockSelectRoom).toHaveBeenCalledWith('1');
   });
 
-  it('adds a room when button clicked', () => {
+  it('adds to selection on Ctrl+Click', () => {
+    setupData();
+    // Pre-select Room 1
+    act(() => {
+        useFloorplanStore.setState({ selectedRoomIds: ['1'] });
+    });
+
     render(<LeftSidebar />);
-    const addButton = screen.getByText('Add Room');
-    fireEvent.click(addButton);
+
+    // Ctrl+Click Room 2
+    fireEvent.click(screen.getByText('Room 2'), { ctrlKey: true });
+    expect(mockSetRoomSelection).toHaveBeenLastCalledWith(['1', '2']);
+  });
+
+  it('removes from selection on Ctrl+Click', () => {
+    setupData();
+    // Pre-select Room 1 and 2
+    act(() => {
+        useFloorplanStore.setState({ selectedRoomIds: ['1', '2'] });
+    });
+
+    render(<LeftSidebar />);
+
+    // Ctrl+Click Room 1
+    fireEvent.click(screen.getByText('Room 1'), { ctrlKey: true });
+    expect(mockSetRoomSelection).toHaveBeenLastCalledWith(['2']);
+  });
+
+  it('selects range on Shift+Click', () => {
+    setupData();
+    // Select Room 1
+    act(() => {
+        useFloorplanStore.setState({ selectedRoomIds: ['1'] });
+    });
+
+    render(<LeftSidebar />);
+
+    // Shift+Click Room 3
+    fireEvent.click(screen.getByText('Room 3'), { shiftKey: true });
+
+    // Should select 1, 2, 3
+    const calls = mockSetRoomSelection.mock.calls;
+    const lastCallArgs = calls[calls.length - 1][0];
+    expect(lastCallArgs).toHaveLength(3);
+    expect(lastCallArgs).toContain('1');
+    expect(lastCallArgs).toContain('2');
+    expect(lastCallArgs).toContain('3');
+  });
+
+  it('adds room when button clicked', () => {
+    render(<LeftSidebar />);
+    fireEvent.click(screen.getByText('Add Room'));
     expect(mockAddRoom).toHaveBeenCalled();
   });
 
-  it('renders walls, doors, and windows sections and allows selection', () => {
-    useFloorplanStore.setState({
-      currentFloorplan: {
-        ...useFloorplanStore.getState().currentFloorplan!,
-        walls: [{ id: 'w1', start: {x:0,z:0}, end: {x:4,z:0}, thickness: 0.2, height: 2.4 }],
-        doors: [{ id: 'd1', roomId: 'r1', width: 0.8, height: 2.0, position: 0.5 }],
-        windows: [{ id: 'win1', roomId: 'r1', width: 1.0, height: 1.2, position: 0.5, sillHeight: 1.0 }],
-      } as any
-    });
-
+  it('renders and selects walls', () => {
+    setupData();
     render(<LeftSidebar />);
 
-    // Walls
+    // Expand Walls section if needed. By default only Rooms is open.
+    const wallsHeader = screen.getByText('Walls');
+    fireEvent.click(wallsHeader);
+
     const wallItem = screen.getByText('Wall w1');
     expect(wallItem).toBeInTheDocument();
+
     fireEvent.click(wallItem);
     expect(mockSelectWall).toHaveBeenCalledWith('w1');
+  });
 
-    // Doors
+  it('renders and selects doors', () => {
+    setupData();
+    render(<LeftSidebar />);
+
+    // Expand Doors section
+    const doorsHeader = screen.getByText('Doors');
+    fireEvent.click(doorsHeader);
+
     const doorItem = screen.getByText('Door d1');
     expect(doorItem).toBeInTheDocument();
+
     fireEvent.click(doorItem);
     expect(mockSelectDoor).toHaveBeenCalledWith('d1');
+  });
 
-    // Windows
+  it('renders and selects windows', () => {
+    setupData();
+    render(<LeftSidebar />);
+
+    // Expand Windows section
+    const windowsHeader = screen.getByText('Windows');
+    fireEvent.click(windowsHeader);
+
     const windowItem = screen.getByText('Window win1');
     expect(windowItem).toBeInTheDocument();
+
     fireEvent.click(windowItem);
     expect(mockSelectWindow).toHaveBeenCalledWith('win1');
-  });
-
-  it('handles empty lists correctly', () => {
-     useFloorplanStore.setState({
-      currentFloorplan: {
-        ...useFloorplanStore.getState().currentFloorplan!,
-        rooms: [],
-        walls: [],
-        doors: [],
-        windows: []
-      } as any
-    });
-    render(<LeftSidebar />);
-    expect(screen.getByText('No rooms')).toBeInTheDocument();
-    expect(screen.getByText('No walls')).toBeInTheDocument();
-    expect(screen.getByText('No doors')).toBeInTheDocument();
-    expect(screen.getByText('No windows')).toBeInTheDocument();
-  });
-
-   it('renders collapsed when sidebarOpen is false', () => {
-    useUIStore.setState({ sidebarOpen: false });
-    render(<LeftSidebar />);
-    const sidebar = screen.getByTestId('left-sidebar');
-
-    expect(sidebar).toHaveClass('w-[48px]');
-    expect(screen.queryByText('Navigation')).not.toBeInTheDocument();
   });
 });
