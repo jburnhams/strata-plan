@@ -61,8 +61,10 @@ describe('AdjacentRoomsSection', () => {
 
     (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
       const state = {
-        rooms: mockRooms,
-        connections: mockConnections,
+        currentFloorplan: {
+          rooms: mockRooms,
+          connections: mockConnections,
+        },
         selectedRoomId: 'room1',
         selectRoom: mockSelectRoom,
       };
@@ -80,7 +82,13 @@ describe('AdjacentRoomsSection', () => {
 
   it('should render nothing if no room is selected', () => {
     (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
-        return selector({ selectedRoomId: null, rooms: mockRooms, connections: mockConnections });
+        return selector({
+          selectedRoomId: null,
+          currentFloorplan: {
+            rooms: mockRooms,
+            connections: mockConnections
+          }
+        });
     });
     const { container } = render(<AdjacentRoomsSection />);
     expect(container.firstChild).toBeNull();
@@ -104,8 +112,10 @@ describe('AdjacentRoomsSection', () => {
     (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
         return selector({
              selectedRoomId: 'room1',
-             rooms: mockRooms,
-             connections: [] // No connections
+             currentFloorplan: {
+               rooms: mockRooms,
+               connections: [] // No connections
+             }
         });
     });
     const { getByText } = render(<AdjacentRoomsSection />);

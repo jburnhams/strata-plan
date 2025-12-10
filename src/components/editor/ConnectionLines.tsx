@@ -7,8 +7,8 @@ import { WallSide } from '../../types/geometry';
 
 export const ConnectionLines: React.FC = () => {
   const showConnections = useUIStore((state) => state.showConnections);
-  const connections = useFloorplanStore((state) => state.connections);
-  const rooms = useFloorplanStore((state) => state.rooms);
+  const connections = useFloorplanStore((state) => state.currentFloorplan?.connections || []);
+  const rooms = useFloorplanStore((state) => state.currentFloorplan?.rooms || []);
 
   if (!showConnections) {
     return null;

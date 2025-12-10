@@ -58,8 +58,10 @@ describe('ConnectionLines', () => {
 
     (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
       const state = {
-        rooms: mockRooms,
-        connections: mockConnections
+        currentFloorplan: {
+          rooms: mockRooms,
+          connections: mockConnections
+        }
       };
       return selector(state);
     });
@@ -98,8 +100,10 @@ describe('ConnectionLines', () => {
   it('should handle missing rooms gracefully', () => {
     (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
       return selector({
-        rooms: [mockRooms[0]], // Missing room2
-        connections: mockConnections
+        currentFloorplan: {
+          rooms: [mockRooms[0]], // Missing room2
+          connections: mockConnections
+        }
       });
     });
 

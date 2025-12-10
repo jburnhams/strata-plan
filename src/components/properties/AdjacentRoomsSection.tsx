@@ -8,8 +8,8 @@ import { WallSide } from '../../types/geometry';
 
 export const AdjacentRoomsSection: React.FC = () => {
   const selectedRoomId = useFloorplanStore((state) => state.selectedRoomId);
-  const rooms = useFloorplanStore((state) => state.rooms);
-  const connections = useFloorplanStore((state) => state.connections);
+  const rooms = useFloorplanStore((state) => state.currentFloorplan?.rooms || []);
+  const connections = useFloorplanStore((state) => state.currentFloorplan?.connections || []);
   const selectRoom = useFloorplanStore((state) => state.selectRoom);
   const setPan = useUIStore((state) => state.setPan);
   const zoomLevel = useUIStore((state) => state.zoomLevel);
