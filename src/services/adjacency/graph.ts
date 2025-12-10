@@ -100,10 +100,14 @@ export function buildGraph(rooms: Room[]): AdjacencyGraph {
       const b1 = getRoomBounds(room1);
       const b2 = getRoomBounds(room2);
 
-      const intersectX = (b1.minX <= b2.maxX + ADJACENCY_TOLERANCE) && (b1.maxX >= b2.minX - ADJACENCY_TOLERANCE);
-      const intersectZ = (b1.minZ <= b2.maxZ + ADJACENCY_TOLERANCE) && (b1.maxZ >= b2.minZ - ADJACENCY_TOLERANCE);
+      // Check for overlap in X and Z axes with tolerance
+      // If min1 > max2 or max1 < min2, then NO overlap
+      // We want to continue if there IS potential overlap (or touching)
+      // NOTE: We use < and > for "strictly no overlap", so >= and <= allow touching
+      const noOverlapX = (b1.minX > b2.maxX + ADJACENCY_TOLERANCE) || (b1.maxX < b2.minX - ADJACENCY_TOLERANCE);
+      const noOverlapZ = (b1.minZ > b2.maxZ + ADJACENCY_TOLERANCE) || (b1.maxZ < b2.minZ - ADJACENCY_TOLERANCE);
 
-      if (!intersectX || !intersectZ) {
+      if (noOverlapX || noOverlapZ) {
         continue;
       }
 

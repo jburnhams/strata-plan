@@ -123,26 +123,26 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [x] **6.3.1** Add connection state to store:
+- [ ] **6.3.1** Add connection state to store:
   ```typescript
   connections: RoomConnection[]
   ```
 
-- [x] **6.3.2** Add connection actions:
+- [ ] **6.3.2** Add connection actions:
   ```typescript
   recalculateConnections(): void
   getAdjacentRooms(roomId: string): Room[]
   getConnection(room1Id: string, room2Id: string): RoomConnection | null
   ```
 
-- [x] **6.3.3** Trigger recalculation:
+- [ ] **6.3.3** Trigger recalculation:
   - When room added
   - When room deleted
   - When room position changes
   - When room dimensions change
   - Debounced (300ms)
 
-- [x] **6.3.4** Create selector hooks:
+- [ ] **6.3.4** Create selector hooks:
   ```typescript
   useAdjacentRooms(roomId: string): Room[]
   useRoomConnections(roomId: string): RoomConnection[]
@@ -150,9 +150,9 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Unit Tests
 
-- [x] Connections recalculate on room add
-- [x] Connections update on room move
-- [x] Selectors return correct data
+- [ ] Connections recalculate on room add
+- [ ] Connections update on room move
+- [ ] Selectors return correct data
 
 ---
 
@@ -162,33 +162,33 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [x] **6.4.1** Create connection line component:
+- [ ] **6.4.1** Create connection line component:
   - Draws dashed line between room centers
   - Line color: light gray
   - Only shown when "Show Connections" enabled
 
-- [x] **6.4.2** Show shared wall indicator:
+- [ ] **6.4.2** Show shared wall indicator:
   - Highlight shared wall segment
   - Different color (e.g., blue)
 
-- [x] **6.4.3** Show door positions on connections:
+- [ ] **6.4.3** Show door positions on connections:
   - Small circle or door icon
   - Positioned along shared wall
 
-- [x] **6.4.4** Create hover info:
+- [ ] **6.4.4** Create hover info:
   - Hover over connection line
   - Show tooltip: "Kitchen ↔ Living Room (3.2m shared wall)"
 
-- [x] **6.4.5** Toggle visibility:
+- [ ] **6.4.5** Toggle visibility:
   - Checkbox in View menu
   - Default: off (reduces visual clutter)
 
 ### Unit Tests
 
-- [x] Connection lines render between adjacent rooms
-- [x] Lines not shown for non-adjacent rooms
-- [x] Toggle hides/shows lines
-- [x] Door icons appear on connections with doors
+- [ ] Connection lines render between adjacent rooms
+- [ ] Lines not shown for non-adjacent rooms
+- [ ] Toggle hides/shows lines
+- [ ] Door icons appear on connections with doors
 
 ---
 
@@ -198,34 +198,34 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [x] **6.5.1** Create adjacent rooms list in properties panel:
+- [ ] **6.5.1** Create adjacent rooms list in properties panel:
   - Section header: "Adjacent Rooms"
   - List connected rooms when a room is selected
 
-- [x] **6.5.2** Display connection info:
+- [ ] **6.5.2** Display connection info:
   - Room name (clickable to select)
   - Shared wall length
   - Number of doors
   - Wall sides: "North wall → South wall"
 
-- [x] **6.5.3** Add door button:
+- [ ] **6.5.3** Add door button:
   - "+ Add Door" button per connection
   - Opens door creation flow
 
-- [x] **6.5.4** Handle no adjacencies:
+- [ ] **6.5.4** Handle no adjacencies:
   - Message: "No adjacent rooms"
   - Hint: "Move rooms closer to create connections"
 
-- [x] **6.5.5** Click to navigate:
+- [ ] **6.5.5** Click to navigate:
   - Click room name → select that room
   - Scrolls 2D view to show both rooms
 
 ### Unit Tests
 
-- [x] Adjacent rooms listed correctly
+- [ ] Adjacent rooms listed correctly
 - [x] Shared wall length displayed
-- [x] Click navigates to adjacent room
-- [x] Add Door button triggers action
+- [ ] Click navigates to adjacent room
+- [ ] Add Door button triggers action
 
 ---
 
@@ -342,9 +342,9 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Test Cases
 
-- [x] **Auto-detection**: Create adjacent rooms → verify connection detected
-- [x] **Move apart**: Move room away → verify connection removed
-- [x] **Multi-room**: Create 5 connected rooms → verify graph correct
+- [ ] **Auto-detection**: Create adjacent rooms → verify connection detected
+- [ ] **Move apart**: Move room away → verify connection removed
+- [ ] **Multi-room**: Create 5 connected rooms → verify graph correct
 - [ ] **Path finding**: Create chain of rooms → verify path found
 - [ ] **Validation**: Create overlapping rooms → verify warning shown
 - [ ] **Selection sync**: Select connection → verify both rooms highlighted
