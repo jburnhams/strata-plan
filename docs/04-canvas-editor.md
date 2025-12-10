@@ -116,7 +116,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Subtasks
 
-- [ ] **4.3.1** Create `RoomShape` SVG component:
+- [x] **4.3.1** Create `RoomShape` SVG component:
   ```typescript
   interface RoomShapeProps {
     room: Room
@@ -127,36 +127,36 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   }
   ```
 
-- [ ] **4.3.2** Render room as rectangle:
+- [x] **4.3.2** Render room as rectangle:
   - Fill with room type color (from constants)
   - Stroke for walls (darker color)
   - Stroke width based on wall thickness
 
-- [ ] **4.3.3** Implement selection state:
+- [x] **4.3.3** Implement selection state:
   - Selected: thicker border, selection handles at corners
   - Hover: subtle highlight
 
-- [ ] **4.3.4** Render room label:
+- [x] **4.3.4** Render room label:
   - Room name centered in room
   - Area below name (smaller text)
   - Auto-scale text size based on room size
   - Hide labels if room too small
 
-- [ ] **4.3.5** Create `RoomLayer` container:
+- [x] **4.3.5** Create `RoomLayer` container:
   - Maps over all rooms
   - Handles z-ordering (selected room on top)
 
-- [ ] **4.3.6** Implement rotation rendering:
+- [x] **4.3.6** Implement rotation rendering:
   - Apply SVG transform for rotated rooms
   - Handles 0, 90, 180, 270 degree rotations
 
 ### Unit Tests
 
-- [ ] Room renders at correct position and size
-- [ ] Selected room has selection handles
-- [ ] Room color matches type
-- [ ] Label text scales appropriately
-- [ ] Rotation transform applied correctly
+- [x] Room renders at correct position and size
+- [x] Selected room has selection handles
+- [x] Room color matches type
+- [x] Label text scales appropriately
+- [x] Rotation transform applied correctly
 
 ---
 

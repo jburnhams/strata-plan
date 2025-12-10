@@ -3,6 +3,7 @@ import { CanvasViewport } from './CanvasViewport';
 import { Grid } from './Grid';
 import { Ruler } from './Ruler';
 import { SnapIndicator } from './SnapIndicator';
+import { RoomLayer } from './RoomLayer';
 
 export function Canvas2D() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -50,8 +51,8 @@ export function Canvas2D() {
 
        <CanvasViewport>
           <Grid />
+          <RoomLayer />
           <SnapIndicator mousePos={mousePos} viewportSize={dimensions} />
-          {/* Room rendering will be added here in Task 4.3 */}
        </CanvasViewport>
     </div>
   );
