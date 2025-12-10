@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import { useFloorplanStore } from '../../../src/stores/floorplanStore';
-import type { Room } from '../../../src/types';
+import type { Room, Wall, Door, Window } from '../../../src/types';
 
 describe('Floorplan Store', () => {
   beforeEach(() => {
@@ -437,6 +437,121 @@ describe('Floorplan Store', () => {
       });
       // 5 * 4 * 3 = 60
       expect(useFloorplanStore.getState().getTotalVolume()).toBe(60);
+    });
+  });
+
+  describe('Wall operations', () => {
+    beforeEach(() => {
+      useFloorplanStore.getState().createFloorplan('Test', 'meters');
+      // Inject a wall manually since there's no addWall action yet
+      const wall: Wall = {
+        id: 'w1',
+        from: { x: 0, z: 0 },
+        to: { x: 5, z: 0 },
+        thickness: 0.2,
+      };
+      const state = useFloorplanStore.getState();
+      if (state.currentFloorplan) {
+        useFloorplanStore.setState({
+          currentFloorplan: {
+            ...state.currentFloorplan,
+            walls: [wall],
+          },
+        });
+      }
+    });
+
+    it('should update wall', () => {
+      useFloorplanStore.getState().updateWall('w1', { thickness: 0.5 });
+      const wall = useFloorplanStore.getState().getWallById('w1');
+      expect(wall?.thickness).toBe(0.5);
+      expect(useFloorplanStore.getState().isDirty).toBe(true);
+    });
+
+    it('should delete wall', () => {
+      useFloorplanStore.getState().deleteWall('w1');
+      const wall = useFloorplanStore.getState().getWallById('w1');
+      expect(wall).toBeUndefined();
+      expect(useFloorplanStore.getState().isDirty).toBe(true);
+    });
+  });
+
+  describe('Door operations', () => {
+    beforeEach(() => {
+      useFloorplanStore.getState().createFloorplan('Test', 'meters');
+      const door: Door = {
+        id: 'd1',
+        roomId: 'r1',
+        wallSide: 'north',
+        position: 0.5,
+        width: 0.9,
+        height: 2.1,
+        type: 'single',
+        swing: 'inward',
+        handleSide: 'right',
+      };
+      const state = useFloorplanStore.getState();
+      if (state.currentFloorplan) {
+        useFloorplanStore.setState({
+          currentFloorplan: {
+            ...state.currentFloorplan,
+            doors: [door],
+          },
+        });
+      }
+    });
+
+    it('should update door', () => {
+      useFloorplanStore.getState().updateDoor('d1', { width: 1.2 });
+      const door = useFloorplanStore.getState().getDoorById('d1');
+      expect(door?.width).toBe(1.2);
+      expect(useFloorplanStore.getState().isDirty).toBe(true);
+    });
+
+    it('should delete door', () => {
+      useFloorplanStore.getState().deleteDoor('d1');
+      const door = useFloorplanStore.getState().getDoorById('d1');
+      expect(door).toBeUndefined();
+      expect(useFloorplanStore.getState().isDirty).toBe(true);
+    });
+  });
+
+  describe('Window operations', () => {
+    beforeEach(() => {
+      useFloorplanStore.getState().createFloorplan('Test', 'meters');
+      const window: Window = {
+        id: 'win1',
+        roomId: 'r1',
+        wallSide: 'north',
+        position: 0.5,
+        width: 1.2,
+        height: 1.2,
+        sillHeight: 0.9,
+        frameType: 'single',
+      };
+      const state = useFloorplanStore.getState();
+      if (state.currentFloorplan) {
+        useFloorplanStore.setState({
+          currentFloorplan: {
+            ...state.currentFloorplan,
+            windows: [window],
+          },
+        });
+      }
+    });
+
+    it('should update window', () => {
+      useFloorplanStore.getState().updateWindow('win1', { width: 1.5 });
+      const win = useFloorplanStore.getState().getWindowById('win1');
+      expect(win?.width).toBe(1.5);
+      expect(useFloorplanStore.getState().isDirty).toBe(true);
+    });
+
+    it('should delete window', () => {
+      useFloorplanStore.getState().deleteWindow('win1');
+      const win = useFloorplanStore.getState().getWindowById('win1');
+      expect(win).toBeUndefined();
+      expect(useFloorplanStore.getState().isDirty).toBe(true);
     });
   });
 });

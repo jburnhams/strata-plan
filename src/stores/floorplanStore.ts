@@ -3,7 +3,7 @@
  */
 
 import { create } from 'zustand';
-import type { Floorplan, Room, MeasurementUnit, EditorMode } from '../types';
+import type { Floorplan, Room, Wall, Door, Window, MeasurementUnit, EditorMode } from '../types';
 import { generateUUID } from '../services/geometry';
 import { calculateArea, calculateVolume, getRoomBounds } from '../services/geometry/room';
 import { DEFAULT_ROOM_GAP } from '../constants/defaults';
@@ -35,6 +35,18 @@ export interface FloorplanActions {
   updateRoom: (id: string, updates: Partial<Room>) => void;
   deleteRoom: (id: string) => void;
 
+  // Wall operations
+  updateWall: (id: string, updates: Partial<Wall>) => void;
+  deleteWall: (id: string) => void;
+
+  // Door operations
+  updateDoor: (id: string, updates: Partial<Door>) => void;
+  deleteDoor: (id: string) => void;
+
+  // Window operations
+  updateWindow: (id: string, updates: Partial<Window>) => void;
+  deleteWindow: (id: string) => void;
+
   // Selection
   selectRoom: (id: string | null) => void;
   selectWall: (id: string | null) => void;
@@ -55,6 +67,9 @@ export interface FloorplanActions {
   getRoomCount: () => number;
   getSelectedRoom: () => Room | null;
   getRoomById: (id: string) => Room | undefined;
+  getWallById: (id: string) => Wall | undefined;
+  getDoorById: (id: string) => Door | undefined;
+  getWindowById: (id: string) => Window | undefined;
 }
 
 /**
@@ -213,6 +228,141 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
     });
   },
 
+  // Wall operations
+  updateWall: (id: string, updates: Partial<Wall>) => {
+    const state = get();
+    if (!state.currentFloorplan) return;
+
+    const wallIndex = state.currentFloorplan.walls.findIndex((w) => w.id === id);
+    if (wallIndex === -1) return;
+
+    const updatedWalls = [...state.currentFloorplan.walls];
+    updatedWalls[wallIndex] = {
+      ...updatedWalls[wallIndex],
+      ...updates,
+    };
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      walls: updatedWalls,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      isDirty: true,
+    });
+  },
+
+  deleteWall: (id: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return;
+
+    const updatedWalls = state.currentFloorplan.walls.filter((w) => w.id !== id);
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      walls: updatedWalls,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      selectedWallId: state.selectedWallId === id ? null : state.selectedWallId,
+      isDirty: true,
+    });
+  },
+
+  // Door operations
+  updateDoor: (id: string, updates: Partial<Door>) => {
+    const state = get();
+    if (!state.currentFloorplan) return;
+
+    const doorIndex = state.currentFloorplan.doors.findIndex((d) => d.id === id);
+    if (doorIndex === -1) return;
+
+    const updatedDoors = [...state.currentFloorplan.doors];
+    updatedDoors[doorIndex] = {
+      ...updatedDoors[doorIndex],
+      ...updates,
+    };
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      doors: updatedDoors,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      isDirty: true,
+    });
+  },
+
+  deleteDoor: (id: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return;
+
+    const updatedDoors = state.currentFloorplan.doors.filter((d) => d.id !== id);
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      doors: updatedDoors,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      selectedDoorId: state.selectedDoorId === id ? null : state.selectedDoorId,
+      isDirty: true,
+    });
+  },
+
+  // Window operations
+  updateWindow: (id: string, updates: Partial<Window>) => {
+    const state = get();
+    if (!state.currentFloorplan) return;
+
+    const windowIndex = state.currentFloorplan.windows.findIndex((w) => w.id === id);
+    if (windowIndex === -1) return;
+
+    const updatedWindows = [...state.currentFloorplan.windows];
+    updatedWindows[windowIndex] = {
+      ...updatedWindows[windowIndex],
+      ...updates,
+    };
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      windows: updatedWindows,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      isDirty: true,
+    });
+  },
+
+  deleteWindow: (id: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return;
+
+    const updatedWindows = state.currentFloorplan.windows.filter((w) => w.id !== id);
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      windows: updatedWindows,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      selectedWindowId: state.selectedWindowId === id ? null : state.selectedWindowId,
+      isDirty: true,
+    });
+  },
+
   // Selection
   selectRoom: (id: string | null) => {
     set({
@@ -309,5 +459,26 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
     if (!state.currentFloorplan) return undefined;
 
     return state.currentFloorplan.rooms.find((r) => r.id === id);
+  },
+
+  getWallById: (id: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return undefined;
+
+    return state.currentFloorplan.walls.find((w) => w.id === id);
+  },
+
+  getDoorById: (id: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return undefined;
+
+    return state.currentFloorplan.doors.find((d) => d.id === id);
+  },
+
+  getWindowById: (id: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return undefined;
+
+    return state.currentFloorplan.windows.find((w) => w.id === id);
   },
 }));

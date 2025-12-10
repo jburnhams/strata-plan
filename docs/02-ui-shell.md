@@ -324,20 +324,20 @@ This section builds the application shell including the main layout, top toolbar
   - Material dropdown
   - Delete button with confirmation
 
-- [ ] **2.6.4** Create `WallPropertiesPanel`:
+- [x] **2.6.4** Create `WallPropertiesPanel`:
   - Length display (read-only)
   - Thickness slider/input
   - Material dropdown
   - Delete button
 
-- [ ] **2.6.5** Create `DoorPropertiesPanel`:
+- [x] **2.6.5** Create `DoorPropertiesPanel`:
   - Width, Height inputs
   - Type dropdown (single, double, sliding, etc.)
   - Swing direction toggle
   - Handle side toggle
   - Delete button
 
-- [ ] **2.6.6** Create `WindowPropertiesPanel`:
+- [x] **2.6.6** Create `WindowPropertiesPanel`:
   - Width, Height inputs
   - Sill height input
   - Frame type dropdown
