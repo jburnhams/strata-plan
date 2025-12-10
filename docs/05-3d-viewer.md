@@ -102,7 +102,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - **Side**: looking from west to east
   - Smooth animation between presets (2 second duration)
 
-- [ ] **5.2.6** Create camera view buttons:
+- [x] **5.2.6** Create camera view buttons:
   - Button group in viewer toolbar
   - Icons for each preset
   - Current view highlighted
@@ -112,7 +112,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Position camera to see entire model
   - Add padding around edges
 
-- [ ] **5.2.8** Keyboard camera controls:
+- [x] **5.2.8** Keyboard camera controls:
   - Arrow keys: rotate view
   - +/-: zoom
   - R: reset to default view
@@ -396,15 +396,15 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [ ] **5.9.1** Create viewer toolbar:
+- [x] **5.9.1** Create viewer toolbar:
   - Position: top of viewer panel
   - Contains camera presets, controls, settings
 
-- [ ] **5.9.2** Camera preset buttons:
+- [x] **5.9.2** Camera preset buttons:
   - Isometric, Top-down, Front, Side
   - Icon buttons with tooltips
 
-- [ ] **5.9.3** Zoom controls:
+- [x] **5.9.3** Zoom controls:
   - Zoom in (+) / Zoom out (-) buttons
   - Zoom to fit button
 
