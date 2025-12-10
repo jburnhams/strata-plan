@@ -1,10 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { useFloorplanStore } from '../../stores/floorplanStore';
-import { calculateArea } from '../../services/geometry/room';
 import { RoomTableRow } from './RoomTableRow';
 import { useTableNavigation } from '../../hooks/useTableNavigation';
 import { useAddRoom } from '../../hooks/useAddRoom';
 import { AddRoomButton } from './AddRoomButton';
+import { TableTotals } from './TableTotals';
+import { useToast } from '../../hooks/use-toast';
+import { useTableSort, SortColumn } from '../../hooks/useTableSort';
+import { calculateAutoLayout } from '../../services/layout/autoLayout';
+import { TableControls } from './TableControls';
 
 export const RoomTable: React.FC = () => {
   const currentFloorplan = useFloorplanStore((state) => state.currentFloorplan);
@@ -12,16 +16,48 @@ export const RoomTable: React.FC = () => {
   const updateRoom = useFloorplanStore((state) => state.updateRoom);
   const deleteRoom = useFloorplanStore((state) => state.deleteRoom);
   const selectRoom = useFloorplanStore((state) => state.selectRoom);
+  const { toast } = useToast();
 
   const { addRoom, addRoomWithDefaults } = useAddRoom();
 
   const rooms = currentFloorplan?.rooms || [];
   const units = currentFloorplan?.units || 'meters';
 
+  const {
+    sortColumn,
+    sortDirection,
+    sortedRooms,
+    toggleSort
+  } = useTableSort(rooms);
+
+  const handleDeleteRoom = (id: string) => {
+    deleteRoom(id);
+    toast({
+      title: "Room deleted",
+      description: "The room has been removed from the floorplan.",
+    });
+  };
+
+  const handleAutoLayout = () => {
+    if (window.confirm('This will reset all room positions. Continue?')) {
+       // We use sortedRooms to determine the order of layout
+       const newPositions = calculateAutoLayout(sortedRooms);
+
+       newPositions.forEach((pos, roomId) => {
+           updateRoom(roomId, { position: pos });
+       });
+
+       toast({
+         title: "Layout Updated",
+         description: "Rooms have been re-arranged linearly."
+       });
+    }
+  };
+
   const { focusedCell, setFocusedCell } = useTableNavigation({
-    rooms,
+    rooms: sortedRooms, // Use sorted rooms for navigation
     onAddRoom: addRoomWithDefaults,
-    onDeleteRoom: deleteRoom
+    onDeleteRoom: handleDeleteRoom
   });
 
   // Effect to focus new room when added
@@ -29,14 +65,24 @@ export const RoomTable: React.FC = () => {
   useEffect(() => {
     if (rooms.length > prevRoomCountRef.current) {
         // Room added
-        const newRoom = rooms[rooms.length - 1];
+        // Note: sortedRooms might re-order, so finding the "last added" might be tricky if we don't know which one it is.
+        // But usually added room is appended. If sorted, it might be anywhere.
+        // However, we can track the new room by comparing IDs or assuming store adds it to end of 'rooms' array.
+        const newRoom = rooms[rooms.length - 1]; // Use original rooms array to find latest
+
         // Focus its first cell (Name)
         setFocusedCell({ roomId: newRoom.id, colIndex: 0 });
         // Select it too
         selectRoom(newRoom.id);
+
+        // Show toast
+        toast({
+          title: "Room added",
+          description: `${newRoom.name} created.`,
+        });
     }
     prevRoomCountRef.current = rooms.length;
-  }, [rooms.length, setFocusedCell, selectRoom, rooms]);
+  }, [rooms.length, setFocusedCell, selectRoom, rooms, toast]);
 
   if (!currentFloorplan) {
     return <div>No floorplan loaded</div>;
@@ -51,32 +97,52 @@ export const RoomTable: React.FC = () => {
     );
   }
 
-  const totalArea = rooms.reduce((acc, room) => acc + calculateArea(room.length, room.width), 0);
-  const totalVolume = rooms.reduce((acc, room) => acc + room.length * room.width * room.height, 0);
+  const renderHeader = (label: string, column: SortColumn, width: string) => (
+    <th
+      className="p-2 text-left cursor-pointer hover:bg-gray-100 select-none group"
+      style={{ width }}
+      onClick={() => toggleSort(column)}
+    >
+      <div className="flex items-center gap-1">
+        {label}
+        {sortColumn === column && (
+          <span className="text-xs text-gray-500">
+            {sortDirection === 'asc' ? '▲' : '▼'}
+          </span>
+        )}
+        {sortColumn !== column && (
+          <span className="text-xs text-gray-300 opacity-0 group-hover:opacity-100">
+            ▲
+          </span>
+        )}
+      </div>
+    </th>
+  );
 
   return (
-    <div className="room-table-container">
+    <div className="room-table-container flex flex-col">
+      <TableControls onAutoLayout={handleAutoLayout} />
       <table className="room-table w-full border-collapse">
         <thead className="sticky top-0 z-10 bg-white shadow-sm">
           <tr className="bg-gray-50 border-b border-gray-300">
-            <th className="p-2 text-left" style={{ width: '150px' }}>Room Name</th>
-            <th className="p-2 text-left" style={{ width: '80px' }}>Length</th>
-            <th className="p-2 text-left" style={{ width: '80px' }}>Width</th>
-            <th className="p-2 text-left" style={{ width: '80px' }}>Height</th>
-            <th className="p-2 text-left" style={{ width: '120px' }}>Type</th>
-            <th className="p-2 text-left" style={{ width: '80px' }}>Area</th>
+            {renderHeader('Room Name', 'name', '150px')}
+            {renderHeader('Length', 'length', '80px')}
+            {renderHeader('Width', 'width', '80px')}
+            {renderHeader('Height', 'height', '80px')}
+            {renderHeader('Type', 'type', '120px')}
+            {renderHeader('Area', 'area', '80px')}
             <th className="p-2 text-left" style={{ width: '60px' }}>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {rooms.map((room) => (
+          {sortedRooms.map((room) => (
             <RoomTableRow
               key={room.id}
               room={room}
               isSelected={selectedRoomId === room.id}
               onSelect={() => selectRoom(room.id)}
               onUpdate={(updates) => updateRoom(room.id, updates)}
-              onDelete={() => deleteRoom(room.id)}
+              onDelete={() => handleDeleteRoom(room.id)}
               units={units}
               focusedColIndex={focusedCell?.roomId === room.id ? focusedCell.colIndex : undefined}
               otherNames={rooms.filter(r => r.id !== room.id).map(r => r.name)}
@@ -89,14 +155,7 @@ export const RoomTable: React.FC = () => {
                     <AddRoomButton onAdd={addRoom} />
                 </td>
             </tr>
-            <tr className="totals-row bg-gray-100 font-medium">
-                <td colSpan={5} className="p-2 text-right">Totals</td>
-                <td colSpan={2} className="p-2">
-                    <div>Area: {totalArea.toFixed(1)} {units === 'meters' ? 'm²' : 'ft²'}</div>
-                    <div className="text-xs text-gray-500">Vol: {totalVolume.toFixed(1)} {units === 'meters' ? 'm³' : 'ft³'}</div>
-                    <div className="text-xs text-gray-500">{rooms.length} {rooms.length === 1 ? 'room' : 'rooms'}</div>
-                </td>
-            </tr>
+            <TableTotals rooms={rooms} units={units} />
         </tfoot>
       </table>
     </div>

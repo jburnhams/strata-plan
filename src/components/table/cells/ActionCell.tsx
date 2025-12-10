@@ -14,9 +14,7 @@ export const ActionCell: React.FC<ActionCellProps> = ({
       <button
         onClick={(e) => {
             e.stopPropagation();
-            if (window.confirm('Delete this room?')) {
-                onDelete();
-            }
+            onDelete();
         }}
         aria-label="Delete room"
         className="text-red-600 hover:text-red-800"
