@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { RoomTable } from '../../../../src/components/table/RoomTable';
 import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
@@ -282,5 +282,39 @@ describe('RoomTable', () => {
     fireEvent.click(screen.getByText(/1 Error/));
 
     expect(scrollIntoViewMock).toHaveBeenCalled();
+  });
+
+  it('scrolls to selected room when selection changes externally', async () => {
+    const store = useFloorplanStore.getState();
+    store.addRoom({
+      name: 'Room 1',
+      length: 4, width: 4, height: 2.7, type: 'bedroom',
+      position: { x: 0, z: 0 }, rotation: 0
+    });
+    // The store generates IDs if not provided. We need to find the ID of the second room.
+    store.addRoom({
+      name: 'Room 2',
+      length: 4, width: 4, height: 2.7, type: 'bedroom',
+      position: { x: 0, z: 0 }, rotation: 0
+    });
+
+    const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
+    expect(rooms).toHaveLength(2);
+    const secondRoomId = rooms[1].id;
+
+    render(<RoomTable />);
+
+    // Mock scrollIntoView
+    const scrollIntoViewMock = jest.fn();
+    window.HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
+
+    // Trigger selection change in store
+    act(() => {
+        useFloorplanStore.getState().selectRoom(secondRoomId);
+    });
+
+    await waitFor(() => {
+        expect(scrollIntoViewMock).toHaveBeenCalled();
+    });
   });
 });

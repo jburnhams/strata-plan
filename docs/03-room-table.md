@@ -433,10 +433,10 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
 
 - [ ] **3.10.1** Sync selection between table and 2D view:
   - Select room in table → highlights in 2D
-  - Select room in 2D → highlights row in table
-  - Scroll table to show selected row
+  - [x] Select room in 2D → highlights row in table
+  - [x] Scroll table to show selected row
 
-- [ ] **3.10.2** Implement scroll-to-room:
+- [x] **3.10.2** Implement scroll-to-room:
   - Double-click room in 2D → scroll table to that row
   - Optional: smooth scroll animation
 

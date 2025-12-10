@@ -130,6 +130,16 @@ export const RoomTable: React.FC = () => {
     prevRoomCountRef.current = rooms.length;
   }, [rooms.length, setFocusedCell, selectRoom, rooms, toast]);
 
+  // Effect to scroll to selected room when selection changes externally
+  useEffect(() => {
+    if (selectedRoomId) {
+      const row = document.querySelector(`[data-testid="room-row-${selectedRoomId}"]`);
+      if (row) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [selectedRoomId]);
+
   if (!currentFloorplan) {
     return <div>No floorplan loaded</div>;
   }
