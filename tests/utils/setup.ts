@@ -13,3 +13,16 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: jest.fn(),
   })),
 });
+
+// Radix UI mocks
+class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+window.ResizeObserver = ResizeObserver;
+
+window.HTMLElement.prototype.scrollIntoView = jest.fn();
+window.HTMLElement.prototype.releasePointerCapture = jest.fn();
+window.HTMLElement.prototype.hasPointerCapture = jest.fn();

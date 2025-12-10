@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useUIStore } from '../../stores/uiStore';
+import { useDialogStore } from '../../stores/dialogStore';
 
 interface TopToolbarProps {
   className?: string;
@@ -55,6 +56,8 @@ export function TopToolbar({ className }: TopToolbarProps) {
     resetZoom,
   } = useUIStore();
 
+  const openDialog = useDialogStore((state) => state.openDialog);
+
   return (
     <header
       className={cn(
@@ -72,12 +75,12 @@ export function TopToolbar({ className }: TopToolbarProps) {
             <Button variant="ghost" size="sm" className="h-8">File</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openDialog('newProject')}>
               <FilePlus className="mr-2 h-4 w-4" />
               <span>New Project</span>
               <span className="ml-auto text-xs tracking-widest opacity-60">Ctrl+N</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Open project')}>
               <FolderOpen className="mr-2 h-4 w-4" />
               <span>Open Project...</span>
               <span className="ml-auto text-xs tracking-widest opacity-60">Ctrl+O</span>
@@ -100,7 +103,7 @@ export function TopToolbar({ className }: TopToolbarProps) {
               <span>Save As...</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openDialog('import')}>
               <span>Import...</span>
             </DropdownMenuItem>
             <DropdownMenuSub>
@@ -108,13 +111,13 @@ export function TopToolbar({ className }: TopToolbarProps) {
                 <span>Export</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
-                <DropdownMenuItem>JSON</DropdownMenuItem>
-                <DropdownMenuItem>glTF</DropdownMenuItem>
-                <DropdownMenuItem>PDF</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => openDialog('export', { format: 'json' })}>JSON</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => openDialog('export', { format: 'gltf' })}>glTF</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => openDialog('export', { format: 'pdf' })}>PDF</DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openDialog('projectSettings')}>
               <Settings className="mr-2 h-4 w-4" />
               <span>Project Settings</span>
             </DropdownMenuItem>
@@ -246,7 +249,7 @@ export function TopToolbar({ className }: TopToolbarProps) {
         <Button variant="ghost" size="icon" className="h-9 w-9">
             <HelpCircle className="h-[1.2rem] w-[1.2rem]" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-9 w-9">
+        <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => openDialog('projectSettings')}>
             <Settings className="h-[1.2rem] w-[1.2rem]" />
         </Button>
       </div>
