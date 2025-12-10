@@ -172,18 +172,18 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [ ] **5.4.1** Create `generateRoomGeometry(room: Room): THREE.BufferGeometry`
+- [x] **5.4.1** Create `generateRoomGeometry(room: Room): THREE.BufferGeometry`
   - Generate box geometry from room dimensions
   - Position based on room.position (X, Z) and Y=0
   - Account for room rotation
 
-- [ ] **5.4.2** Generate room mesh structure:
+- [x] **5.4.2** Generate room mesh structure:
   - Floor: PlaneGeometry at Y=0
   - Ceiling: PlaneGeometry at Y=height
   - 4 Walls: PlaneGeometry for each side
   - Orient normals outward
 
-- [ ] **5.4.3** Handle wall openings (for doors/windows):
+- [x] **5.4.3** Handle wall openings (for doors/windows):
   - Create walls with holes using Shape and ExtrudeGeometry
   - Or use CSG (Constructive Solid Geometry) library
   - Position holes based on door/window data
@@ -193,18 +193,18 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Use BufferGeometry for performance
   - Set appropriate bounding spheres
 
-- [ ] **5.4.5** Create `generateFloorplanGeometry(floorplan: Floorplan): THREE.Group`
+- [x] **5.4.5** Create `generateFloorplanGeometry(floorplan: Floorplan): THREE.Group`
   - Generate all room geometries
   - Position each room correctly
   - Return as Group for easy manipulation
 
 ### Unit Tests
 
-- [ ] Room geometry has correct dimensions
-- [ ] Room positioned at correct coordinates
-- [ ] Wall count is 4 for simple room
-- [ ] Rotation applied correctly
-- [ ] Door opening creates hole in wall
+- [x] Room geometry has correct dimensions
+- [x] Room positioned at correct coordinates
+- [x] Wall count is 4 for simple room
+- [x] Rotation applied correctly
+- [x] Door opening creates hole in wall
 
 ---
 
