@@ -368,19 +368,19 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.7.1** Create status bar container:
+- [x] **2.7.1** Create status bar container:
   - Fixed height: 24px
   - Background slightly darker than main
   - Small text (12px)
 
-- [ ] **2.7.2** Left section content:
+- [x] **2.7.2** Left section content:
   - Project name (truncated if long)
   - Selection info ("2 rooms selected" or "Kitchen selected")
 
-- [ ] **2.7.3** Center section:
+- [x] **2.7.3** Center section:
   - Mouse coordinates when over canvas ("X: 5.2m, Z: 3.8m")
 
-- [ ] **2.7.4** Right section content:
+- [x] **2.7.4** Right section content:
   - Save status indicator:
     - Cloud icon + "Saved" (green) when synced
     - Spinner + "Saving..." when saving
@@ -389,13 +389,13 @@ This section builds the application shell including the main layout, top toolbar
   - Last save time ("Saved 2 min ago")
   - Zoom level ("100%")
 
-- [ ] **2.7.5** Add tooltips on hover for each element
+- [x] **2.7.5** Add tooltips on hover for each element
 
 ### Unit Tests
 
-- [ ] Displays correct save status
-- [ ] Coordinates update (mock mouse position)
-- [ ] Selection info reflects store state
+- [x] Displays correct save status
+- [x] Coordinates update (mock mouse position)
+- [x] Selection info reflects store state
 
 ---
 
