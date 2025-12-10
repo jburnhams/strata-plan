@@ -261,32 +261,32 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [ ] **5.6.1** Set up ambient light:
+- [x] **5.6.1** Set up ambient light:
   - AmbientLight with soft intensity
   - Provides base illumination everywhere
   - Color: white or slight warm tint
 
-- [ ] **5.6.2** Set up directional light (sun):
+- [x] **5.6.2** Set up directional light (sun):
   - DirectionalLight from above-front angle
   - Casts shadows
   - Position based on "sun direction" setting
 
-- [ ] **5.6.3** Configure shadow mapping:
+- [x] **5.6.3** Configure shadow mapping:
   - Enable shadows on renderer
   - Shadow map size: 2048×2048 (adjustable)
   - Shadow camera covers entire floorplan
 
-- [ ] **5.6.4** Create brightness control:
+- [x] **5.6.4** Create brightness control:
   - Slider 0-200% (default 100%)
   - Adjusts ambient light intensity
   - Updates in real-time
 
-- [ ] **5.6.5** Create sun direction control:
+- [x] **5.6.5** Create sun direction control:
   - Circular dial showing compass direction
   - Draggable to change light angle
   - Or: Time-of-day slider
 
-- [ ] **5.6.6** Implement shadow quality settings:
+- [x] **5.6.6** Implement shadow quality settings:
   - Off: No shadows (fastest)
   - Low: 512px shadow map
   - Medium: 1024px shadow map
@@ -294,10 +294,10 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Unit Tests
 
-- [ ] Ambient light added to scene
-- [ ] Directional light casts shadows
-- [ ] Brightness slider changes intensity
-- [ ] Shadow quality changes map size
+- [x] Ambient light added to scene
+- [x] Directional light casts shadows
+- [x] Brightness slider changes intensity
+- [x] Shadow quality changes map size
 
 ---
 
@@ -307,7 +307,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [ ] **5.7.1** Create `RoomMesh` React component:
+- [x] **5.7.1** Create `RoomMesh` React component:
   ```typescript
   interface RoomMeshProps {
     room: Room
@@ -317,34 +317,34 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   }
   ```
 
-- [ ] **5.7.2** Generate and render room geometry:
+- [x] **5.7.2** Generate and render room geometry:
   - Use geometry from Task 5.4
   - Apply materials from Task 5.5
 
-- [ ] **5.7.3** Implement selection highlight:
+- [x] **5.7.3** Implement selection highlight:
   - Selected room has glowing outline
   - Or: brighter material / different color
 
-- [ ] **5.7.4** Handle hover state:
+- [x] **5.7.4** Handle hover state:
   - Raycasting to detect hover
   - Show room info on hover (tooltip or overlay)
 
-- [ ] **5.7.5** Implement room labels in 3D:
+- [x] **5.7.5** Implement room labels in 3D:
   - Text sprite above room
   - Shows room name
   - Optional: show area
   - Billboard (always faces camera)
 
-- [ ] **5.7.6** Click to select:
+- [x] **5.7.6** Click to select:
   - Raycast on click to find room
   - Update selection in store
 
 ### Unit Tests
 
-- [ ] RoomMesh renders correct geometry
-- [ ] Selection highlight applied
-- [ ] Click triggers selection callback
-- [ ] Labels render when enabled
+- [x] RoomMesh renders correct geometry
+- [x] Selection highlight applied
+- [x] Click triggers selection callback
+- [x] Labels render when enabled
 
 ---
 
@@ -359,16 +359,16 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Updates 3D scene when rooms change
   - Debounced updates (100ms) for performance
 
-- [ ] **5.8.2** Handle room additions:
+- [x] **5.8.2** Handle room additions:
   - Create new RoomMesh for added room
   - Add to scene
 
-- [ ] **5.8.3** Handle room updates:
+- [x] **5.8.3** Handle room updates:
   - Update geometry when dimensions change
   - Update material when color/type changes
   - Update position when moved
 
-- [ ] **5.8.4** Handle room deletions:
+- [x] **5.8.4** Handle room deletions:
   - Remove RoomMesh from scene
   - Dispose geometry and materials (prevent memory leak)
 
@@ -383,9 +383,9 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Unit Tests
 
-- [ ] Room addition creates new mesh
-- [ ] Room update modifies existing mesh
-- [ ] Room deletion removes mesh and disposes resources
+- [x] Room addition creates new mesh
+- [x] Room update modifies existing mesh
+- [x] Room deletion removes mesh and disposes resources
 - [ ] Debounce prevents rapid re-renders
 
 ---
