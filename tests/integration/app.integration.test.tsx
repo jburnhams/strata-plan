@@ -58,26 +58,19 @@ describe('Browser Integration Tests', () => {
   });
 
   describe('App component integration', () => {
-    it('renders the app with StrataPlan branding', () => {
+    it('renders the app shell structure', () => {
       render(<App />);
 
-      // Check main heading
+      // Check main parts of the shell
+      expect(screen.getByTestId('top-toolbar')).toBeInTheDocument();
+      expect(screen.getByTestId('left-sidebar')).toBeInTheDocument();
+      expect(screen.getByTestId('properties-panel')).toBeInTheDocument();
+      expect(screen.getByTestId('status-bar')).toBeInTheDocument();
+
+      // Check specific text content
       expect(screen.getByText('StrataPlan')).toBeInTheDocument();
-
-      // Check description
-      expect(
-        screen.getByText(/Browser-based, offline-first floorplan application/i)
-      ).toBeInTheDocument();
-
-      // Check status message
-      expect(screen.getByText(/Core data model implemented/i)).toBeInTheDocument();
-    });
-
-    it('renders correct CSS class for app structure', () => {
-      const { container } = render(<App />);
-
-      const appDiv = container.querySelector('.app');
-      expect(appDiv).toBeInTheDocument();
+      expect(screen.getByText('Navigation')).toBeInTheDocument();
+      expect(screen.getByText('Properties')).toBeInTheDocument();
     });
   });
 
@@ -95,7 +88,7 @@ describe('Browser Integration Tests', () => {
 
       // Verify initial state
       expect(screen.getByText('StrataPlan')).toBeInTheDocument();
-      expect(screen.getByText(/Core data model implemented/i)).toBeInTheDocument();
+      expect(screen.getByText('Ready')).toBeInTheDocument();
     });
   });
 });
