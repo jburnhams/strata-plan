@@ -88,13 +88,13 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.2.1** Create `ThemeProvider` component:
+- [x] **2.2.1** Create `ThemeProvider` component:
   - Wraps app with theme context
   - Reads initial theme from localStorage or system preference
   - Applies `dark` class to document root when dark mode active
   - Syncs with `uiStore.theme`
 
-- [ ] **2.2.2** Create `useTheme` hook:
+- [x] **2.2.2** Create `useTheme` hook:
   ```typescript
   interface UseThemeReturn {
     theme: 'light' | 'dark' | 'system'
@@ -104,21 +104,21 @@ This section builds the application shell including the main layout, top toolbar
   }
   ```
 
-- [ ] **2.2.3** Handle system preference changes via `matchMedia` listener
+- [x] **2.2.3** Handle system preference changes via `matchMedia` listener
 
-- [ ] **2.2.4** Persist theme preference to localStorage
+- [x] **2.2.4** Persist theme preference to localStorage
 
-- [ ] **2.2.5** Create `ThemeToggle` component:
+- [x] **2.2.5** Create `ThemeToggle` component:
   - Icon button showing sun/moon
   - Dropdown with Light / Dark / System options
   - Keyboard accessible
 
 ### Unit Tests (`tests/unit/components/layout/ThemeProvider.test.tsx`)
 
-- [ ] Theme defaults to 'system'
-- [ ] `setTheme('dark')` adds dark class to root
-- [ ] Theme persists across remounts (mock localStorage)
-- [ ] System preference changes update resolved theme
+- [x] Theme defaults to 'system'
+- [x] `setTheme('dark')` adds dark class to root
+- [x] Theme persists across remounts (mock localStorage)
+- [x] System preference changes update resolved theme
 
 ---
 
@@ -597,7 +597,8 @@ src/
 │   │   ├── SidebarSection.tsx
 │   │   ├── PropertiesPanel.tsx
 │   │   ├── StatusBar.tsx
-│   │   └── ThemeProvider.tsx
+│   │   ├── ThemeProvider.tsx
+│   │   └── ThemeToggle.tsx
 │   ├── properties/
 │   │   ├── NoSelectionPanel.tsx
 │   │   ├── RoomPropertiesPanel.tsx
