@@ -91,6 +91,21 @@ export const NumberCell: React.FC<NumberCellProps> = ({
       setCurrentValue(String(value));
       setIsEditing(false);
       setLocalError(null);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const num = parseFloat(currentValue);
+      if (!isNaN(num)) {
+        // Fix precision issues
+        const next = parseFloat((num + step).toPrecision(12));
+        if (next <= max) setCurrentValue(String(next));
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const num = parseFloat(currentValue);
+      if (!isNaN(num)) {
+        const next = parseFloat((num - step).toPrecision(12));
+        if (next >= min) setCurrentValue(String(next));
+      }
     }
   };
 

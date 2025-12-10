@@ -14,6 +14,7 @@ import {
   ValidationResult
 } from '../../utils/validation';
 import { ValidationState } from './ValidationIndicator';
+import { useUIStore } from '../../stores/uiStore';
 
 interface RoomTableRowProps {
   room: Room;
@@ -99,19 +100,26 @@ export const RoomTableRow: React.FC<RoomTableRowProps> = ({
     .filter((msg): msg is string => !!msg)
     .join('\n');
 
+  const hoveredRoomId = useUIStore((state) => state.hoveredRoomId);
+  const setHoveredRoom = useUIStore((state) => state.setHoveredRoom);
+  const isHovered = hoveredRoomId === room.id;
+
   return (
     <tr
       onClick={onSelect}
+      onMouseEnter={() => setHoveredRoom(room.id)}
+      onMouseLeave={() => setHoveredRoom(null)}
       title={validationSummary}
       className={`
         group
         ${isSelected ? 'bg-blue-50 ring-2 ring-blue-400 z-10 relative' : ''}
+        ${isHovered && !isSelected ? 'bg-blue-50' : ''}
         ${hasError ? 'border-l-4 border-l-red-500' : hasWarning ? 'border-l-4 border-l-yellow-500' : 'border-l-4 border-l-transparent'}
         hover:bg-opacity-80
         transition-colors
       `}
       style={{
-        backgroundColor: !isSelected ? `${ROOM_TYPE_COLORS[room.type]}20` : undefined
+        backgroundColor: !isSelected && !isHovered ? `${ROOM_TYPE_COLORS[room.type]}20` : undefined
       }}
       data-testid={`room-row-${room.id}`}
     >

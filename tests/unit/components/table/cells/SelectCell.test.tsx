@@ -41,4 +41,46 @@ describe('SelectCell', () => {
     }
     expect(screen.getByRole('combobox')).toBeInTheDocument();
   });
+
+  it('exits edit mode on blur', () => {
+    const onCommit = jest.fn();
+    render(<SelectCell value="bedroom" options={options} onCommit={onCommit} />);
+
+    // Enter edit mode
+    fireEvent.click(screen.getByText('bedroom'));
+    const select = screen.getByRole('combobox');
+
+    // Blur
+    fireEvent.blur(select);
+
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+
+  it('exits edit mode on Escape', () => {
+    const onCommit = jest.fn();
+    render(<SelectCell value="bedroom" options={options} onCommit={onCommit} />);
+
+    // Enter edit mode
+    fireEvent.click(screen.getByText('bedroom'));
+    const select = screen.getByRole('combobox');
+
+    fireEvent.keyDown(select, { key: 'Escape' });
+
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+
+  it('exits edit mode on Enter (while editing)', () => {
+    const onCommit = jest.fn();
+    render(<SelectCell value="bedroom" options={options} onCommit={onCommit} />);
+
+    // Enter edit mode
+    fireEvent.click(screen.getByText('bedroom'));
+    const select = screen.getByRole('combobox');
+
+    fireEvent.keyDown(select, { key: 'Enter' });
+
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+  });
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { CanvasViewport } from './CanvasViewport';
+import { RoomLayer } from './RoomLayer';
 import { Grid } from './Grid';
 
 export function Canvas2D() {
@@ -7,7 +8,7 @@ export function Canvas2D() {
     <div className="flex-1 h-full flex flex-col relative" data-testid="canvas-2d">
        <CanvasViewport>
           <Grid />
-          {/* Room rendering will be added here in Task 4.3 */}
+          <RoomLayer />
        </CanvasViewport>
     </div>
   );
