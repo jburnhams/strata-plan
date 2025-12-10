@@ -199,6 +199,46 @@ describe('UI Shell Integration', () => {
     });
   });
 
+  it('handles keyboard navigation in toolbar', async () => {
+    render(<App />);
+    const user = userEvent.setup();
+
+    // Start with focus on body
+    expect(document.body).toHaveFocus();
+
+    // Tab into the app - first element should be File menu
+    await user.tab();
+    expect(screen.getByRole('button', { name: /file/i })).toHaveFocus();
+
+    // Tab 2: Edit
+    await user.tab();
+    expect(screen.getByRole('button', { name: /edit/i })).toHaveFocus();
+
+    // Tab 3: View
+    await user.tab();
+    expect(screen.getByRole('button', { name: /^view$/i })).toHaveFocus();
+
+    // Tab 4: View 3D
+    await user.tab();
+    expect(screen.getByRole('button', { name: /view 3d/i })).toHaveFocus();
+
+    // Tab 5: Export
+    await user.tab();
+    expect(screen.getByRole('button', { name: /export/i })).toHaveFocus();
+
+    // Tab 6: Theme Toggle
+    await user.tab();
+    expect(screen.getByRole('button', { name: /toggle theme/i })).toHaveFocus();
+
+    // Tab 7: Help
+    await user.tab();
+    expect(screen.getByRole('button', { name: /help/i })).toHaveFocus();
+
+    // Tab 8: Settings
+    await user.tab();
+    expect(screen.getByRole('button', { name: /settings/i })).toHaveFocus();
+  });
+
   it('shows and dismisses toast notifications', async () => {
      // We assume if App renders without crash, Toaster is present.
      // Testing toast appearance requires triggering a toast.

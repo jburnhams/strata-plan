@@ -1,44 +1,125 @@
 import React from 'react';
 import { useUIStore } from '../../stores/uiStore';
 
-export const Grid: React.FC = () => {
-  const showGrid = useUIStore((state) => state.showGrid);
-  const zoomLevel = useUIStore((state) => state.zoomLevel);
+// Large enough to cover most use cases (1000m radius)
+const GRID_EXTENT = 1000;
+
+export function Grid() {
+  const { showGrid, zoomLevel } = useUIStore();
 
   if (!showGrid) return null;
 
-  // Render a large enough area.
-  // In a real app we might calculate viewport bounds in world space.
-  // For now, -100 to 100 meters is sufficient for typical houses.
-  const origin = -100;
-  const size = 200;
+  // Adaptive visibility thresholds
+  const showMinor = zoomLevel > 1.0;   // 0.1m lines
+  const showMedium = zoomLevel >= 0.5; // 0.5m lines
 
   return (
-    <g className="grid-layer" data-testid="grid-layer" pointerEvents="none">
+    <g className="grid-layer" data-testid="grid-layer">
       <defs>
-        <pattern id="grid-small" width="0.1" height="0.1" patternUnits="userSpaceOnUse">
-          <path d="M 0.1 0 L 0 0 0 0.1" fill="none" stroke="#e5e7eb" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+        {/* Minor Grid Pattern (0.1m) */}
+        <pattern
+          id="grid-minor"
+          width="0.1"
+          height="0.1"
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M 0.1 0 L 0 0 0 0.1"
+            fill="none"
+            className="stroke-slate-200/50"
+            vectorEffect="non-scaling-stroke"
+          />
         </pattern>
-        <pattern id="grid-medium" width="0.5" height="0.5" patternUnits="userSpaceOnUse">
-          <path d="M 0.5 0 L 0 0 0 0.5" fill="none" stroke="#d1d5db" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+
+        {/* Medium Grid Pattern (0.5m) */}
+        <pattern
+          id="grid-medium"
+          width="0.5"
+          height="0.5"
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M 0.5 0 L 0 0 0 0.5"
+            fill="none"
+            className="stroke-slate-300/60"
+            vectorEffect="non-scaling-stroke"
+          />
         </pattern>
-        <pattern id="grid-large" width="1" height="1" patternUnits="userSpaceOnUse">
-          <path d="M 1 0 L 0 0 0 1" fill="none" stroke="#9ca3af" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+
+        {/* Major Grid Pattern (1.0m) */}
+        <pattern
+          id="grid-major"
+          width="1.0"
+          height="1.0"
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M 1.0 0 L 0 0 0 1.0"
+            fill="none"
+            className="stroke-slate-400/70"
+            vectorEffect="non-scaling-stroke"
+          />
         </pattern>
       </defs>
 
-      {zoomLevel > 1.0 && (
-        <rect x={origin} y={origin} width={size} height={size} fill="url(#grid-small)" />
+      {/* Render grids from finest to coarsest */}
+
+      {showMinor && (
+        <rect
+          data-testid="grid-minor-rect"
+          x={-GRID_EXTENT}
+          y={-GRID_EXTENT}
+          width={GRID_EXTENT * 2}
+          height={GRID_EXTENT * 2}
+          fill="url(#grid-minor)"
+          pointerEvents="none"
+        />
       )}
 
-      {zoomLevel >= 0.5 && (
-        <rect x={origin} y={origin} width={size} height={size} fill="url(#grid-medium)" />
+      {showMedium && (
+        <rect
+          data-testid="grid-medium-rect"
+          x={-GRID_EXTENT}
+          y={-GRID_EXTENT}
+          width={GRID_EXTENT * 2}
+          height={GRID_EXTENT * 2}
+          fill="url(#grid-medium)"
+          pointerEvents="none"
+        />
       )}
 
-      <rect x={origin} y={origin} width={size} height={size} fill="url(#grid-large)" />
+      {/* Major grid always shown if grid is enabled */}
+      <rect
+        data-testid="grid-major-rect"
+        x={-GRID_EXTENT}
+        y={-GRID_EXTENT}
+        width={GRID_EXTENT * 2}
+        height={GRID_EXTENT * 2}
+        fill="url(#grid-major)"
+        pointerEvents="none"
+      />
 
-      {/* Origin Marker */}
-      <circle cx="0" cy="0" r="0.1" fill="#ef4444" opacity="0.5" />
+      {/* Axis Lines (Origin) */}
+      <line
+        x1={-GRID_EXTENT}
+        y1={0}
+        x2={GRID_EXTENT}
+        y2={0}
+        className="stroke-slate-500"
+        strokeWidth="2"
+        vectorEffect="non-scaling-stroke"
+        data-testid="grid-axis-x"
+      />
+      <line
+        x1={0}
+        y1={-GRID_EXTENT}
+        x2={0}
+        y2={GRID_EXTENT}
+        className="stroke-slate-500"
+        strokeWidth="2"
+        vectorEffect="non-scaling-stroke"
+        data-testid="grid-axis-z"
+      />
     </g>
   );
-};
+}

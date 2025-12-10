@@ -566,7 +566,7 @@ This section builds the application shell including the main layout, top toolbar
 - [x] **Theme switching**: Toggle dark mode → verify class applied → toggle back
 - [x] **Sidebar navigation**: Click room in sidebar → verify selection in store → verify properties panel updates
 - [x] **Menu interaction**: Open File menu → click New Project → verify dialog opens
-- [ ] **Keyboard navigation**: Tab through toolbar → verify focus order correct
+- [x] **Keyboard navigation**: Tab through toolbar → verify focus order correct
 - [x] **Toast lifecycle**: Trigger toast → verify visible → wait → verify dismissed
 
 ---
