@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useTableSort } from '../../../src/hooks/useTableSort';
 import { Room } from '../../../src/types';
+import { useUIStore } from '../../../src/stores/uiStore';
 
 describe('useTableSort', () => {
   const mockRooms: Room[] = [
@@ -8,6 +9,14 @@ describe('useTableSort', () => {
     { id: '2', name: 'A Room', length: 3, width: 3, height: 3, type: 'kitchen', position: { x: 0, z: 0 }, rotation: 0, doors: [], windows: [] },
     { id: '3', name: 'C Room', length: 4, width: 5, height: 3, type: 'living', position: { x: 0, z: 0 }, rotation: 0, doors: [], windows: [] },
   ];
+
+  beforeEach(() => {
+    // Reset store state
+    useUIStore.setState({
+      tableSortColumn: null,
+      tableSortDirection: 'asc',
+    });
+  });
 
   it('returns original order initially', () => {
     const { result } = renderHook(() => useTableSort(mockRooms));
@@ -33,10 +42,16 @@ describe('useTableSort', () => {
     act(() => {
       result.current.toggleSort('name'); // asc
     });
+
+    // Check intermediate state
+    expect(result.current.sortDirection).toBe('asc');
+
     act(() => {
       result.current.toggleSort('name'); // desc
     });
 
+    // Check final state
+    expect(result.current.sortDirection).toBe('desc');
     expect(result.current.sortedRooms[0].name).toBe('C Room');
     expect(result.current.sortedRooms[1].name).toBe('B Room');
     expect(result.current.sortedRooms[2].name).toBe('A Room');
@@ -63,7 +78,7 @@ describe('useTableSort', () => {
     });
 
     // Areas: 20 (5*4), 9 (3*3), 20 (4*5)
-    // Order: 9, 20, 20 (stable sort depends on browser implementation, but 9 is definitely first)
+    // Order: 9, 20, 20
     expect(result.current.sortedRooms[0].id).toBe('2'); // Area 9
   });
 });

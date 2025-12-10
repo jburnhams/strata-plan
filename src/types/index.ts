@@ -29,3 +29,6 @@ export type {
   MeasurementUnit,
   EditorMode,
 } from './floorplan';
+
+// UI types
+export type { SortDirection, SortColumn } from './ui';

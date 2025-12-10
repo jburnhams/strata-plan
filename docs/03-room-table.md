@@ -365,9 +365,9 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
   }
   ```
 
-- [ ] **3.8.4** Persist sort preference in UI store
+- [x] **3.8.4** Persist sort preference in UI store
 
-- [ ] **3.8.5** Create filter controls:
+- [x] **3.8.5** Create filter controls:
   - Search box filters by name
   - Type filter dropdown (show only bedrooms, etc.)
 
@@ -376,8 +376,8 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
 - [x] Sort by name works alphabetically
 - [x] Sort by area works numerically
 - [x] Sort direction toggles
-- [ ] Filter by name filters correctly
-- [ ] Filter by type shows only matching rooms
+- [x] Filter by name filters correctly
+- [x] Filter by type shows only matching rooms
 
 ---
 
@@ -510,6 +510,7 @@ src/
 │   ├── useTableNavigation.ts
 │   ├── useTableSort.ts
 │   ├── useAddRoom.ts
+│   ├── useTableFilter.ts
 └── services/
     └── layout/
         └── autoLayout.ts
@@ -522,6 +523,9 @@ tests/
 │           ├── RoomTableRow.test.tsx
 │           ├── TableCell.test.tsx
 │           └── cells/
+│   └── hooks/
+│       ├── useTableSort.test.ts
+│       ├── useTableFilter.test.ts
 └── integration/
     └── room-table.integration.test.tsx
 ```
