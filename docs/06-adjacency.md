@@ -97,14 +97,15 @@ The adjacency system automatically detects which rooms share walls, calculates s
   - Detect adjacencies
   - Build graph from results
 
-- [ ] **6.2.4** Optimize with spatial indexing:
+- [x] **6.2.4** Optimize with spatial indexing:
   - Only check nearby rooms for adjacency
   - Use bounding box quick-reject
 
-- [ ] **6.2.5** Create `rebuildConnections(floorplan: Floorplan): void`
+- [x] **6.2.5** Create `rebuildConnections(floorplan: Floorplan): void`
   - Clears existing connections
   - Rebuilds from current room positions
   - Updates store
+  - *Note: Implemented as `calculateAllConnections(rooms: Room[]): RoomConnection[]` helper function.*
 
 ### Unit Tests
 
@@ -112,7 +113,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 - [x] Bidirectional lookup works
 - [x] getAdjacentRoomIds returns correct rooms
 - [x] buildGraph creates correct connections
-- [ ] Rebuild clears and recreates
+- [x] Rebuild clears and recreates
 
 ---
 
@@ -341,9 +342,9 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Test Cases
 
-- [ ] **Auto-detection**: Create adjacent rooms → verify connection detected
-- [ ] **Move apart**: Move room away → verify connection removed
-- [ ] **Multi-room**: Create 5 connected rooms → verify graph correct
+- [x] **Auto-detection**: Create adjacent rooms → verify connection detected
+- [x] **Move apart**: Move room away → verify connection removed
+- [x] **Multi-room**: Create 5 connected rooms → verify graph correct
 - [ ] **Path finding**: Create chain of rooms → verify path found
 - [ ] **Validation**: Create overlapping rooms → verify warning shown
 - [ ] **Selection sync**: Select connection → verify both rooms highlighted
@@ -352,8 +353,8 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ## Acceptance Criteria
 
-- [ ] Adjacent rooms automatically detected
-- [ ] Connection graph updates when rooms change
+- [x] Adjacent rooms automatically detected
+- [x] Connection graph updates when rooms change
 - [ ] Adjacent rooms panel shows correct info
 - [ ] Connection lines display in 2D view (when enabled)
 - [ ] Path finding works for connected rooms

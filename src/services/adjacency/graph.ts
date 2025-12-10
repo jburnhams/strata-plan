@@ -1,7 +1,11 @@
 import { Room } from '../../types/room';
 import { RoomConnection } from '../../types/floorplan';
 import { detectAdjacency } from './detection';
+import { getRoomBounds } from '../geometry/room';
 import { v4 as uuidv4 } from 'uuid';
+
+// Tolerance for bounding box check (must be >= detection tolerance)
+const ADJACENCY_TOLERANCE = 0.01;
 
 export class AdjacencyGraph {
   // Map roomId -> list of connections involving this room
@@ -91,6 +95,18 @@ export function buildGraph(rooms: Room[]): AdjacencyGraph {
       const room1 = rooms[i];
       const room2 = rooms[j];
 
+      // Optimization: Quick bounding box check
+      // We check if bounding boxes are within tolerance of each other
+      const b1 = getRoomBounds(room1);
+      const b2 = getRoomBounds(room2);
+
+      const intersectX = (b1.minX <= b2.maxX + ADJACENCY_TOLERANCE) && (b1.maxX >= b2.minX - ADJACENCY_TOLERANCE);
+      const intersectZ = (b1.minZ <= b2.maxZ + ADJACENCY_TOLERANCE) && (b1.maxZ >= b2.minZ - ADJACENCY_TOLERANCE);
+
+      if (!intersectX || !intersectZ) {
+        continue;
+      }
+
       const info = detectAdjacency(room1, room2);
       if (info) {
         const connection: RoomConnection = {
@@ -108,4 +124,13 @@ export function buildGraph(rooms: Room[]): AdjacencyGraph {
   }
 
   return graph;
+}
+
+/**
+ * Rebuilds connections for a set of rooms, returning the new list of connections.
+ * This helper is used to update the store when room geometry changes.
+ */
+export function calculateAllConnections(rooms: Room[]): RoomConnection[] {
+  const graph = buildGraph(rooms);
+  return graph.getAllConnections();
 }
