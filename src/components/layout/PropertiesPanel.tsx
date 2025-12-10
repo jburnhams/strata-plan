@@ -10,6 +10,7 @@ import { RoomPropertiesPanel } from '../properties/RoomPropertiesPanel';
 import { WallPropertiesPanel } from '../properties/WallPropertiesPanel';
 import { DoorPropertiesPanel } from '../properties/DoorPropertiesPanel';
 import { WindowPropertiesPanel } from '../properties/WindowPropertiesPanel';
+import { MultiSelectionPanel } from '../properties/MultiSelectionPanel';
 
 interface PropertiesPanelProps {
   className?: string;
@@ -18,6 +19,7 @@ interface PropertiesPanelProps {
 export function PropertiesPanel({ className }: PropertiesPanelProps) {
   const { propertiesPanelOpen, togglePropertiesPanel } = useUIStore();
   const selectedRoomId = useFloorplanStore(state => state.selectedRoomId);
+  const selectedRoomIds = useFloorplanStore(state => state.selectedRoomIds);
   const selectedWallId = useFloorplanStore(state => state.selectedWallId);
   const selectedDoorId = useFloorplanStore(state => state.selectedDoorId);
   const selectedWindowId = useFloorplanStore(state => state.selectedWindowId);
@@ -25,6 +27,10 @@ export function PropertiesPanel({ className }: PropertiesPanelProps) {
   if (!propertiesPanelOpen) return null;
 
   const renderContent = () => {
+    // Priority: Multi-selection > Single Selection > No Selection
+    if (selectedRoomIds && selectedRoomIds.length > 1) {
+      return <MultiSelectionPanel />;
+    }
     if (selectedRoomId) {
       return <RoomPropertiesPanel />;
     }

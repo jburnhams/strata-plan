@@ -27,10 +27,12 @@ export function LeftSidebar({ className }: LeftSidebarProps) {
   const {
     currentFloorplan,
     selectedRoomId,
+    selectedRoomIds,
     selectedWallId,
     selectedDoorId,
     selectedWindowId,
     selectRoom,
+    setRoomSelection,
     selectWall,
     selectDoor,
     selectWindow
@@ -48,6 +50,40 @@ export function LeftSidebar({ className }: LeftSidebarProps) {
     if (!searchTerm) return rooms;
     return rooms.filter(r => r.name.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [rooms, searchTerm]);
+
+  // Handle room selection with support for multi-select
+  const handleRoomClick = (roomId: string, event: React.MouseEvent) => {
+    if (event.ctrlKey || event.metaKey) {
+        // Toggle selection
+        const isSelected = selectedRoomIds.includes(roomId);
+        let newSelection: string[];
+        if (isSelected) {
+            newSelection = selectedRoomIds.filter(id => id !== roomId);
+        } else {
+            newSelection = [...selectedRoomIds, roomId];
+        }
+        setRoomSelection(newSelection);
+    } else if (event.shiftKey && selectedRoomIds.length > 0) {
+        // Shift select range (simplified: just add to selection or select range in filtered list)
+        const lastSelectedId = selectedRoomIds[selectedRoomIds.length - 1];
+        const lastIndex = filteredRooms.findIndex(r => r.id === lastSelectedId);
+        const currentIndex = filteredRooms.findIndex(r => r.id === roomId);
+
+        if (lastIndex !== -1 && currentIndex !== -1) {
+            const start = Math.min(lastIndex, currentIndex);
+            const end = Math.max(lastIndex, currentIndex);
+            const rangeIds = filteredRooms.slice(start, end + 1).map(r => r.id);
+            // Merge with existing unique
+            const newSet = new Set([...selectedRoomIds, ...rangeIds]);
+            setRoomSelection(Array.from(newSet));
+        } else {
+             setRoomSelection([...selectedRoomIds, roomId]);
+        }
+    } else {
+        // Single select
+        selectRoom(roomId);
+    }
+  };
 
   if (!sidebarOpen) {
     return (
@@ -114,24 +150,27 @@ export function LeftSidebar({ className }: LeftSidebarProps) {
       <ScrollArea className="flex-1">
         <SidebarSection title="Rooms" count={rooms.length} defaultOpen={true}>
             <div className="space-y-1">
-                {filteredRooms.map(room => (
-                    <div
-                        key={room.id}
-                        className={cn(
-                            "flex items-center gap-2 p-2 rounded-md text-sm cursor-pointer hover:bg-muted transition-colors",
-                            selectedRoomId === room.id && "bg-accent text-accent-foreground"
-                        )}
-                        onClick={() => selectRoom(room.id)}
-                        role="button"
-                        aria-selected={selectedRoomId === room.id}
-                    >
+                {filteredRooms.map(room => {
+                    const isSelected = selectedRoomIds.includes(room.id);
+                    return (
                         <div
-                            className="w-3 h-3 rounded-full border shadow-sm"
-                            style={{ backgroundColor: room.color ?? '#ccc' }}
-                        />
-                        <span className="truncate flex-1">{room.name}</span>
-                    </div>
-                ))}
+                            key={room.id}
+                            className={cn(
+                                "flex items-center gap-2 p-2 rounded-md text-sm cursor-pointer hover:bg-muted transition-colors",
+                                isSelected && "bg-accent text-accent-foreground"
+                            )}
+                            onClick={(e) => handleRoomClick(room.id, e)}
+                            role="button"
+                            aria-selected={isSelected}
+                        >
+                            <div
+                                className="w-3 h-3 rounded-full border shadow-sm"
+                                style={{ backgroundColor: room.color ?? '#ccc' }}
+                            />
+                            <span className="truncate flex-1">{room.name}</span>
+                        </div>
+                    );
+                })}
                 {filteredRooms.length === 0 && (
                     <div className="text-xs text-muted-foreground p-2 text-center">
                         {searchTerm ? "No matching rooms" : "No rooms"}

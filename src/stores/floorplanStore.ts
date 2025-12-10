@@ -14,6 +14,7 @@ import { DEFAULT_ROOM_GAP } from '../constants/defaults';
 export interface FloorplanState {
   currentFloorplan: Floorplan | null;
   selectedRoomId: string | null;
+  selectedRoomIds: string[];
   selectedWallId: string | null;
   selectedDoorId: string | null;
   selectedWindowId: string | null;
@@ -49,6 +50,7 @@ export interface FloorplanActions {
 
   // Selection
   selectRoom: (id: string | null) => void;
+  setRoomSelection: (ids: string[]) => void;
   selectWall: (id: string | null) => void;
   selectDoor: (id: string | null) => void;
   selectWindow: (id: string | null) => void;
@@ -66,6 +68,7 @@ export interface FloorplanActions {
   getTotalVolume: () => number;
   getRoomCount: () => number;
   getSelectedRoom: () => Room | null;
+  getSelectedRooms: () => Room[];
   getRoomById: (id: string) => Room | undefined;
   getWallById: (id: string) => Wall | undefined;
   getDoorById: (id: string) => Door | undefined;
@@ -83,6 +86,7 @@ export type FloorplanStore = FloorplanState & FloorplanActions;
 const initialState: FloorplanState = {
   currentFloorplan: null,
   selectedRoomId: null,
+  selectedRoomIds: [],
   selectedWallId: null,
   selectedDoorId: null,
   selectedWindowId: null,
@@ -120,6 +124,7 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
     set({
       currentFloorplan: floorplan,
       selectedRoomId: null,
+      selectedRoomIds: [],
       selectedWallId: null,
       selectedDoorId: null,
       selectedWindowId: null,
@@ -221,9 +226,14 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
       updatedAt: new Date(),
     };
 
+    // Update selection if deleted room was selected
+    const newSelectedRoomId = state.selectedRoomId === id ? null : state.selectedRoomId;
+    const newSelectedRoomIds = state.selectedRoomIds.filter(roomId => roomId !== id);
+
     set({
       currentFloorplan: updatedFloorplan,
-      selectedRoomId: state.selectedRoomId === id ? null : state.selectedRoomId,
+      selectedRoomId: newSelectedRoomId,
+      selectedRoomIds: newSelectedRoomIds,
       isDirty: true,
     });
   },
@@ -268,6 +278,7 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
 
     set({
       currentFloorplan: updatedFloorplan,
+      walls: updatedWalls,
       selectedWallId: state.selectedWallId === id ? null : state.selectedWallId,
       isDirty: true,
     });
@@ -367,6 +378,17 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
   selectRoom: (id: string | null) => {
     set({
       selectedRoomId: id,
+      selectedRoomIds: id ? [id] : [],
+      selectedWallId: null,
+      selectedDoorId: null,
+      selectedWindowId: null,
+    });
+  },
+
+  setRoomSelection: (ids: string[]) => {
+    set({
+      selectedRoomId: ids.length > 0 ? ids[ids.length - 1] : null,
+      selectedRoomIds: ids,
       selectedWallId: null,
       selectedDoorId: null,
       selectedWindowId: null,
@@ -376,6 +398,7 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
   selectWall: (id: string | null) => {
     set({
       selectedRoomId: null,
+      selectedRoomIds: [],
       selectedWallId: id,
       selectedDoorId: null,
       selectedWindowId: null,
@@ -385,6 +408,7 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
   selectDoor: (id: string | null) => {
     set({
       selectedRoomId: null,
+      selectedRoomIds: [],
       selectedWallId: null,
       selectedDoorId: id,
       selectedWindowId: null,
@@ -394,6 +418,7 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
   selectWindow: (id: string | null) => {
     set({
       selectedRoomId: null,
+      selectedRoomIds: [],
       selectedWallId: null,
       selectedDoorId: null,
       selectedWindowId: id,
@@ -403,6 +428,7 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
   clearSelection: () => {
     set({
       selectedRoomId: null,
+      selectedRoomIds: [],
       selectedWallId: null,
       selectedDoorId: null,
       selectedWindowId: null,
@@ -452,6 +478,13 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
     if (!state.currentFloorplan || !state.selectedRoomId) return null;
 
     return state.currentFloorplan.rooms.find((r) => r.id === state.selectedRoomId) ?? null;
+  },
+
+  getSelectedRooms: () => {
+    const state = get();
+    if (!state.currentFloorplan || state.selectedRoomIds.length === 0) return [];
+
+    return state.currentFloorplan.rooms.filter((r) => state.selectedRoomIds.includes(r.id));
   },
 
   getRoomById: (id: string) => {

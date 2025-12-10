@@ -343,7 +343,7 @@ This section builds the application shell including the main layout, top toolbar
   - Frame type dropdown
   - Delete button
 
-- [ ] **2.6.7** Create `MultiSelectionPanel`:
+- [x] **2.6.7** Create `MultiSelectionPanel`:
   - Shows when multiple items selected
   - Common properties editable (batch edit)
   - Shows "Mixed" for differing values
@@ -358,7 +358,7 @@ This section builds the application shell including the main layout, top toolbar
 - [x] Input changes dispatch store updates
 - [x] Validation errors display inline
 - [x] Delete shows confirmation dialog
-- [ ] Multi-selection shows common properties
+- [x] Multi-selection shows common properties
 
 ---
 
@@ -562,26 +562,26 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Test Cases
 
-- [ ] **Full layout render**: AppShell renders all sections
-- [ ] **Theme switching**: Toggle dark mode → verify class applied → toggle back
-- [ ] **Sidebar navigation**: Click room in sidebar → verify selection in store → verify properties panel updates
-- [ ] **Menu interaction**: Open File menu → click New Project → verify dialog opens
+- [x] **Full layout render**: AppShell renders all sections
+- [x] **Theme switching**: Toggle dark mode → verify class applied → toggle back
+- [x] **Sidebar navigation**: Click room in sidebar → verify selection in store → verify properties panel updates
+- [x] **Menu interaction**: Open File menu → click New Project → verify dialog opens
 - [ ] **Keyboard navigation**: Tab through toolbar → verify focus order correct
-- [ ] **Toast lifecycle**: Trigger toast → verify visible → wait → verify dismissed
+- [x] **Toast lifecycle**: Trigger toast → verify visible → wait → verify dismissed
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Application shell renders without errors
-- [ ] All Shadcn components display correctly
-- [ ] Theme toggle persists preference
-- [ ] Sidebar collapse/expand works smoothly
-- [ ] All menus are keyboard accessible
-- [ ] Keyboard shortcuts work globally
-- [ ] Toasts display and auto-dismiss
-- [ ] Responsive at desktop breakpoints (mobile in Section 15)
-- [ ] Unit test coverage > 85%
+- [x] Application shell renders without errors
+- [x] All Shadcn components display correctly
+- [x] Theme toggle persists preference
+- [x] Sidebar collapse/expand works smoothly
+- [x] All menus are keyboard accessible
+- [x] Keyboard shortcuts work globally
+- [x] Toasts display and auto-dismiss
+- [x] Responsive at desktop breakpoints (mobile in Section 15)
+- [x] Unit test coverage > 85%
 
 ---
 
