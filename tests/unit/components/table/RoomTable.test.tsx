@@ -239,4 +239,48 @@ describe('RoomTable', () => {
 
       confirmSpy.mockRestore();
   });
+
+  it('displays validation summary in header', () => {
+    const store = useFloorplanStore.getState();
+    store.addRoom({
+      name: '', // Error: empty name
+      length: 0.05, // Error: < 0.1
+      width: 0.5, // Warning: < 1
+      height: 3.8, // Warning: > 3.5
+      type: 'bedroom',
+      position: { x: 0, z: 0 },
+      rotation: 0,
+    });
+    // This room has:
+    // Name: Error
+    // Length: Error
+    // Width: Warning
+    // Height: Warning
+    // Total: 2 Errors, 2 Warnings
+
+    render(<RoomTable />);
+
+    expect(screen.getByText('2 Errors')).toBeInTheDocument();
+    expect(screen.getByText('2 Warnings')).toBeInTheDocument();
+  });
+
+  it('scrolls to invalid room when validation summary clicked', () => {
+    const store = useFloorplanStore.getState();
+    store.addRoom({
+      name: '',
+      length: 4, width: 4, height: 2.7, type: 'bedroom',
+      position: { x: 0, z: 0 }, rotation: 0
+    });
+
+    render(<RoomTable />);
+
+    // Mock scrollIntoView
+    const scrollIntoViewMock = jest.fn();
+    window.HTMLElement.prototype.scrollIntoView = scrollIntoViewMock;
+
+    // Click error badge
+    fireEvent.click(screen.getByText(/1 Error/));
+
+    expect(scrollIntoViewMock).toHaveBeenCalled();
+  });
 });

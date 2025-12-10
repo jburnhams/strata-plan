@@ -158,11 +158,11 @@ export function validateProjectName(name: string): ValidationResult {
 /**
  * Validate an entire room
  */
-export function validateRoom(room: Room): ValidationResult[] {
+export function validateRoom(room: Room, otherNames: string[] = []): ValidationResult[] {
   const results: ValidationResult[] = [];
 
   // Validate name
-  results.push(validateRoomName(room.name));
+  results.push(validateRoomName(room.name, otherNames));
 
   // Validate dimensions
   results.push(validateRoomDimension(room.length, 'Length'));

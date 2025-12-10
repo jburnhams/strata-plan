@@ -411,7 +411,7 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
   - Row border color indicates worst validation state
   - Tooltip summarizes all issues
 
-- [ ] **3.9.6** Show table-level validation summary:
+- [x] **3.9.6** Show table-level validation summary:
   - Badge in header: "2 warnings, 1 error"
   - Click to scroll to first issue
 
