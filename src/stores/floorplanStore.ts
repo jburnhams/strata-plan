@@ -278,7 +278,6 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
 
     set({
       currentFloorplan: updatedFloorplan,
-      walls: updatedWalls,
       selectedWallId: state.selectedWallId === id ? null : state.selectedWallId,
       isDirty: true,
     });

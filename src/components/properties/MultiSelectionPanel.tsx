@@ -47,7 +47,8 @@ export function MultiSelectionPanel() {
     ? selectedRooms[0].type
     : 'mixed';
 
-  const commonHeight = selectedRooms.length > 0 && selectedRooms.every(r => r.height === selectedRooms[0].height)
+  // Explicit type hint for commonHeight to avoid inference issues with 'mixed' literal
+  const commonHeight: number | 'mixed' = selectedRooms.length > 0 && selectedRooms.every(r => r.height === selectedRooms[0].height)
     ? selectedRooms[0].height
     : 'mixed';
 
@@ -84,10 +85,15 @@ export function MultiSelectionPanel() {
         selectedRoomIds.forEach(id => {
             updateRoom(id, { height: numValue });
         });
-    } else if (value === '' && commonHeight !== 'mixed') {
-       // If cleared, maybe do nothing or reset? Doing nothing is safer.
-       // Reset to current value if invalid
-       setHeightInputValue(commonHeight === 'mixed' ? '' : commonHeight.toString());
+    } else if (value === '') {
+       // If cleared
+       if (commonHeight !== 'mixed') {
+           // Reset to current value if invalid
+           setHeightInputValue(commonHeight.toString());
+       } else {
+           // Keep empty if it was mixed and user cleared it
+           setHeightInputValue('');
+       }
     }
   };
 
