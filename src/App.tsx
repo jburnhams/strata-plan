@@ -3,6 +3,7 @@ import { AppShell } from './components/layout/AppShell';
 import { ThemeProvider } from './components/layout/ThemeProvider';
 import { RoomTable } from './components/table/RoomTable';
 import { useFloorplanStore } from './stores/floorplanStore';
+import { TooltipProvider } from './components/ui/tooltip';
 
 function App() {
   const currentFloorplan = useFloorplanStore((state) => state.currentFloorplan);
@@ -16,11 +17,13 @@ function App() {
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="strata-plan-theme">
-      <AppShell>
-        <div className="h-full overflow-auto bg-gray-50 p-4">
-          <RoomTable />
-        </div>
-      </AppShell>
+      <TooltipProvider>
+        <AppShell>
+          <div className="h-full overflow-auto bg-gray-50 p-4">
+            <RoomTable />
+          </div>
+        </AppShell>
+      </TooltipProvider>
     </ThemeProvider>
   );
 }
