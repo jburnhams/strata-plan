@@ -10,6 +10,7 @@ import { useTableSort, SortColumn } from '../../hooks/useTableSort';
 import { useTableFilter } from '../../hooks/useTableFilter';
 import { calculateAutoLayout } from '../../services/layout/autoLayout';
 import { TableControls } from './TableControls';
+import { validateRoom } from '../../utils/validation';
 
 export const RoomTable: React.FC = () => {
   const currentFloorplan = useFloorplanStore((state) => state.currentFloorplan);
@@ -38,6 +39,42 @@ export const RoomTable: React.FC = () => {
     sortedRooms,
     toggleSort
   } = useTableSort(filteredRooms);
+
+  const validationSummary = React.useMemo(() => {
+    let errors = 0;
+    let warnings = 0;
+
+    rooms.forEach((room) => {
+      const otherNames = rooms.filter((r) => r.id !== room.id).map((r) => r.name);
+      const validations = validateRoom(room, otherNames);
+
+      validations.forEach((v) => {
+        if (!v.valid) {
+          errors++;
+        } else if (v.warning) {
+          warnings++;
+        }
+      });
+    });
+
+    return { errors, warnings };
+  }, [rooms]);
+
+  const handleValidationClick = () => {
+    const firstInvalidRoom = sortedRooms.find((room) => {
+      const otherNames = rooms.filter((r) => r.id !== room.id).map((r) => r.name);
+      const validations = validateRoom(room, otherNames);
+      return validations.some((v) => !v.valid || v.warning);
+    });
+
+    if (firstInvalidRoom) {
+      const row = document.querySelector(`[data-testid="room-row-${firstInvalidRoom.id}"]`);
+      if (row) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        selectRoom(firstInvalidRoom.id);
+      }
+    }
+  };
 
   const handleDeleteRoom = (id: string) => {
     deleteRoom(id);
@@ -136,6 +173,8 @@ export const RoomTable: React.FC = () => {
         onSearchChange={setSearchTerm}
         filterType={filterType}
         onFilterTypeChange={setFilterType}
+        validationSummary={validationSummary}
+        onValidationClick={handleValidationClick}
       />
       <table className="room-table w-full border-collapse">
         <thead className="sticky top-0 z-10 bg-white shadow-sm">

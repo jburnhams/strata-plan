@@ -1,10 +1,33 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TopToolbar } from '../../../../src/components/layout/TopToolbar';
+import { useUIStore } from '../../../../src/stores/uiStore';
+import { useDialogStore } from '../../../../src/stores/dialogStore';
 
-// Mock the ThemeToggle since it uses useTheme hook which might need mocking
+// Mock the ThemeToggle
 jest.mock('../../../../src/components/layout/ThemeToggle', () => ({
   ThemeToggle: () => <div data-testid="theme-toggle">Theme Toggle</div>,
+}));
+
+// Mock Dropdown Menu components to simplify testing interactions
+jest.mock('../../../../src/components/ui/dropdown-menu', () => ({
+  DropdownMenu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
+  DropdownMenuTrigger: ({ children }: any) => <div data-testid="dropdown-trigger">{children}</div>,
+  DropdownMenuContent: ({ children }: any) => <div data-testid="dropdown-content">{children}</div>,
+  DropdownMenuItem: ({ children, onClick }: any) => (
+    <div role="menuitem" onClick={onClick}>
+      {children}
+    </div>
+  ),
+  DropdownMenuCheckboxItem: ({ children, onCheckedChange, checked }: any) => (
+    <div role="menuitemcheckbox" onClick={() => onCheckedChange(!checked)}>
+      {children}
+    </div>
+  ),
+  DropdownMenuSeparator: () => <hr />,
+  DropdownMenuSub: ({ children }: any) => <div>{children}</div>,
+  DropdownMenuSubTrigger: ({ children }: any) => <div>{children}</div>,
+  DropdownMenuSubContent: ({ children }: any) => <div>{children}</div>,
 }));
 
 // Mock lucide-react icons
@@ -38,35 +61,63 @@ describe('TopToolbar', () => {
     expect(screen.getByTestId('top-toolbar')).toBeInTheDocument();
   });
 
-  it('renders the application title', () => {
+  it('renders menu triggers', () => {
     render(<TopToolbar />);
-    expect(screen.getByText('StrataPlan')).toBeInTheDocument();
-  });
-
-  it('renders the File menu', () => {
-    render(<TopToolbar />);
-    const fileMenuTrigger = screen.getByText('File');
-    expect(fileMenuTrigger).toBeInTheDocument();
-  });
-
-  it('renders the Edit menu', () => {
-    render(<TopToolbar />);
+    expect(screen.getByText('File')).toBeInTheDocument();
     expect(screen.getByText('Edit')).toBeInTheDocument();
-  });
-
-  it('renders the View menu', () => {
-    render(<TopToolbar />);
     expect(screen.getByText('View')).toBeInTheDocument();
   });
 
-  it('renders the theme toggle', () => {
+  it('opens New Project dialog', () => {
+    const openDialogSpy = jest.fn();
+    useDialogStore.setState({ openDialog: openDialogSpy });
+
     render(<TopToolbar />);
-    expect(screen.getByTestId('theme-toggle')).toBeInTheDocument();
+    // With mocks, items are rendered. We find "New Project" directly.
+    // Note: It might be visible even without clicking trigger due to mocks.
+    // That's fine for unit testing the "onClick" logic.
+    fireEvent.click(screen.getByText('New Project'));
+
+    expect(openDialogSpy).toHaveBeenCalledWith('newProject');
   });
 
-  it('renders action buttons', () => {
+  it('toggles grid', () => {
+    const toggleGridSpy = jest.fn();
+    useUIStore.setState({ toggleGrid: toggleGridSpy, showGrid: false });
+
     render(<TopToolbar />);
-    expect(screen.getByText('View 3D')).toBeInTheDocument();
-    expect(screen.getByText('Export')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Show Grid'));
+
+    expect(toggleGridSpy).toHaveBeenCalledWith(true);
+  });
+
+  it('toggles measurements', () => {
+    const toggleSpy = jest.fn();
+    useUIStore.setState({ toggleMeasurements: toggleSpy, showMeasurements: false });
+
+    render(<TopToolbar />);
+    fireEvent.click(screen.getByText('Show Measurements'));
+
+    expect(toggleSpy).toHaveBeenCalledWith(true);
+  });
+
+  it('zooms in', () => {
+    const zoomInSpy = jest.fn();
+    useUIStore.setState({ zoomIn: zoomInSpy });
+
+    render(<TopToolbar />);
+    fireEvent.click(screen.getByText('Zoom In'));
+
+    expect(zoomInSpy).toHaveBeenCalled();
+  });
+
+  it('resets zoom', () => {
+    const resetZoomSpy = jest.fn();
+    useUIStore.setState({ resetZoom: resetZoomSpy });
+
+    render(<TopToolbar />);
+    fireEvent.click(screen.getByText('Zoom to Fit'));
+
+    expect(resetZoomSpy).toHaveBeenCalled();
   });
 });

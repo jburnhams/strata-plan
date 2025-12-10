@@ -8,6 +8,11 @@ interface TableControlsProps {
   onSearchChange: (value: string) => void;
   filterType: RoomType | 'all';
   onFilterTypeChange: (value: RoomType | 'all') => void;
+  validationSummary?: {
+    errors: number;
+    warnings: number;
+  };
+  onValidationClick?: () => void;
 }
 
 const ROOM_TYPES: (RoomType | 'all')[] = [
@@ -30,11 +35,36 @@ export const TableControls: React.FC<TableControlsProps> = ({
   onSearchChange,
   filterType,
   onFilterTypeChange,
+  validationSummary,
+  onValidationClick,
 }) => {
   return (
     <div className="flex justify-between items-center p-2 bg-white border-b border-gray-200">
       <div className="flex items-center gap-2">
         <h3 className="text-sm font-semibold text-gray-700 mr-2">Rooms</h3>
+
+        {validationSummary && (validationSummary.errors > 0 || validationSummary.warnings > 0) && (
+          <div className="flex gap-2 mr-2">
+            {validationSummary.errors > 0 && (
+              <span
+                onClick={onValidationClick}
+                className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 cursor-pointer hover:bg-red-200"
+                title={`${validationSummary.errors} errors found. Click to find next issue.`}
+              >
+                {validationSummary.errors} Error{validationSummary.errors > 1 ? 's' : ''}
+              </span>
+            )}
+            {validationSummary.warnings > 0 && (
+              <span
+                onClick={onValidationClick}
+                className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 cursor-pointer hover:bg-yellow-200"
+                title={`${validationSummary.warnings} warnings found. Click to find next issue.`}
+              >
+                {validationSummary.warnings} Warning{validationSummary.warnings > 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Search */}
         <div className="relative">
