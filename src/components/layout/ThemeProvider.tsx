@@ -14,9 +14,12 @@ const ThemeContext = createContext<ThemeProviderState | undefined>(undefined);
 
 interface ThemeProviderProps {
   children: React.ReactNode;
+  defaultTheme?: Theme;
+  storageKey?: string;
 }
 
-export function ThemeProvider({ children }: ThemeProviderProps) {
+export function ThemeProvider({ children, defaultTheme, storageKey }: ThemeProviderProps) {
+  // We ignore defaultTheme and storageKey here because we use useUIStore which handles persistence
   const { theme, setTheme } = useUIStore();
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light');
 
