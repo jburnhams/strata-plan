@@ -5,17 +5,22 @@ import { useTheme } from '../../../../src/hooks/useTheme';
 import { useUIStore } from '../../../../src/stores/uiStore';
 
 // Mock matchMedia
-const mockMatchMedia = (matches: boolean) => {
-  return jest.fn().mockImplementation((query) => ({
-    matches,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // Deprecated
-    removeListener: jest.fn(), // Deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  }));
+const mockMatchMedia = (matches: boolean, useModern = true) => {
+  return jest.fn().mockImplementation((query) => {
+    const listeners: any[] = [];
+    return {
+      matches,
+      media: query,
+      onchange: null,
+      addListener: useModern ? undefined : jest.fn((cb) => listeners.push(cb)), // Deprecated
+      removeListener: useModern ? undefined : jest.fn(), // Deprecated
+      addEventListener: useModern ? jest.fn((type, cb) => { if(type === 'change') listeners.push(cb) }) : undefined,
+      removeEventListener: useModern ? jest.fn() : undefined,
+      dispatchEvent: jest.fn(),
+      // Helper to trigger change
+      _triggerChange: (e: any) => listeners.forEach(cb => cb(e))
+    };
+  });
 };
 
 // Component to test the hook
@@ -120,23 +125,8 @@ describe('ThemeProvider', () => {
   });
 
   it('responds to system preference changes when in system mode', () => {
-    const addEventListenerMock = jest.fn();
-    const removeEventListenerMock = jest.fn();
-    let changeHandler: ((e: MediaQueryListEvent) => void) | null = null;
-
-    window.matchMedia = jest.fn().mockImplementation((query) => ({
-      matches: false, // Start with light
-      media: query,
-      onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: (type: string, handler: any) => {
-         if (type === 'change') changeHandler = handler;
-         addEventListenerMock(type, handler);
-      },
-      removeEventListener: removeEventListenerMock,
-      dispatchEvent: jest.fn(),
-    }));
+    const mock = mockMatchMedia(false); // Start light
+    window.matchMedia = mock;
 
     render(
       <ThemeProvider>
@@ -148,26 +138,45 @@ describe('ThemeProvider', () => {
 
     // Simulate system change to dark
     act(() => {
-      if (changeHandler) {
-        changeHandler({ matches: true } as MediaQueryListEvent);
-      }
+       const mql = mock.mock.results[0].value;
+       mql._triggerChange({ matches: true });
     });
 
-    // Since we are mocking matchMedia re-evaluation inside the component,
-    // we need to make sure the component re-reads the matchMedia value or the listener passes the new value.
-    // In my implementation:
-    // const updateTheme = () => {
-    //   const systemTheme = mediaQuery.matches ? 'dark' : 'light';
-    // }
-    // The listener doesn't receive the event in my code, it just calls updateTheme which checks `mediaQuery.matches`.
-    // Wait, `mediaQuery` is a const created in useEffect. If I mock `window.matchMedia` to return an object,
-    // that object is captured.
-    // The `change` event usually passes the MediaQueryListEvent which has `matches`.
-    // My implementation: `mediaQuery.addEventListener('change', updateTheme);`
-    // And `updateTheme` uses `mediaQuery.matches`.
-    // So if I trigger the handler, `mediaQuery.matches` needs to be updated if I want it to work, OR I should use the event passed to the handler.
+    expect(screen.getByTestId('resolvedTheme').textContent).toBe('dark');
+  });
 
-    // Let's improve the implementation to use the event if available, or just realize that the mock object's `matches` property won't auto-update unless I update it reference-wise, which I can't easily do if it's captured in closure.
-    // Actually, `mediaQuery` is an object. If I mutate it, it should work.
+  it('uses legacy addListener if addEventListener is not present', () => {
+     const mock = mockMatchMedia(false, false); // Use legacy
+     window.matchMedia = mock;
+
+     render(
+        <ThemeProvider>
+            <TestComponent />
+        </ThemeProvider>
+     );
+
+     const mql = mock.mock.results[0].value;
+     expect(mql.addListener).toHaveBeenCalled();
+     expect(mql.addEventListener).toBeUndefined();
+
+     // Test cleanup
+     // We need to unmount to verify removeListener is called
+     // render returns unmount
+  });
+
+  it('cleans up legacy listeners on unmount', () => {
+     const mock = mockMatchMedia(false, false); // Use legacy
+     window.matchMedia = mock;
+
+     const { unmount } = render(
+        <ThemeProvider>
+            <TestComponent />
+        </ThemeProvider>
+     );
+
+     const mql = mock.mock.results[0].value;
+     unmount();
+
+     expect(mql.removeListener).toHaveBeenCalled();
   });
 });
