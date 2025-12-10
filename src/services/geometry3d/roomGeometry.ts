@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { Room, Floorplan, Door, Window } from '../../types';
 import { WallSide } from '../../types/geometry';
-import { createRoomMaterial } from './materials';
 
 /**
  * Generate a 3D group representing a room, including floor, ceiling, and walls.
@@ -100,9 +99,6 @@ export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Wi
     return shape;
   };
 
-  // Create materials
-  const materials = createRoomMaterial(room);
-
   // --- Floor ---
   const floorShape = new THREE.Shape();
   floorShape.moveTo(0, 0);
@@ -117,7 +113,7 @@ export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Wi
 
   const floorMesh = new THREE.Mesh(
     floorGeometry,
-    materials.floor
+    new THREE.MeshStandardMaterial({ color: room.color || 0xcccccc, side: THREE.DoubleSide })
   );
   floorMesh.userData = { type: 'floor', roomId: room.id };
   floorMesh.receiveShadow = true;
@@ -132,19 +128,24 @@ export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Wi
 
   const ceilingMesh = new THREE.Mesh(
     ceilingGeometry,
-    materials.ceiling
+    new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide })
   );
   ceilingMesh.userData = { type: 'ceiling', roomId: room.id };
   group.add(ceilingMesh);
 
   // --- Walls ---
+  const wallMaterial = new THREE.MeshStandardMaterial({
+    color: 0xeeeeee,
+    side: THREE.DoubleSide
+  });
+
   // North (Back): Min Z. Normal -Z.
   const northWallShape = createWallShape(widthX, height, 'north');
   const northWallGeo = new THREE.ShapeGeometry(northWallShape);
   // Face -Z. Rotate Y 180. Translate X by W.
   northWallGeo.rotateY(Math.PI);
   northWallGeo.translate(widthX, 0, 0);
-  const northWall = new THREE.Mesh(northWallGeo, materials.walls);
+  const northWall = new THREE.Mesh(northWallGeo, wallMaterial);
   northWall.userData = { type: 'wall', side: 'north', roomId: room.id };
   group.add(northWall);
 
@@ -153,7 +154,7 @@ export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Wi
   const southWallGeo = new THREE.ShapeGeometry(southWallShape);
   // Face +Z. Translate Z by D.
   southWallGeo.translate(0, 0, depthZ);
-  const southWall = new THREE.Mesh(southWallGeo, materials.walls);
+  const southWall = new THREE.Mesh(southWallGeo, wallMaterial);
   southWall.userData = { type: 'wall', side: 'south', roomId: room.id };
   group.add(southWall);
 
@@ -162,7 +163,7 @@ export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Wi
   const westWallGeo = new THREE.ShapeGeometry(westWallShape);
   // Face -X. Rotate Y -90.
   westWallGeo.rotateY(-Math.PI / 2);
-  const westWall = new THREE.Mesh(westWallGeo, materials.walls);
+  const westWall = new THREE.Mesh(westWallGeo, wallMaterial);
   westWall.userData = { type: 'wall', side: 'west', roomId: room.id };
   group.add(westWall);
 
@@ -172,7 +173,7 @@ export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Wi
   // Face +X. Rotate Y 90. Translate X by W. Translate Z by D.
   eastWallGeo.rotateY(Math.PI / 2);
   eastWallGeo.translate(widthX, 0, depthZ);
-  const eastWall = new THREE.Mesh(eastWallGeo, materials.walls);
+  const eastWall = new THREE.Mesh(eastWallGeo, wallMaterial);
   eastWall.userData = { type: 'wall', side: 'east', roomId: room.id };
   group.add(eastWall);
 

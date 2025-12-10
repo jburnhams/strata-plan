@@ -1,10 +1,7 @@
 import React from 'react';
 import { useUIStore } from '../../stores/uiStore';
 
-// Large enough to cover most use cases (1000m radius)
-const GRID_EXTENT = 1000;
-
-export function Grid() {
+export const Grid: React.FC = () => {
   const { showGrid, zoomLevel } = useUIStore();
 
   if (!showGrid) return null;

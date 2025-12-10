@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useFloorplanStore } from '../stores/floorplanStore';
 import { useUIStore } from '../stores/uiStore';
 import { screenToWorld } from '../utils/coordinates';
@@ -9,7 +9,7 @@ type InteractionMode = 'idle' | 'box_selecting' | 'room_dragging';
 
 export function useRoomInteraction(
   viewportSize: { width: number; height: number },
-  canvasRef: React.RefObject<HTMLDivElement>
+  canvasRef: React.RefObject<HTMLDivElement | null>
 ) {
   const {
     currentFloorplan,
