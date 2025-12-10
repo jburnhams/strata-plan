@@ -13,6 +13,7 @@ import {
 import { RoomType } from '../../types/room';
 import { Trash2 } from 'lucide-react';
 import { calculateArea, calculateVolume } from '../../services/geometry/room';
+import { AdjacentRoomsSection } from './AdjacentRoomsSection';
 
 const ROOM_TYPES: RoomType[] = [
   'bedroom',
@@ -159,6 +160,10 @@ export function RoomPropertiesPanel() {
             />
           </div>
         </div>
+      </div>
+
+      <div className="pt-4 border-t">
+        <AdjacentRoomsSection />
       </div>
 
       <div className="pt-4 border-t">

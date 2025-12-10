@@ -2,12 +2,14 @@ import React from 'react';
 import { CanvasViewport } from './CanvasViewport';
 import { RoomLayer } from './RoomLayer';
 import { Grid } from './Grid';
+import { ConnectionLines } from './ConnectionLines';
 
 export function Canvas2D() {
   return (
     <div className="flex-1 h-full flex flex-col relative" data-testid="canvas-2d">
        <CanvasViewport>
           <Grid />
+          <ConnectionLines />
           <RoomLayer />
        </CanvasViewport>
     </div>

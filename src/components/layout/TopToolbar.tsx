@@ -23,6 +23,7 @@ import {
   Grid,
   Ruler,
   Type,
+  Link,
   ZoomIn,
   ZoomOut,
   Maximize,
@@ -48,9 +49,11 @@ export function TopToolbar({ className }: TopToolbarProps) {
     showGrid,
     showMeasurements,
     showRoomLabels,
+    showConnections,
     toggleGrid,
     toggleMeasurements,
     toggleRoomLabels,
+    toggleConnections,
     zoomIn,
     zoomOut,
     resetZoom,
@@ -211,6 +214,10 @@ export function TopToolbar({ className }: TopToolbarProps) {
             <DropdownMenuCheckboxItem checked={showRoomLabels} onCheckedChange={toggleRoomLabels}>
               <Type className="mr-2 h-4 w-4" />
               <span>Show Room Labels</span>
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem checked={showConnections} onCheckedChange={toggleConnections}>
+              <Link className="mr-2 h-4 w-4" />
+              <span>Show Connections</span>
             </DropdownMenuCheckboxItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={zoomIn}>
