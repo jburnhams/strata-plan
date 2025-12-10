@@ -162,33 +162,33 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.4.1** Create connection line component:
+- [x] **6.4.1** Create connection line component:
   - Draws dashed line between room centers
   - Line color: light gray
   - Only shown when "Show Connections" enabled
 
-- [ ] **6.4.2** Show shared wall indicator:
+- [x] **6.4.2** Show shared wall indicator:
   - Highlight shared wall segment
   - Different color (e.g., blue)
 
-- [ ] **6.4.3** Show door positions on connections:
+- [x] **6.4.3** Show door positions on connections:
   - Small circle or door icon
   - Positioned along shared wall
 
-- [ ] **6.4.4** Create hover info:
+- [x] **6.4.4** Create hover info:
   - Hover over connection line
   - Show tooltip: "Kitchen ↔ Living Room (3.2m shared wall)"
 
-- [ ] **6.4.5** Toggle visibility:
+- [x] **6.4.5** Toggle visibility:
   - Checkbox in View menu
   - Default: off (reduces visual clutter)
 
 ### Unit Tests
 
-- [ ] Connection lines render between adjacent rooms
-- [ ] Lines not shown for non-adjacent rooms
-- [ ] Toggle hides/shows lines
-- [ ] Door icons appear on connections with doors
+- [x] Connection lines render between adjacent rooms
+- [x] Lines not shown for non-adjacent rooms
+- [x] Toggle hides/shows lines
+- [x] Door icons appear on connections with doors
 
 ---
 
@@ -198,34 +198,34 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.5.1** Create adjacent rooms list in properties panel:
+- [x] **6.5.1** Create adjacent rooms list in properties panel:
   - Section header: "Adjacent Rooms"
   - List connected rooms when a room is selected
 
-- [ ] **6.5.2** Display connection info:
+- [x] **6.5.2** Display connection info:
   - Room name (clickable to select)
   - Shared wall length
   - Number of doors
   - Wall sides: "North wall → South wall"
 
-- [ ] **6.5.3** Add door button:
+- [x] **6.5.3** Add door button:
   - "+ Add Door" button per connection
   - Opens door creation flow
 
-- [ ] **6.5.4** Handle no adjacencies:
+- [x] **6.5.4** Handle no adjacencies:
   - Message: "No adjacent rooms"
   - Hint: "Move rooms closer to create connections"
 
-- [ ] **6.5.5** Click to navigate:
+- [x] **6.5.5** Click to navigate:
   - Click room name → select that room
   - Scrolls 2D view to show both rooms
 
 ### Unit Tests
 
-- [ ] Adjacent rooms listed correctly
-- [ ] Shared wall length displayed
-- [ ] Click navigates to adjacent room
-- [ ] Add Door button triggers action
+- [x] Adjacent rooms listed correctly
+- [x] Shared wall length displayed
+- [x] Click navigates to adjacent room
+- [x] Add Door button triggers action
 
 ---
 

@@ -35,6 +35,7 @@ export interface UIState {
   snapToGrid: boolean;
   showRoomLabels: boolean;
   showMeasurements: boolean;
+  showConnections: boolean;
   zoomLevel: number;
   panOffset: Position2D;
   mode: EditorMode;
@@ -57,6 +58,7 @@ export interface UIActions {
   toggleSnapToGrid: () => void;
   toggleRoomLabels: () => void;
   toggleMeasurements: () => void;
+  toggleConnections: () => void;
   setZoom: (level: number) => void;
   zoomIn: () => void;
   zoomOut: () => void;
@@ -83,6 +85,7 @@ const initialState: UIState = {
   snapToGrid: true,
   showRoomLabels: true,
   showMeasurements: true,
+  showConnections: false,
   zoomLevel: DEFAULT_ZOOM_LEVEL,
   panOffset: { x: 0, z: 0 },
   mode: 'table',
@@ -139,6 +142,10 @@ export const useUIStore = create<UIStore>()(
         set((state) => ({ showMeasurements: !state.showMeasurements }));
       },
 
+      toggleConnections: () => {
+        set((state) => ({ showConnections: !state.showConnections }));
+      },
+
       setZoom: (level: number) => {
         const clampedZoom = clamp(level, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
         set({ zoomLevel: clampedZoom });
@@ -187,6 +194,7 @@ export const useUIStore = create<UIStore>()(
         showGrid: state.showGrid,
         showRoomLabels: state.showRoomLabels,
         showMeasurements: state.showMeasurements,
+        showConnections: state.showConnections,
       }),
     }
   )
