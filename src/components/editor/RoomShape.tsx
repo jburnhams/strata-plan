@@ -7,7 +7,7 @@ interface RoomShapeProps {
   room: Room;
   isSelected: boolean;
   isHovered: boolean;
-  onClick: (e: React.MouseEvent) => void;
+  onMouseDown: (e: React.MouseEvent) => void;
   onDoubleClick: (e: React.MouseEvent) => void;
   onPointerEnter: (e: React.PointerEvent) => void;
   onPointerLeave: (e: React.PointerEvent) => void;
@@ -17,7 +17,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
   room,
   isSelected,
   isHovered,
-  onClick,
+  onMouseDown,
   onDoubleClick,
   onPointerEnter,
   onPointerLeave
@@ -35,15 +35,12 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
   const showLabel = length > 0.8 && width > 0.8;
 
   // Text scaling
-  // Base font size in meters.
-  // We want it readable but contained.
-  // 0.3m is about 1 foot high text, which is large but okay for floorplans.
   const fontSize = Math.min(0.4, Math.min(length, width) / 4);
 
   return (
     <g
       transform={`rotate(${rotation}, ${cx}, ${cy})`}
-      onClick={onClick}
+      onMouseDown={onMouseDown}
       onDoubleClick={onDoubleClick}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
@@ -57,8 +54,8 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
         width={length}
         height={width}
         fill={fill}
-        stroke={isSelected ? "#2563eb" : "#475569"} // Blue 600 or Slate 600
-        strokeWidth={DEFAULT_WALL_THICKNESS} // Physical width in meters
+        stroke={isSelected ? "#2563eb" : "#475569"}
+        strokeWidth={DEFAULT_WALL_THICKNESS}
         opacity={isHovered ? 0.9 : 0.75}
       />
 
@@ -78,17 +75,6 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
              {(length * width).toFixed(1)} m²
           </tspan>
         </text>
-      )}
-
-      {/* Selection Handles (Corners) - Fixed size in meters for now, ideally scaled by inverse zoom */}
-      {isSelected && (
-        <g>
-           {/* Simple handles (0.2m radius) */}
-           <circle cx={position.x} cy={position.z} r={0.15} fill="#2563eb" stroke="white" strokeWidth={0.05} />
-           <circle cx={position.x + length} cy={position.z} r={0.15} fill="#2563eb" stroke="white" strokeWidth={0.05} />
-           <circle cx={position.x} cy={position.z + width} r={0.15} fill="#2563eb" stroke="white" strokeWidth={0.05} />
-           <circle cx={position.x + length} cy={position.z + width} r={0.15} fill="#2563eb" stroke="white" strokeWidth={0.05} />
-        </g>
       )}
     </g>
   );

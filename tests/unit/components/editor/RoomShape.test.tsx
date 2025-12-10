@@ -21,7 +21,7 @@ describe('RoomShape', () => {
     room: mockRoom,
     isSelected: false,
     isHovered: false,
-    onClick: jest.fn(),
+    onMouseDown: jest.fn(),
     onDoubleClick: jest.fn(),
     onPointerEnter: jest.fn(),
     onPointerLeave: jest.fn(),
@@ -49,26 +49,13 @@ describe('RoomShape', () => {
       </svg>
     );
     expect(screen.getByText('Living Room')).toBeInTheDocument();
-    // Use flexible matcher for area text
     expect(screen.getByText(/20.0 m²/)).toBeInTheDocument();
   });
 
-  it('renders selection handles when selected', () => {
+  it('does NOT render selection handles internally (moved to overlay)', () => {
     render(
       <svg>
         <RoomShape {...props} isSelected={true} />
-      </svg>
-    );
-    const roomGroup = screen.getByTestId('room-room-1');
-    // Handles are circles. 4 of them.
-    const circles = roomGroup.querySelectorAll('circle');
-    expect(circles.length).toBe(4);
-  });
-
-  it('does not render handles when not selected', () => {
-    render(
-      <svg>
-        <RoomShape {...props} isSelected={false} />
       </svg>
     );
     const roomGroup = screen.getByTestId('room-room-1');
@@ -84,8 +71,6 @@ describe('RoomShape', () => {
       </svg>
     );
     const roomGroup = screen.getByTestId('room-room-1');
-    // Check transform attribute contains rotate(90, ...)
-    const transform = roomGroup.getAttribute('transform');
-    expect(transform).toContain('rotate(90');
+    expect(roomGroup.getAttribute('transform')).toContain('rotate(90');
   });
 });

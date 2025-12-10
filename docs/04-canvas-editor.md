@@ -196,13 +196,15 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Double-click room → open properties panel
   - Focus on name input in properties
 
+> **Note**: Implemented `SelectionOverlay` to render selection handles and box selection on top of the room layer. Interaction logic is centralized in `useRoomInteraction` hook.
+
 ### Unit Tests
 
-- [ ] Click selects room
-- [ ] Click outside deselects
-- [ ] Shift+click adds to selection
-- [ ] Box selection selects multiple rooms
-- [ ] Escape deselects all
+- [x] Click selects room
+- [x] Click outside deselects
+- [x] Shift+click adds to selection
+- [x] Box selection selects multiple rooms
+- [x] Escape deselects all
 
 ---
 

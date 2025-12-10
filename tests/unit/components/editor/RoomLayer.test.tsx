@@ -50,18 +50,21 @@ describe('RoomLayer', () => {
       setRoomSelection: jest.fn(),
   };
 
+  const mockOnRoomMouseDown = jest.fn();
+
   beforeEach(() => {
     (useFloorplanStore as unknown as jest.Mock).mockReturnValue(mockStore);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    mockOnRoomMouseDown.mockClear();
   });
 
   it('renders all rooms', () => {
     render(
       <svg>
-        <RoomLayer />
+        <RoomLayer onRoomMouseDown={mockOnRoomMouseDown} />
       </svg>
     );
     expect(screen.getByTestId('room-room-1')).toBeInTheDocument();
@@ -76,28 +79,25 @@ describe('RoomLayer', () => {
 
     const { container } = render(
       <svg>
-        <RoomLayer />
+        <RoomLayer onRoomMouseDown={mockOnRoomMouseDown} />
       </svg>
     );
 
     // In SVG, last child is on top.
-    // room-1 is selected, so it should be last.
-    // We check the order of elements in the DOM.
-    // Use stricter selector to avoid matching "room-layer"
     const roomGroups = container.querySelectorAll('g[data-testid^="room-room-"]');
     expect(roomGroups.length).toBe(2);
     expect(roomGroups[0]).toHaveAttribute('data-testid', 'room-room-2');
     expect(roomGroups[1]).toHaveAttribute('data-testid', 'room-room-1');
   });
 
-  it('calls selectRoom on click', () => {
+  it('calls onRoomMouseDown on mouse down', () => {
     render(
       <svg>
-        <RoomLayer />
+        <RoomLayer onRoomMouseDown={mockOnRoomMouseDown} />
       </svg>
     );
 
-    fireEvent.click(screen.getByTestId('room-room-1'));
-    expect(mockStore.selectRoom).toHaveBeenCalledWith('room-1');
+    fireEvent.mouseDown(screen.getByTestId('room-room-1'));
+    expect(mockOnRoomMouseDown).toHaveBeenCalledWith(expect.anything(), 'room-1');
   });
 });

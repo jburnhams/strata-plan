@@ -4,11 +4,15 @@ import { Grid } from './Grid';
 import { Ruler } from './Ruler';
 import { SnapIndicator } from './SnapIndicator';
 import { RoomLayer } from './RoomLayer';
+import { SelectionOverlay } from './SelectionOverlay';
+import { useRoomInteraction } from '../../hooks/useRoomInteraction';
 
 export function Canvas2D() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [mousePos, setMousePos] = useState<{x: number, y: number} | null>(null);
+
+  const { onContainerMouseDown, onRoomMouseDown, selectionBox } = useRoomInteraction(dimensions, containerRef);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -43,6 +47,7 @@ export function Canvas2D() {
       ref={containerRef}
       className="flex-1 h-full flex flex-col relative overflow-hidden"
       data-testid="canvas-2d"
+      onMouseDown={onContainerMouseDown}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
@@ -51,7 +56,8 @@ export function Canvas2D() {
 
        <CanvasViewport>
           <Grid />
-          <RoomLayer />
+          <RoomLayer onRoomMouseDown={onRoomMouseDown} />
+          <SelectionOverlay selectionBox={selectionBox} />
           <SnapIndicator mousePos={mousePos} viewportSize={dimensions} />
        </CanvasViewport>
     </div>
