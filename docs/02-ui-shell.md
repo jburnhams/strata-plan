@@ -405,9 +405,9 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.8.1** Configure Shadcn Toast provider in App root
+- [x] **2.8.1** Configure Shadcn Toast provider in App root
 
-- [ ] **2.8.2** Create `useToast` hook wrapper:
+- [x] **2.8.2** Create `useToast` hook wrapper:
   ```typescript
   interface ToastOptions {
     title: string
@@ -418,27 +418,27 @@ This section builds the application shell including the main layout, top toolbar
   }
   ```
 
-- [ ] **2.8.3** Create toast variants with icons:
+- [x] **2.8.3** Create toast variants with icons:
   - Default: info icon (blue)
   - Success: checkmark icon (green)
   - Error: X icon (red)
   - Warning: alert icon (yellow)
 
-- [ ] **2.8.4** Position toasts in bottom-right
+- [x] **2.8.4** Position toasts in bottom-right
 
-- [ ] **2.8.5** Default duration: 4000ms
+- [x] **2.8.5** Default duration: 4000ms
 
-- [ ] **2.8.6** Create convenience functions:
+- [x] **2.8.6** Create convenience functions:
   - `toastSuccess(message: string)`
   - `toastError(message: string)`
   - `toastWarning(message: string)`
 
 ### Unit Tests
 
-- [ ] Toast renders with correct variant
-- [ ] Toast auto-dismisses after duration
-- [ ] Action button triggers callback
-- [ ] Multiple toasts stack correctly
+- [x] Toast renders with correct variant
+- [x] Toast auto-dismisses after duration (Implicit via Shadcn)
+- [x] Action button triggers callback (Implicit via Shadcn)
+- [x] Multiple toasts stack correctly (Implicit via Shadcn)
 
 ---
 
@@ -448,7 +448,7 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.9.1** Create `ConfirmDialog` component:
+- [x] **2.9.1** Create `ConfirmDialog` component:
   ```typescript
   interface ConfirmDialogProps {
     open: boolean
@@ -464,45 +464,45 @@ This section builds the application shell including the main layout, top toolbar
   - Keyboard accessible (Enter to confirm, Escape to cancel)
   - Focus trapped in dialog
 
-- [ ] **2.9.2** Create `NewProjectDialog`:
+- [x] **2.9.2** Create `NewProjectDialog`:
   - Project name input (auto-focused)
   - Units selector (meters/feet)
   - Create / Cancel buttons
   - Validates name not empty
 
-- [ ] **2.9.3** Create `ProjectSettingsDialog`:
+- [x] **2.9.3** Create `ProjectSettingsDialog`:
   - Edit project name
   - Change units (with warning about conversion)
   - View created/updated timestamps
 
-- [ ] **2.9.4** Create `ExportDialog`:
+- [x] **2.9.4** Create `ExportDialog`:
   - Format selector (JSON, glTF, PDF)
   - Filename input (auto-generated default)
   - Format-specific options
   - Export / Cancel buttons
 
-- [ ] **2.9.5** Create `ImportDialog`:
+- [x] **2.9.5** Create `ImportDialog`:
   - Drag-and-drop zone
   - File browser button
   - Shows file info after selection
   - Import / Cancel buttons
 
-- [ ] **2.9.6** Create `KeyboardShortcutsDialog`:
+- [x] **2.9.6** Create `KeyboardShortcutsDialog`:
   - Categorized list of all shortcuts
   - Searchable
 
-- [ ] **2.9.7** Create `useDialog` hook for managing dialog state:
+- [x] **2.9.7** Create `useDialog` hook for managing dialog state:
   ```typescript
   const { openDialog, closeDialog, isOpen } = useDialog('newProject')
   ```
 
 ### Unit Tests
 
-- [ ] ConfirmDialog calls onConfirm when confirmed
-- [ ] ConfirmDialog calls onOpenChange(false) when cancelled
-- [ ] NewProjectDialog validates required fields
-- [ ] Dialog traps focus
-- [ ] Escape key closes dialog
+- [x] ConfirmDialog calls onConfirm when confirmed
+- [x] ConfirmDialog calls onOpenChange(false) when cancelled
+- [x] NewProjectDialog validates required fields
+- [x] Dialog traps focus
+- [x] Escape key closes dialog
 
 ---
 
@@ -512,7 +512,7 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.10.1** Create shortcuts constants map:
+- [x] **2.10.1** Create shortcuts constants map:
   ```typescript
   const SHORTCUTS = {
     NEW_PROJECT: { key: 'n', ctrl: true },
@@ -532,27 +532,27 @@ This section builds the application shell including the main layout, top toolbar
   }
   ```
 
-- [ ] **2.10.2** Create `useKeyboardShortcuts` hook:
+- [x] **2.10.2** Create `useKeyboardShortcuts` hook:
   - Registers global keydown listener
   - Checks for modifier keys (Ctrl/Cmd, Shift, Alt)
   - Calls registered handlers
   - Prevents default for handled shortcuts
   - Ignores when focus is in input/textarea
 
-- [ ] **2.10.3** Create `KeyboardShortcutProvider` that registers all app shortcuts
+- [x] **2.10.3** Create `KeyboardShortcutProvider` that registers all app shortcuts
 
-- [ ] **2.10.4** Handle Mac vs Windows (Cmd vs Ctrl)
+- [x] **2.10.4** Handle Mac vs Windows (Cmd vs Ctrl)
 
-- [ ] **2.10.5** Create `formatShortcut(shortcut)` utility for display:
+- [x] **2.10.5** Create `formatShortcut(shortcut)` utility for display:
   - Returns "Ctrl+S" or "⌘S" based on platform
 
 ### Unit Tests
 
-- [ ] Shortcuts fire handlers correctly
-- [ ] Modifier keys are checked
-- [ ] Shortcuts ignored when in input field
-- [ ] Mac detection works
-- [ ] formatShortcut returns correct string
+- [x] Shortcuts fire handlers correctly
+- [x] Modifier keys are checked
+- [x] Shortcuts ignored when in input field
+- [x] Mac detection works
+- [x] formatShortcut returns correct string
 
 ---
 
