@@ -125,4 +125,29 @@ describe('useToast', () => {
     expect(result.current.toasts).toHaveLength(1);
     expect(result.current.toasts[0].title).toBe('Toast 2');
   });
+
+  it('should remove toast after delay', () => {
+    jest.useFakeTimers();
+    const { result } = renderHook(() => useToast());
+
+    act(() => {
+      toast({ title: 'To Remove' });
+    });
+
+    // Dismiss to trigger removal queue
+    act(() => {
+        result.current.dismiss();
+    });
+
+    expect(result.current.toasts[0].open).toBe(false);
+
+    // Fast-forward
+    act(() => {
+        jest.runAllTimers();
+    });
+
+    expect(result.current.toasts).toHaveLength(0);
+
+    jest.useRealTimers();
+  });
 });
