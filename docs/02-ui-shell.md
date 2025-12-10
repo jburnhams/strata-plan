@@ -175,12 +175,12 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.4.1** Create toolbar container:
+- [x] **2.4.1** Create toolbar container:
   - Fixed height: 48px
   - Background with blur effect
   - Border bottom
 
-- [ ] **2.4.2** Implement File menu (dropdown):
+- [x] **2.4.2** Implement File menu (dropdown):
   - New Project (Ctrl+N)
   - Open Project (Ctrl+O)
   - Recent Projects (submenu, shows last 5)
@@ -193,7 +193,7 @@ This section builds the application shell including the main layout, top toolbar
   - Separator
   - Project Settings
 
-- [ ] **2.4.3** Implement Edit menu (dropdown):
+- [x] **2.4.3** Implement Edit menu (dropdown):
   - Undo (Ctrl+Z)
   - Redo (Ctrl+Y)
   - Separator
@@ -206,7 +206,7 @@ This section builds the application shell including the main layout, top toolbar
   - Select All (Ctrl+A)
   - Deselect (Esc)
 
-- [ ] **2.4.4** Implement View menu (dropdown):
+- [x] **2.4.4** Implement View menu (dropdown):
   - Table View (Ctrl+1)
   - 2D Editor (Ctrl+2)
   - 3D Preview (Ctrl+3)
@@ -221,25 +221,25 @@ This section builds the application shell including the main layout, top toolbar
   - Separator
   - Dark Mode toggle
 
-- [ ] **2.4.5** Create tool buttons group:
+- [x] **2.4.5** Create tool buttons group:
   - View 3D button (prominent, primary color)
   - Export dropdown button
 
-- [ ] **2.4.6** Add right section:
+- [x] **2.4.6** Add right section:
   - Theme toggle
   - Help button (?)
   - Settings button (gear icon)
 
-- [ ] **2.4.7** Show keyboard shortcuts in menu items
+- [x] **2.4.7** Show keyboard shortcuts in menu items
 
-- [ ] **2.4.8** Disable menu items when not applicable (e.g., Undo when nothing to undo)
+- [x] **2.4.8** Disable menu items when not applicable (e.g., Undo when nothing to undo)
 
 ### Unit Tests
 
-- [ ] All menus render and open
-- [ ] Menu items have correct keyboard shortcuts displayed
-- [ ] Disabled state works correctly
-- [ ] Menu closes on item click
+- [x] All menus render and open
+- [x] Menu items have correct keyboard shortcuts displayed
+- [x] Disabled state works correctly
+- [x] Menu closes on item click
 
 ---
 
@@ -249,7 +249,7 @@ This section builds the application shell including the main layout, top toolbar
 
 ### Subtasks
 
-- [ ] **2.5.1** Create collapsible section component:
+- [x] **2.5.1** Create collapsible section component:
   ```typescript
   interface SidebarSectionProps {
     title: string
@@ -262,41 +262,41 @@ This section builds the application shell including the main layout, top toolbar
   - Collapsible content area
   - Keyboard accessible (Enter/Space to toggle)
 
-- [ ] **2.5.2** Create Rooms section:
+- [x] **2.5.2** Create Rooms section:
   - Header: "Rooms (N)"
   - List of room items
   - Each item: color swatch, name, area
   - Click to select room
-  - Right-click context menu (Rename, Duplicate, Delete)
+  - Right-click context menu (Rename, Duplicate, Delete) (Deferred)
   - "+ Add Room" button at bottom
 
-- [ ] **2.5.3** Create Walls section (for canvas mode):
+- [x] **2.5.3** Create Walls section (for canvas mode):
   - Header: "Walls (N)"
   - List of wall items
   - Each item: wall ID, length
   - Click to select
 
-- [ ] **2.5.4** Create Doors section:
+- [x] **2.5.4** Create Doors section:
   - Header: "Doors (N)"
   - List items with room association
 
-- [ ] **2.5.5** Create Windows section:
+- [x] **2.5.5** Create Windows section:
   - Header: "Windows (N)"
   - List items with room association
 
-- [ ] **2.5.6** Implement search/filter box at top:
+- [x] **2.5.6** Implement search/filter box at top:
   - Filters visible items across all sections
   - Debounced input (300ms)
 
-- [ ] **2.5.7** Collapsed state shows only icons for sections
+- [x] **2.5.7** Collapsed state shows only icons for sections
 
 ### Unit Tests
 
-- [ ] Sections expand/collapse correctly
-- [ ] Room list shows correct count
-- [ ] Click on room item triggers selection
-- [ ] Filter filters items in all sections
-- [ ] Context menu shows on right-click
+- [x] Sections expand/collapse correctly
+- [x] Room list shows correct count
+- [x] Click on room item triggers selection
+- [x] Filter filters items in all sections
+- [x] Context menu shows on right-click (Deferred)
 
 ---
 
