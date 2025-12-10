@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, within, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { RoomTable } from '../../src/components/table/RoomTable';
+import { Canvas2D } from '../../src/components/editor/Canvas2D';
 import { useFloorplanStore } from '../../src/stores/floorplanStore';
 import { useUIStore } from '../../src/stores/uiStore';
 import { Toaster } from '../../src/components/ui/toaster';
@@ -204,5 +205,79 @@ describe('RoomTable Integration Workflow', () => {
     });
 
     expect(within(table).getByText('Master Bedroom')).toBeInTheDocument();
+  });
+
+  it('Syncs selection and hover between Table and Canvas', async () => {
+    render(
+      <>
+        <Toaster />
+        <div className="flex">
+            <RoomTable />
+            <Canvas2D />
+        </div>
+      </>
+    );
+
+    // 1. Add Room via Table
+    const addBtn = screen.getByText('+ Add Room');
+    fireEvent.click(addBtn);
+
+    // Wait for room
+    await waitFor(() => {
+        expect(screen.queryByTestId('empty-state')).not.toBeInTheDocument();
+    });
+
+    const table = screen.getByRole('table');
+    const roomRow = within(table).getByText('Room 1').closest('tr');
+    expect(roomRow).toBeInTheDocument();
+
+    // Verify room appears in Canvas
+    const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
+    const roomId = rooms[0].id;
+    const roomShape = screen.getByTestId(`room-shape-${roomId}`);
+    expect(roomShape).toBeInTheDocument();
+
+    // 2. Select in Table -> Highlight in Canvas
+    fireEvent.click(roomRow!);
+
+    // Verify selection in store
+    expect(useFloorplanStore.getState().selectedRoomId).toBe(roomId);
+
+    // Verify visual update in Canvas (stroke width changes)
+    expect(roomShape).toHaveAttribute('stroke-width', '0.1'); // Selected width
+
+    // 3. Deselect via store (since click-background not implemented yet)
+    act(() => {
+        useFloorplanStore.getState().selectRoom(null);
+    });
+
+    expect(roomShape).toHaveAttribute('stroke-width', '0.05'); // Default width
+
+    // 4. Hover Table Row -> Highlight Canvas
+    fireEvent.mouseEnter(roomRow!);
+    expect(useUIStore.getState().hoveredRoomId).toBe(roomId);
+    expect(roomShape).toHaveAttribute('stroke-width', '0.08'); // Hover width
+
+    fireEvent.mouseLeave(roomRow!);
+    expect(useUIStore.getState().hoveredRoomId).toBe(null);
+    expect(roomShape).toHaveAttribute('stroke-width', '0.05');
+
+    // 5. Hover Canvas Room -> Highlight Table Row
+    fireEvent.mouseEnter(roomShape);
+    expect(useUIStore.getState().hoveredRoomId).toBe(roomId);
+
+    // Check row style (bg-blue-50)
+    expect(roomRow).toHaveClass('bg-blue-50');
+
+    fireEvent.mouseLeave(roomShape);
+    expect(roomRow).not.toHaveClass('bg-blue-50');
+
+    // 6. Click Canvas Room -> Select in Table
+    fireEvent.click(roomShape);
+    expect(useFloorplanStore.getState().selectedRoomId).toBe(roomId);
+
+    // Table row should be selected (checked via class or aria-selected logic if implemented, or just check store)
+    // Row uses isSelected prop which sets 'bg-blue-50 ring-2'
+    expect(roomRow).toHaveClass('ring-2');
   });
 });

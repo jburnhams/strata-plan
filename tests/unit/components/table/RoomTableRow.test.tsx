@@ -285,4 +285,44 @@ describe('RoomTableRow', () => {
     // Check for validation message tooltip
     expect(row).toHaveAttribute('title', expect.stringContaining('Another room has this name'));
   });
+
+  it('updates hovered room on mouse enter/leave', () => {
+      render(
+        <table>
+          <tbody>
+            <RoomTableRow {...defaultProps} />
+          </tbody>
+        </table>
+      );
+
+      // Import store to check state
+      const { useUIStore } = require('../../../../src/stores/uiStore');
+
+      const row = screen.getByTestId('room-row-room-1');
+
+      fireEvent.mouseEnter(row);
+      expect(useUIStore.getState().hoveredRoomId).toBe('room-1');
+
+      fireEvent.mouseLeave(row);
+      expect(useUIStore.getState().hoveredRoomId).toBeNull();
+  });
+
+  it('highlights when hovered (and not selected)', () => {
+      const { useUIStore } = require('../../../../src/stores/uiStore');
+      useUIStore.getState().setHoveredRoom('room-1');
+
+      render(
+        <table>
+          <tbody>
+            <RoomTableRow {...defaultProps} isSelected={false} />
+          </tbody>
+        </table>
+      );
+
+      const row = screen.getByTestId('room-row-room-1');
+      expect(row.className).toContain('bg-blue-50');
+
+      // Cleanup
+      useUIStore.getState().setHoveredRoom(null);
+  });
 });

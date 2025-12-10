@@ -179,4 +179,14 @@ describe('UI Store', () => {
       expect(useUIStore.getState().lastSaveTime).toBe(savedTime);
     });
   });
+
+  describe('Hovered Room', () => {
+    it('should set hovered room id', () => {
+      useUIStore.getState().setHoveredRoom('room-123');
+      expect(useUIStore.getState().hoveredRoomId).toBe('room-123');
+
+      useUIStore.getState().setHoveredRoom(null);
+      expect(useUIStore.getState().hoveredRoomId).toBeNull();
+    });
+  });
 });

@@ -88,4 +88,39 @@ describe('NumberCell', () => {
     expect(screen.queryByTitle('Warning message')).not.toBeInTheDocument();
     expect(screen.getByTitle('Value must be between 0 and 20')).toBeInTheDocument();
   });
+
+  it('commits on Enter', () => {
+    const onCommit = jest.fn();
+    render(<NumberCell value={10} onCommit={onCommit} />);
+    fireEvent.click(screen.getByText('10'));
+    const input = screen.getByRole('spinbutton');
+    fireEvent.change(input, { target: { value: '12' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onCommit).toHaveBeenCalledWith(12);
+  });
+
+  it('cancels on Escape', () => {
+    const onCommit = jest.fn();
+    render(<NumberCell value={10} onCommit={onCommit} />);
+    fireEvent.click(screen.getByText('10'));
+    const input = screen.getByRole('spinbutton');
+    fireEvent.change(input, { target: { value: '12' } });
+    fireEvent.keyDown(input, { key: 'Escape' });
+    expect(onCommit).not.toHaveBeenCalled();
+    expect(screen.getByText('10')).toBeInTheDocument();
+  });
+
+  it('increments/decrements with arrow keys', () => {
+      // Assuming step is default 0.1 or passed
+      const onCommit = jest.fn();
+      render(<NumberCell value={10} step={1} onCommit={onCommit} />);
+      fireEvent.click(screen.getByText('10'));
+      const input = screen.getByRole('spinbutton');
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+      expect(input).toHaveValue(11); // 10 + 1
+
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      expect(input).toHaveValue(10); // 11 - 1
+  });
 });

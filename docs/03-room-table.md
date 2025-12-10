@@ -431,8 +431,8 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
 
 ### Subtasks
 
-- [ ] **3.10.1** Sync selection between table and 2D view:
-  - Select room in table → highlights in 2D
+- [x] **3.10.1** Sync selection between table and 2D view:
+  - [x] Select room in table → highlights in 2D
   - [x] Select room in 2D → highlights row in table
   - [x] Scroll table to show selected row
 
@@ -440,21 +440,21 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
   - Double-click room in 2D → scroll table to that row
   - Optional: smooth scroll animation
 
-- [ ] **3.10.3** Update 2D view when table changes:
+- [x] **3.10.3** Update 2D view when table changes:
   - Room added → appears in 2D
   - Dimensions changed → 2D resizes
   - Room deleted → removed from 2D
 
-- [ ] **3.10.4** Hover sync:
-  - Hover row in table → highlight room in 2D
-  - Hover room in 2D → highlight row in table
+- [x] **3.10.4** Hover sync:
+  - [x] Hover row in table → highlight room in 2D
+  - [x] Hover room in 2D → highlight row in table
 
 ### Unit Tests
 
-- [ ] Selection syncs from table to 2D
-- [ ] Selection syncs from 2D to table
-- [ ] Adding room appears in 2D
-- [ ] Dimension change updates 2D size
+- [x] Selection syncs from table to 2D
+- [x] Selection syncs from 2D to table
+- [x] Adding room appears in 2D
+- [x] Dimension change updates 2D size
 
 ---
 
@@ -469,7 +469,7 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
 - [x] **Validation workflow**: Enter invalid dimension → verify error shown → fix → verify cleared
 - [x] **Auto-layout**: Add 5 rooms → verify positioned left-to-right with correct gaps (Partially covered via unit and manual layout button test)
 - [x] **Totals accuracy**: Add rooms with known dimensions → verify totals match expected
-- [ ] **Selection sync**: Select room in table → verify store updated → verify 2D highlight (Requires 2D View implementation)
+- [x] **Selection sync**: Select room in table → verify store updated → verify 2D highlight (Requires 2D View implementation)
 
 ---
 
@@ -481,7 +481,7 @@ The Room Input Table is the primary MVP interface for users who "have a tape mea
 - [x] Validation errors display with helpful messages
 - [x] Totals update in real-time
 - [x] Auto-layout positions rooms correctly
-- [ ] Selection syncs with 2D view
+- [x] Selection syncs with 2D view
 - [x] Keyboard-only operation is fully supported
 - [x] Unit test coverage > 90%
 

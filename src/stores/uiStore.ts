@@ -40,12 +40,14 @@ export interface UIState {
   mode: EditorMode;
   saveStatus: SaveStatus;
   lastSaveTime: Date | null;
+  hoveredRoomId: string | null;
 }
 
 /**
  * UI store actions
  */
 export interface UIActions {
+  setHoveredRoom: (id: string | null) => void;
   setTheme: (theme: Theme) => void;
   setMode: (mode: EditorMode) => void;
   toggleSidebar: () => void;
@@ -86,6 +88,7 @@ const initialState: UIState = {
   mode: 'table',
   saveStatus: 'saved',
   lastSaveTime: null,
+  hoveredRoomId: null,
 };
 
 /**
@@ -95,6 +98,10 @@ export const useUIStore = create<UIStore>()(
   persist(
     (set, get) => ({
       ...initialState,
+
+      setHoveredRoom: (id: string | null) => {
+        set({ hoveredRoomId: id });
+      },
 
       setTheme: (theme: Theme) => {
         set({ theme });
