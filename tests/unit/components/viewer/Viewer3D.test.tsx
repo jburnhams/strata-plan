@@ -37,17 +37,39 @@ jest.mock('@react-three/fiber', () => {
       camera: new THREE.PerspectiveCamera(),
       gl: { domElement: mockCanvasElement },
     }),
+    useFrame: jest.fn(), // Mock useFrame to prevent crash in FirstPersonControls
   };
 });
 
 // Mock @react-three/drei
 jest.mock('@react-three/drei', () => ({
   OrbitControls: () => <div data-testid="orbit-controls" />,
+  PointerLockControls: () => <div data-testid="pointer-lock-controls" />, // Mock this for FirstPersonControls
 }));
 
 // Mock Environment component
 jest.mock('../../../../src/components/viewer/Environment', () => ({
   Environment: () => <div data-testid="environment" />
+}));
+
+// Mock useToast hook
+jest.mock('@/hooks/use-toast', () => ({
+    useToast: () => ({
+        toast: jest.fn()
+    })
+}));
+
+// Mock CameraControls
+jest.mock('../../../../src/components/viewer/CameraControls', () => {
+    const React = require('react');
+    return {
+        CameraControls: React.forwardRef((props: any, ref: any) => <div data-testid="camera-controls" />)
+    };
+});
+
+// Mock ViewerControls
+jest.mock('../../../../src/components/viewer/ViewerControls', () => ({
+    ViewerControls: () => <div data-testid="viewer-controls" />
 }));
 
 describe('Viewer3D', () => {
