@@ -123,26 +123,26 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.3.1** Add connection state to store:
+- [x] **6.3.1** Add connection state to store:
   ```typescript
   connections: RoomConnection[]
   ```
 
-- [ ] **6.3.2** Add connection actions:
+- [x] **6.3.2** Add connection actions:
   ```typescript
   recalculateConnections(): void
   getAdjacentRooms(roomId: string): Room[]
   getConnection(room1Id: string, room2Id: string): RoomConnection | null
   ```
 
-- [ ] **6.3.3** Trigger recalculation:
+- [x] **6.3.3** Trigger recalculation:
   - When room added
   - When room deleted
   - When room position changes
   - When room dimensions change
   - Debounced (300ms)
 
-- [ ] **6.3.4** Create selector hooks:
+- [x] **6.3.4** Create selector hooks:
   ```typescript
   useAdjacentRooms(roomId: string): Room[]
   useRoomConnections(roomId: string): RoomConnection[]
@@ -150,9 +150,9 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Unit Tests
 
-- [ ] Connections recalculate on room add
-- [ ] Connections update on room move
-- [ ] Selectors return correct data
+- [x] Connections recalculate on room add
+- [x] Connections update on room move
+- [x] Selectors return correct data
 
 ---
 
@@ -162,7 +162,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.4.1** Create connection line component:
+- [x] **6.4.1** Create connection line component:
   - Draws dashed line between room centers
   - Line color: light gray
   - Only shown when "Show Connections" enabled
@@ -175,19 +175,19 @@ The adjacency system automatically detects which rooms share walls, calculates s
   - Small circle or door icon
   - Positioned along shared wall
 
-- [ ] **6.4.4** Create hover info:
+- [x] **6.4.4** Create hover info:
   - Hover over connection line
   - Show tooltip: "Kitchen ↔ Living Room (3.2m shared wall)"
 
-- [ ] **6.4.5** Toggle visibility:
+- [x] **6.4.5** Toggle visibility:
   - Checkbox in View menu
   - Default: off (reduces visual clutter)
 
 ### Unit Tests
 
-- [ ] Connection lines render between adjacent rooms
-- [ ] Lines not shown for non-adjacent rooms
-- [ ] Toggle hides/shows lines
+- [x] Connection lines render between adjacent rooms
+- [x] Lines not shown for non-adjacent rooms
+- [x] Toggle hides/shows lines
 - [ ] Door icons appear on connections with doors
 
 ---
@@ -198,11 +198,11 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.5.1** Create adjacent rooms list in properties panel:
+- [x] **6.5.1** Create adjacent rooms list in properties panel:
   - Section header: "Adjacent Rooms"
   - List connected rooms when a room is selected
 
-- [ ] **6.5.2** Display connection info:
+- [x] **6.5.2** Display connection info:
   - Room name (clickable to select)
   - Shared wall length
   - Number of doors
@@ -212,19 +212,19 @@ The adjacency system automatically detects which rooms share walls, calculates s
   - "+ Add Door" button per connection
   - Opens door creation flow
 
-- [ ] **6.5.4** Handle no adjacencies:
+- [x] **6.5.4** Handle no adjacencies:
   - Message: "No adjacent rooms"
   - Hint: "Move rooms closer to create connections"
 
-- [ ] **6.5.5** Click to navigate:
+- [x] **6.5.5** Click to navigate:
   - Click room name → select that room
   - Scrolls 2D view to show both rooms
 
 ### Unit Tests
 
-- [ ] Adjacent rooms listed correctly
+- [x] Adjacent rooms listed correctly
 - [x] Shared wall length displayed
-- [ ] Click navigates to adjacent room
+- [x] Click navigates to adjacent room
 - [ ] Add Door button triggers action
 
 ---
@@ -235,7 +235,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.6.1** Implement `findPath(startRoomId: string, endRoomId: string): string[]`
+- [x] **6.6.1** Implement `findPath(startRoomId: string, endRoomId: string): string[]`
   - Uses BFS on adjacency graph
   - Returns array of room IDs forming path
   - Returns empty array if no path exists
@@ -244,7 +244,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
   - Highlight rooms in path
   - Show arrows indicating direction
 
-- [ ] **6.6.3** Calculate path distance:
+- [x] **6.6.3** Calculate path distance:
   - Sum of distances between room centers
   - Or: sum of door-to-door distances
 
@@ -255,10 +255,10 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Unit Tests
 
-- [ ] Direct path found for adjacent rooms
-- [ ] Multi-hop path found correctly
-- [ ] No path returns empty array
-- [ ] Shortest path returned when multiple exist
+- [x] Direct path found for adjacent rooms
+- [x] Multi-hop path found correctly
+- [x] No path returns empty array
+- [x] Shortest path returned when multiple exist
 
 ---
 

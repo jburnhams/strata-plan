@@ -1,4 +1,5 @@
 import { buildGraph, calculateAllConnections } from '../../src/services/adjacency/graph';
+import { findPath, calculatePathDistance } from '../../src/services/adjacency/pathfinding';
 import { Room } from '../../src/types/room';
 
 // Helper to create basic rooms
@@ -89,6 +90,27 @@ describe('Adjacency System Integration', () => {
       // Here we just ensure connection exists.
       expect(connections[0].room1Id).toBe('1');
       expect(connections[0].room2Id).toBe('2');
+    });
+  });
+
+  describe('Pathfinding Integration', () => {
+    it('should find path through a chain of auto-connected rooms', () => {
+      // Chain: R1 - R2 - R3
+      const room1 = createRoom('1', 0, 0); // 0-4
+      const room2 = createRoom('2', 4, 0); // 4-8
+      const room3 = createRoom('3', 8, 0); // 8-12
+
+      const connections = calculateAllConnections([room1, room2, room3]);
+
+      const path = findPath('1', '3', connections);
+      expect(path).toEqual(['1', '2', '3']);
+
+      const distance = calculatePathDistance(path, [room1, room2, room3]);
+      // Centers: R1(2,2), R2(6,2), R3(10,2)
+      // Dist R1-R2 = 4
+      // Dist R2-R3 = 4
+      // Total = 8
+      expect(distance).toBeCloseTo(8);
     });
   });
 });
