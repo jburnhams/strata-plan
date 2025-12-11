@@ -4,6 +4,7 @@ import { RoomLayer } from './RoomLayer';
 import { Grid } from './Grid';
 import { ConnectionLines } from './ConnectionLines';
 import { SelectionOverlay } from './SelectionOverlay';
+import { PathVisualization } from './PathVisualization';
 
 export function Canvas2D() {
   return (
@@ -11,6 +12,7 @@ export function Canvas2D() {
        <CanvasViewport>
           <Grid />
           <ConnectionLines />
+          <PathVisualization />
           <RoomLayer />
           <SelectionOverlay />
        </CanvasViewport>

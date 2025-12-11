@@ -26,6 +26,7 @@ export interface RoomConnection {
   room2Wall: WallSide;
   sharedWallLength: number;
   doors: string[]; // Door IDs
+  isManual?: boolean;
 }
 
 /**
