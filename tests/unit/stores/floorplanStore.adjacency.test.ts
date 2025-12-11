@@ -97,4 +97,46 @@ describe('floorplanStore adjacency', () => {
     expect(adjacentToR1).toHaveLength(1);
     expect(adjacentToR1[0].id).toBe(r2!.id);
   });
+
+  it('addManualConnection adds a manual connection', () => {
+    const { addRoom, addManualConnection } = useFloorplanStore.getState();
+
+    let r1: Room, r2: Room;
+    act(() => {
+      r1 = addRoom(room1Data);
+      // Add room 3 far away so no auto-connection
+      r2 = addRoom({ ...room2Data, position: { x: 20, z: 20 } });
+    });
+
+    expect(useFloorplanStore.getState().currentFloorplan?.connections).toHaveLength(0);
+
+    act(() => {
+      addManualConnection(r1.id, r2.id);
+    });
+
+    const connections = useFloorplanStore.getState().currentFloorplan?.connections;
+    expect(connections).toHaveLength(1);
+    expect(connections![0].isManual).toBe(true);
+  });
+
+  it('removeConnection removes a connection', () => {
+    const { addRoom, addManualConnection, removeConnection } = useFloorplanStore.getState();
+
+    let r1: Room, r2: Room;
+    act(() => {
+      r1 = addRoom(room1Data);
+      r2 = addRoom({ ...room2Data, position: { x: 20, z: 20 } });
+      addManualConnection(r1.id, r2.id);
+    });
+
+    const connections = useFloorplanStore.getState().currentFloorplan?.connections;
+    expect(connections).toHaveLength(1);
+    const connId = connections![0].id;
+
+    act(() => {
+      removeConnection(connId);
+    });
+
+    expect(useFloorplanStore.getState().currentFloorplan?.connections).toHaveLength(0);
+  });
 });

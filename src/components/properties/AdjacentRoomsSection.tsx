@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFloorplanStore } from '../../stores/floorplanStore';
 import { useUIStore } from '../../stores/uiStore';
-import { DoorOpen, Link as LinkIcon, AlertCircle } from 'lucide-react';
+import { DoorOpen, Link as LinkIcon, AlertCircle, Unlink } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
 import { WallSide } from '../../types/geometry';
@@ -12,6 +12,7 @@ export const AdjacentRoomsSection: React.FC = () => {
   const rooms = useFloorplanStore((state) => state.currentFloorplan?.rooms || []);
   const connections = useFloorplanStore((state) => state.currentFloorplan?.connections || []);
   const selectRoom = useFloorplanStore((state) => state.selectRoom);
+  const removeConnection = useFloorplanStore((state) => state.removeConnection);
   // Future use: using dialog to add door
   // const openDialog = useDialogStore(state => state.openDialog);
 
@@ -70,9 +71,25 @@ export const AdjacentRoomsSection: React.FC = () => {
                   >
                     {otherRoom.name}
                   </button>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                    {conn.sharedWallLength.toFixed(2)}m shared
-                  </span>
+                  <div className="flex items-center">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                      {conn.sharedWallLength > 0 ? `${conn.sharedWallLength.toFixed(2)}m shared` : 'Manual Link'}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 ml-1 text-muted-foreground hover:text-destructive"
+                      title="Remove Connection"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm('Remove this connection?')) {
+                          removeConnection(conn.id);
+                        }
+                      }}
+                    >
+                      <Unlink className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="flex justify-between items-center text-xs text-muted-foreground mb-3">

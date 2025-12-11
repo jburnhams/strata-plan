@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { RoomType } from '../../types/room';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Link } from 'lucide-react';
 import { Room } from '../../types';
 
 const ROOM_TYPES: RoomType[] = [
@@ -38,9 +38,14 @@ export function MultiSelectionPanel() {
 
   const updateRoom = useFloorplanStore(state => state.updateRoom);
   const deleteRoom = useFloorplanStore(state => state.deleteRoom);
+  const addManualConnection = useFloorplanStore(state => state.addManualConnection);
+  const getConnection = useFloorplanStore(state => state.getConnection);
   const units = useFloorplanStore(state => state.currentFloorplan?.units || 'meters');
 
   if (selectedRoomIds.length <= 1) return null;
+
+  const canLink = selectedRoomIds.length === 2;
+  const existingConnection = canLink ? getConnection(selectedRoomIds[0], selectedRoomIds[1]) : null;
 
   // Determine common values
   const commonType = selectedRooms.length > 0 && selectedRooms.every(r => r.type === selectedRooms[0].type)
@@ -182,7 +187,18 @@ export function MultiSelectionPanel() {
 
       </div>
 
-      <div className="pt-4 border-t">
+      <div className="pt-4 border-t space-y-2">
+        {canLink && !existingConnection && (
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => addManualConnection(selectedRoomIds[0], selectedRoomIds[1])}
+          >
+            <Link className="mr-2 h-4 w-4" />
+            Link Rooms
+          </Button>
+        )}
+
         <Button
           variant="destructive"
           className="w-full"

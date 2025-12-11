@@ -51,6 +51,8 @@ export interface FloorplanActions {
 
   // Connection operations
   recalculateConnections: () => void;
+  addManualConnection: (room1Id: string, room2Id: string) => void;
+  removeConnection: (connectionId: string) => void;
   getAdjacentRooms: (roomId: string) => Room[];
   getConnection: (room1Id: string, room2Id: string) => RoomConnection | null;
 
@@ -430,6 +432,65 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
           (c.room1Id === room2Id && c.room2Id === room1Id)
       ) || null
     );
+  },
+
+  addManualConnection: (room1Id: string, room2Id: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return;
+
+    // Check if connection already exists
+    const existing = state.currentFloorplan.connections.find(
+      (c) =>
+        (c.room1Id === room1Id && c.room2Id === room2Id) ||
+        (c.room1Id === room2Id && c.room2Id === room1Id)
+    );
+
+    if (existing) return;
+
+    // Create new manual connection
+    const newConnection: RoomConnection = {
+      id: generateUUID(),
+      room1Id,
+      room2Id,
+      room1Wall: 'north', // Placeholder for manual connection
+      room2Wall: 'south', // Placeholder for manual connection
+      sharedWallLength: 0,
+      doors: [],
+      isManual: true,
+    };
+
+    const updatedConnections = [...state.currentFloorplan.connections, newConnection];
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      connections: updatedConnections,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      isDirty: true,
+    });
+  },
+
+  removeConnection: (connectionId: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return;
+
+    const updatedConnections = state.currentFloorplan.connections.filter(c => c.id !== connectionId);
+
+    if (updatedConnections.length === state.currentFloorplan.connections.length) return;
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      connections: updatedConnections,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      isDirty: true,
+    });
   },
 
   // Selection

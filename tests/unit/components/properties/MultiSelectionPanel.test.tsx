@@ -164,4 +164,44 @@ describe('MultiSelectionPanel', () => {
     expect(mockDeleteRoom).toHaveBeenCalledWith('1');
     expect(mockDeleteRoom).toHaveBeenCalledWith('2');
   });
+
+  it('renders link rooms button when 2 rooms are selected and not connected', () => {
+    setupSelection([
+      { id: '1', type: 'bedroom', height: 2.4 } as any,
+      { id: '2', type: 'kitchen', height: 2.4 } as any,
+    ]);
+
+    render(<MultiSelectionPanel />);
+    expect(screen.getByText(/Link Rooms/i)).toBeInTheDocument();
+  });
+
+  it('calls addManualConnection when link button is clicked', () => {
+    setupSelection([
+      { id: '1', type: 'bedroom', height: 2.4 } as any,
+      { id: '2', type: 'kitchen', height: 2.4 } as any,
+    ]);
+    const mockAddManualConnection = jest.fn();
+    // We need to attach the mock to the store instance
+    useFloorplanStore.setState({ addManualConnection: mockAddManualConnection } as any);
+
+    render(<MultiSelectionPanel />);
+    const linkBtn = screen.getByText(/Link Rooms/i);
+    fireEvent.click(linkBtn);
+    expect(mockAddManualConnection).toHaveBeenCalledWith('1', '2');
+  });
+
+  it('does not render link button if rooms are already connected', () => {
+    const store = useFloorplanStore.getState();
+    useFloorplanStore.setState({
+      currentFloorplan: {
+        ...store.currentFloorplan!,
+        rooms: [{ id: '1', height: 2.4 }, { id: '2', height: 2.4 }] as any,
+        connections: [{ room1Id: '1', room2Id: '2', id: 'c1' } as any]
+      },
+      selectedRoomIds: ['1', '2']
+    });
+
+    render(<MultiSelectionPanel />);
+    expect(screen.queryByText(/Link Rooms/i)).not.toBeInTheDocument();
+  });
 });

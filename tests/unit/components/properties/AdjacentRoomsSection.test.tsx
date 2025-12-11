@@ -10,7 +10,8 @@ jest.mock('../../../../src/stores/uiStore');
 jest.mock('lucide-react', () => ({
   Link: () => <div data-testid="icon-link" />,
   DoorOpen: () => <div data-testid="icon-door" />,
-  AlertCircle: () => <div data-testid="icon-alert" />
+  AlertCircle: () => <div data-testid="icon-alert" />,
+  Unlink: () => <div data-testid="icon-unlink" />
 }));
 
 describe('AdjacentRoomsSection', () => {
@@ -51,6 +52,7 @@ describe('AdjacentRoomsSection', () => {
   };
 
   const mockSelectRoom = jest.fn();
+  const mockRemoveConnection = jest.fn();
 
   beforeEach(() => {
     (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) =>
@@ -61,7 +63,8 @@ describe('AdjacentRoomsSection', () => {
           connections: [mockConnection],
           doors: []
         },
-        selectRoom: mockSelectRoom
+        selectRoom: mockSelectRoom,
+        removeConnection: mockRemoveConnection
       })
     );
   });
@@ -108,5 +111,16 @@ describe('AdjacentRoomsSection', () => {
     fireEvent.click(addButton);
     expect(consoleSpy).toHaveBeenCalledWith('Open add door dialog for connection', 'c1');
     consoleSpy.mockRestore();
+  });
+
+  it('should allow removing a connection', () => {
+    window.confirm = jest.fn(() => true);
+    render(<AdjacentRoomsSection />);
+
+    const removeButton = screen.getByTitle('Remove Connection');
+    fireEvent.click(removeButton);
+
+    expect(window.confirm).toHaveBeenCalledWith('Remove this connection?');
+    expect(mockRemoveConnection).toHaveBeenCalledWith('c1');
   });
 });

@@ -122,7 +122,7 @@ describe('Adjacency Integration', () => {
   });
 
   it('Manual Connections: create, persist, and cleanup', () => {
-    const { addRoom, recalculateConnections, deleteRoom, updateRoom } = getState();
+    const { addRoom, recalculateConnections, deleteRoom, updateRoom, addManualConnection, removeConnection } = getState();
 
     // Add two non-adjacent rooms
     const r1 = addRoom({ ...mockRoom1, id: undefined, position: { x: 0, z: 0 } } as any);
@@ -131,51 +131,32 @@ describe('Adjacency Integration', () => {
     // No auto connections
     expect(getState().currentFloorplan!.connections).toHaveLength(0);
 
-    // Create manual connection (simulating action - need to manually push to store or add action)
-    // The store doesn't have 'addConnection' action exposed yet?
-    // Task 6.8.1 said "Allow manual connection creation", implying we need a way to do it.
-    // But for now we can simulate it by modifying state directly or mocking the action if we implemented it.
-    // Wait, I haven't implemented 'addConnection' action in store.
-    // The previous steps added logic to 'calculateAllConnections' which handles persistence.
-    // But how do we get the manual connection IN there first?
-    // We need to implement an action to add it.
+    // Create manual connection via action
+    addManualConnection(r1.id, r2.id);
 
-    // For this test, I will manually inject it into the store to verify the PERSISTENCE logic in recalculateConnections.
-    // Because implementing the full UI/Action flow was not part of the 'one or two tasks' I committed to fully finish (I am doing Logic + Integration).
-
-    const manualConn = {
-      id: 'manual-1',
-      room1Id: r1.id,
-      room2Id: r2.id,
-      room1Wall: 'north' as const,
-      room2Wall: 'south' as const,
-      sharedWallLength: 0,
-      doors: [],
-      isManual: true
-    };
-
-    // Inject manual connection
-    const state = getState();
-    setState({
-        currentFloorplan: {
-            ...state.currentFloorplan!,
-            connections: [manualConn]
-        }
-    });
+    // Verify it exists
+    expect(getState().currentFloorplan!.connections).toHaveLength(1);
+    expect(getState().currentFloorplan!.connections[0].isManual).toBe(true);
 
     // Verify it persists after recalculation
     recalculateConnections();
     expect(getState().currentFloorplan!.connections).toHaveLength(1);
-    expect(getState().currentFloorplan!.connections[0].isManual).toBe(true);
 
     // Move room (trigger recalculation)
     updateRoom(r2.id, { position: { x: 12, z: 0 } });
     recalculateConnections();
     expect(getState().currentFloorplan!.connections).toHaveLength(1);
 
-    // Delete room (should remove connection)
+    // Remove connection via action
+    const connId = getState().currentFloorplan!.connections[0].id;
+    removeConnection(connId);
+    expect(getState().currentFloorplan!.connections).toHaveLength(0);
+
+    // Re-add and then delete room
+    addManualConnection(r1.id, r2.id);
+    expect(getState().currentFloorplan!.connections).toHaveLength(1);
+
     deleteRoom(r2.id);
-    // deleteRoom calls recalculateConnections internally
     expect(getState().currentFloorplan!.connections).toHaveLength(0);
   });
 });

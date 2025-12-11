@@ -57,10 +57,11 @@ export const ConnectionLines: React.FC = () => {
 
         // Doors on this connection
         const connectionDoors = doors.filter(d => d.connectionId === connection.id);
+        const isManual = connection.isManual;
 
         return (
           <g key={connection.id}>
-             <title>{`${room1.name} ↔ ${room2.name} (${connection.sharedWallLength.toFixed(2)}m shared)`}</title>
+             <title>{`${room1.name} ↔ ${room2.name} (${isManual ? 'Manual Link' : `${connection.sharedWallLength.toFixed(2)}m shared`})`}</title>
 
             {/* Connection Line (Room Center to Room Center) */}
             <line
@@ -68,10 +69,10 @@ export const ConnectionLines: React.FC = () => {
               y1={center1.z}
               x2={center2.x}
               y2={center2.z}
-              stroke="#9CA3AF"
-              strokeWidth={1}
+              stroke={isManual ? "#A855F7" : "#9CA3AF"} // Purple for manual, Gray for auto
+              strokeWidth={isManual ? 2 : 1}
               vectorEffect="non-scaling-stroke"
-              strokeDasharray="5,5"
+              strokeDasharray={isManual ? "4,2" : "5,5"}
               opacity={0.6}
             />
 

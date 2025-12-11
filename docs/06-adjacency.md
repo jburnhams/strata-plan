@@ -316,16 +316,16 @@ The adjacency system automatically detects which rooms share walls, calculates s
   - Use case: rooms connected by hallway
   - *Status*: Core logic implemented.
 
-- [ ] **6.8.2** Create "Link Rooms" UI:
+- [x] **6.8.2** Create "Link Rooms" UI:
   - Select two rooms
   - Click "Link Rooms" button
   - Creates virtual connection
 
-- [ ] **6.8.3** Allow connection deletion:
+- [x] **6.8.3** Allow connection deletion:
   - Remove auto-detected connection
   - Use case: rooms touch but shouldn't be connected
 
-- [ ] **6.8.4** Mark manual connections:
+- [x] **6.8.4** Mark manual connections:
   - Visual indicator for manual vs auto connections
   - Different line style in 2D view
 
@@ -346,6 +346,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 - [x] **Auto-detection**: Create adjacent rooms → verify connection detected
 - [x] **Move apart**: Move room away → verify connection removed
 - [x] **Multi-room**: Create 5 connected rooms → verify graph correct
+- [x] **Manual Connections**: Create, persist, and cleanup manual connections
 - [ ] **Path finding**: Create chain of rooms → verify path found
 - [ ] **Validation**: Create overlapping rooms → verify warning shown
 - [ ] **Selection sync**: Select connection → verify both rooms highlighted
