@@ -1,9 +1,13 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { SelectionOverlay } from '../../../../src/components/editor/SelectionOverlay';
 import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
 import { useUIStore } from '../../../../src/stores/uiStore';
+import { useRoomResize } from '../../../../src/hooks/useRoomResize';
+
+// Mock the resize hook
+jest.mock('../../../../src/hooks/useRoomResize');
 
 // Reset stores helper
 const resetStore = () => {
@@ -13,13 +17,9 @@ const resetStore = () => {
             name: 'Test',
             units: 'meters',
             rooms: [],
-            walls: [],
-            doors: [],
-            windows: [],
             connections: [],
             createdAt: new Date(),
             updatedAt: new Date(),
-            version: '1.0.0',
         },
         selectedRoomIds: [],
         selectedRoomId: null,
@@ -28,8 +28,15 @@ const resetStore = () => {
 };
 
 describe('SelectionOverlay', () => {
+    const mockHandleResizeStart = jest.fn();
+
     beforeEach(() => {
         resetStore();
+        (useRoomResize as jest.Mock).mockReturnValue({
+            handleResizeStart: mockHandleResizeStart,
+            isResizing: false
+        });
+        mockHandleResizeStart.mockClear();
     });
 
     it('renders nothing when no room is selected', () => {
@@ -45,10 +52,6 @@ describe('SelectionOverlay', () => {
             position: { x: 0, z: 0 }, rotation: 0
         });
 
-        // Re-fetch state because addRoom might replace the array reference or object
-        // And getState() returns a snapshot at call time?
-        // useFloorplanStore is a zustand store. getState() returns current state.
-        // But we need to ensure we get the updated rooms list.
         const updatedStore = useFloorplanStore.getState();
         const roomId = updatedStore.currentFloorplan?.rooms[0].id!;
 
@@ -86,5 +89,30 @@ describe('SelectionOverlay', () => {
 
         expect(screen.getByTestId(`handle-nw-${rooms[0].id}`)).toBeInTheDocument();
         expect(screen.getByTestId(`handle-nw-${rooms[1].id}`)).toBeInTheDocument();
+    });
+
+    it('calls handleResizeStart when handle is clicked/mouse-down', () => {
+        const store = useFloorplanStore.getState();
+        store.addRoom({
+            name: 'Room 1',
+            length: 5, width: 4, height: 2.7, type: 'bedroom',
+            position: { x: 0, z: 0 }, rotation: 0
+        });
+        const updatedStore = useFloorplanStore.getState();
+        const roomId = updatedStore.currentFloorplan?.rooms[0].id!;
+        updatedStore.selectRoom(roomId);
+
+        render(
+            <svg>
+                <SelectionOverlay />
+            </svg>
+        );
+
+        const nwHandle = screen.getByTestId(`handle-nw-${roomId}`);
+        fireEvent.mouseDown(nwHandle, { button: 0 });
+
+        expect(mockHandleResizeStart).toHaveBeenCalledTimes(1);
+        // Arguments: event, roomId, handleType
+        expect(mockHandleResizeStart).toHaveBeenCalledWith(expect.anything(), roomId, 'nw');
     });
 });

@@ -259,16 +259,16 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Subtasks
 
-- [ ] **4.6.1** Implement corner resize:
+- [x] **4.6.1** Implement corner resize:
   - Drag corner handle to resize both dimensions
   - Opposite corner stays fixed
   - Cursor: "nwse-resize" etc.
 
-- [ ] **4.6.2** Implement edge resize:
+- [x] **4.6.2** Implement edge resize:
   - Drag edge handle to resize single dimension
   - Cursor: "ew-resize" or "ns-resize"
 
-- [ ] **4.6.3** Apply dimension constraints:
+- [x] **4.6.3** Apply dimension constraints:
   - Minimum dimension: 0.1m
   - Maximum dimension: 100m
   - Snap to grid if enabled
@@ -290,9 +290,9 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Unit Tests
 
-- [ ] Corner resize changes both dimensions
-- [ ] Edge resize changes single dimension
-- [ ] Minimum dimension enforced
+- [x] Corner resize changes both dimensions
+- [x] Edge resize changes single dimension
+- [x] Minimum dimension enforced
 - [ ] Shift constrains aspect ratio
 - [ ] Dimension labels update during resize
 
