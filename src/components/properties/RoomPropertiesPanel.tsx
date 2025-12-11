@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFloorplanStore } from '../../stores/floorplanStore';
+import { useUIStore } from '../../stores/uiStore';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -33,6 +34,20 @@ export function RoomPropertiesPanel() {
   const updateRoom = useFloorplanStore(state => state.updateRoom);
   const deleteRoom = useFloorplanStore(state => state.deleteRoom);
   const units = useFloorplanStore(state => state.currentFloorplan?.units || 'meters');
+
+  const focusProperty = useUIStore(state => state.focusProperty);
+  const setFocusProperty = useUIStore(state => state.setFocusProperty);
+
+  useEffect(() => {
+    if (focusProperty === 'room-name') {
+      const input = document.getElementById('room-name');
+      if (input) {
+        input.focus();
+        (input as HTMLInputElement).select?.();
+      }
+      setFocusProperty(null);
+    }
+  }, [focusProperty, setFocusProperty]);
 
   if (!selectedRoom) return null;
 

@@ -28,7 +28,9 @@ const resetStore = () => {
   });
 
   useUIStore.setState({
-      hoveredRoomId: null
+      hoveredRoomId: null,
+      propertiesPanelOpen: false,
+      focusProperty: null
   });
 };
 
@@ -147,6 +149,35 @@ describe('RoomLayer', () => {
     // Shift+Click R1 again (deselect)
     fireEvent.click(screen.getByTestId(`room-shape-${r1.id}`), { shiftKey: true });
     expect(useFloorplanStore.getState().selectedRoomIds).toEqual([r2.id]);
+  });
+
+  it('handles double click to open properties', () => {
+    const store = useFloorplanStore.getState();
+    store.addRoom({
+      name: 'Room 1',
+      length: 4, width: 4, height: 2.7, type: 'bedroom',
+      position: { x: 0, z: 0 }, rotation: 0
+    });
+
+    // Ensure panel is closed initially
+    useUIStore.setState({ propertiesPanelOpen: false, focusProperty: null });
+
+    render(
+        <svg>
+            <RoomLayer />
+        </svg>
+    );
+
+    const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
+    const room = rooms[0];
+    const group = screen.getByTestId(`room-shape-${room.id}`);
+
+    fireEvent.doubleClick(group);
+
+    expect(useUIStore.getState().propertiesPanelOpen).toBe(true);
+    expect(useUIStore.getState().focusProperty).toBe('room-name');
+    // Also should select the room if not selected
+    expect(useFloorplanStore.getState().selectedRoomId).toBe(room.id);
   });
 
   it('sorts selected rooms to top', () => {

@@ -21,6 +21,8 @@ describe('RoomShape', () => {
     isSelected: false,
     isHovered: false,
     onClick: jest.fn(),
+    onDoubleClick: jest.fn(),
+    onMouseDown: jest.fn(),
     onMouseEnter: jest.fn(),
     onMouseLeave: jest.fn(),
   };
@@ -89,6 +91,19 @@ describe('RoomShape', () => {
       fireEvent.click(group);
 
       expect(defaultProps.onClick).toHaveBeenCalledWith(expect.any(Object), 'room-1');
+  });
+
+  it('calls onDoubleClick handler', () => {
+    render(
+        <svg>
+          <RoomShape {...defaultProps} />
+        </svg>
+      );
+
+      const group = screen.getByTestId('room-shape-room-1');
+      fireEvent.doubleClick(group);
+
+      expect(defaultProps.onDoubleClick).toHaveBeenCalledWith(expect.any(Object), 'room-1');
   });
 
   it('handles rotation transform', () => {

@@ -45,6 +45,7 @@ export interface UIState {
   saveStatus: SaveStatus;
   lastSaveTime: Date | null;
   hoveredRoomId: string | null;
+  focusProperty: string | null;
 }
 
 /**
@@ -52,10 +53,12 @@ export interface UIState {
  */
 export interface UIActions {
   setHoveredRoom: (id: string | null) => void;
+  setFocusProperty: (property: string | null) => void;
   setTheme: (theme: Theme) => void;
   setMode: (mode: EditorMode) => void;
   toggleSidebar: () => void;
   togglePropertiesPanel: () => void;
+  setPropertiesPanelOpen: (open: boolean) => void;
   toggleGrid: () => void;
   setGridSize: (size: number) => void;
   toggleSnapToGrid: () => void;
@@ -101,6 +104,7 @@ const initialState: UIState = {
   saveStatus: 'saved',
   lastSaveTime: null,
   hoveredRoomId: null,
+  focusProperty: null,
 };
 
 /**
@@ -113,6 +117,10 @@ export const useUIStore = create<UIStore>()(
 
       setHoveredRoom: (id: string | null) => {
         set({ hoveredRoomId: id });
+      },
+
+      setFocusProperty: (property: string | null) => {
+        set({ focusProperty: property });
       },
 
       setTheme: (theme: Theme) => {
@@ -129,6 +137,10 @@ export const useUIStore = create<UIStore>()(
 
       togglePropertiesPanel: () => {
         set((state) => ({ propertiesPanelOpen: !state.propertiesPanelOpen }));
+      },
+
+      setPropertiesPanelOpen: (open: boolean) => {
+        set({ propertiesPanelOpen: open });
       },
 
       toggleGrid: () => {
