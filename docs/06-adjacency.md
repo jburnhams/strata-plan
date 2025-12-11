@@ -114,6 +114,8 @@ The adjacency system automatically detects which rooms share walls, calculates s
 - [x] getAdjacentRoomIds returns correct rooms
 - [x] buildGraph creates correct connections
 - [x] Rebuild clears and recreates
+- [x] Connection removal and graph clearing (Added)
+- [x] Duplicate connection prevention (Added)
 
 ---
 
@@ -189,6 +191,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 - [x] Lines not shown for non-adjacent rooms
 - [x] Toggle hides/shows lines
 - [x] Door icons appear on connections with doors
+- [x] Manual connections render with distinct style
 
 ---
 
@@ -339,6 +342,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 ## Integration Tests
 
 **File**: `tests/integration/adjacency.integration.test.tsx`
+**File**: `tests/integration/adjacency-ui.integration.test.tsx`
 
 ### Test Cases
 
@@ -348,6 +352,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 - [x] **Path finding**: Create chain of rooms → verify path found
 - [x] **Validation**: Create overlapping rooms → verify warning shown
 - [x] **Selection sync**: Select connection → verify both rooms highlighted
+- [x] **UI Visualization**: Verify connection lines and tooltips render correctly in the DOM
 
 ---
 
@@ -388,5 +393,6 @@ tests/
 │           ├── graph.test.ts
 │           ├── pathfinding.test.ts
 └── integration/
-    └── adjacency.integration.test.tsx
+    ├── adjacency.integration.test.tsx
+    └── adjacency-ui.integration.test.tsx
 ```

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { ConnectionLines } from '../../../../src/components/editor/ConnectionLines';
 import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
 import { useUIStore } from '../../../../src/stores/uiStore';
@@ -114,5 +114,36 @@ describe('ConnectionLines', () => {
     );
     const lines = container.querySelectorAll('line');
     expect(lines.length).toBe(0);
+  });
+
+  it('should render manual connections with distinctive styling', () => {
+      const manualConnection: RoomConnection = {
+          ...mockConnections[0],
+          isManual: true,
+          sharedWallLength: undefined // Manual connections might not have shared length
+      };
+
+      (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
+        return selector({
+          currentFloorplan: {
+            rooms: mockRooms,
+            connections: [manualConnection]
+          }
+        });
+      });
+
+      const { container } = render(
+        <svg>
+          <ConnectionLines />
+        </svg>
+      );
+
+      // Check for Manual Link text
+      expect(screen.getByText('Manual Link')).toBeInTheDocument();
+
+      // Check for dashed line style (simplified check for attributes)
+      const line = container.querySelector('line');
+      expect(line).toHaveAttribute('stroke-dasharray', '2,2');
+      expect(line).toHaveAttribute('stroke', '#A855F7'); // Purple
   });
 });
