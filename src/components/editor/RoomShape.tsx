@@ -8,6 +8,7 @@ interface RoomShapeProps {
   isSelected: boolean;
   isHovered: boolean;
   onClick: (e: React.MouseEvent, roomId: string) => void;
+  onMouseDown: (e: React.MouseEvent) => void;
   onMouseEnter: (roomId: string) => void;
   onMouseLeave: () => void;
 }
@@ -17,6 +18,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
   isSelected,
   isHovered,
   onClick,
+  onMouseDown,
   onMouseEnter,
   onMouseLeave,
 }) => {
@@ -25,14 +27,12 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
 
   // Stroke logic
   let stroke = '#666666';
-  let strokeWidth = 0.05; // meters (thin line)
+  const baseStrokeWidth = DEFAULT_WALL_THICKNESS; // 0.2m
 
   if (isSelected) {
     stroke = '#2563eb'; // blue-600
-    strokeWidth = 0.1;
   } else if (isHovered) {
     stroke = '#3b82f6'; // blue-500
-    strokeWidth = 0.08;
   }
 
   // Center for rotation
@@ -55,6 +55,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
     <g
       transform={room.rotation ? `rotate(${room.rotation}, ${cx}, ${cy})` : undefined}
       onClick={(e) => onClick(e, room.id)}
+      onMouseDown={onMouseDown}
       onMouseEnter={() => onMouseEnter(room.id)}
       onMouseLeave={onMouseLeave}
       data-testid={`room-shape-${room.id}`}
@@ -68,19 +69,8 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
         fill={fill}
         fillOpacity={0.5}
         stroke={stroke}
-        strokeWidth={strokeWidth}
+        strokeWidth={baseStrokeWidth}
       />
-
-      {/* Handles for selection (only if selected) */}
-      {isSelected && (
-        <g>
-           {/* Corners */}
-           <rect x={room.position.x - 0.2} y={room.position.z - 0.2} width={0.4} height={0.4} fill="white" stroke="#2563eb" strokeWidth={0.05} />
-           <rect x={room.position.x + room.length - 0.2} y={room.position.z - 0.2} width={0.4} height={0.4} fill="white" stroke="#2563eb" strokeWidth={0.05} />
-           <rect x={room.position.x - 0.2} y={room.position.z + room.width - 0.2} width={0.4} height={0.4} fill="white" stroke="#2563eb" strokeWidth={0.05} />
-           <rect x={room.position.x + room.length - 0.2} y={room.position.z + room.width - 0.2} width={0.4} height={0.4} fill="white" stroke="#2563eb" strokeWidth={0.05} />
-        </g>
-      )}
 
       {/* Label */}
       {showLabel && (
@@ -91,7 +81,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
           dominantBaseline="middle"
           fill="#1e293b" // slate-800
           fontSize={fontSize}
-          style={{ userSelect: 'none' }}
+          style={{ userSelect: 'none', pointerEvents: 'none' }}
         >
           {room.name}
         </text>
@@ -105,6 +95,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
             dominantBaseline="middle"
             fill="#475569" // slate-600
             fontSize={fontSize * 0.7}
+            style={{ userSelect: 'none', pointerEvents: 'none' }}
           >
             {area.toFixed(1)} m²
           </text>

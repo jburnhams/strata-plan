@@ -167,11 +167,11 @@ The adjacency system automatically detects which rooms share walls, calculates s
   - Line color: light gray
   - Only shown when "Show Connections" enabled
 
-- [x] **6.4.2** Show shared wall indicator:
+- [ ] **6.4.2** Show shared wall indicator:
   - Highlight shared wall segment
   - Different color (e.g., blue)
 
-- [x] **6.4.3** Show door positions on connections:
+- [ ] **6.4.3** Show door positions on connections:
   - Small circle or door icon
   - Positioned along shared wall
 
@@ -188,7 +188,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 - [x] Connection lines render between adjacent rooms
 - [x] Lines not shown for non-adjacent rooms
 - [x] Toggle hides/shows lines
-- [x] Door icons appear on connections with doors
+- [ ] Door icons appear on connections with doors
 
 ---
 
@@ -208,7 +208,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
   - Number of doors
   - Wall sides: "North wall → South wall"
 
-- [x] **6.5.3** Add door button:
+- [ ] **6.5.3** Add door button:
   - "+ Add Door" button per connection
   - Opens door creation flow
 
@@ -225,7 +225,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 - [x] Adjacent rooms listed correctly
 - [x] Shared wall length displayed
 - [x] Click navigates to adjacent room
-- [x] Add Door button triggers action
+- [ ] Add Door button triggers action
 
 ---
 
@@ -240,7 +240,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
   - Returns array of room IDs forming path
   - Returns empty array if no path exists
 
-- [x] **6.6.2** Implement path visualization:
+- [ ] **6.6.2** Implement path visualization:
   - Highlight rooms in path
   - Show arrows indicating direction
 
@@ -268,24 +268,24 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [x] **6.7.1** Detect orphan rooms:
+- [ ] **6.7.1** Detect orphan rooms:
   - Rooms with no connections
   - Warning: "Kitchen has no adjacent rooms"
 
-- [x] **6.7.2** Detect unreachable rooms:
+- [ ] **6.7.2** Detect unreachable rooms:
   - Rooms not connected to main group
   - Warning: "Garage is not connected to rest of house"
 
-- [x] **6.7.3** Validate door placement:
+- [ ] **6.7.3** Validate door placement:
   - Doors must be on shared walls
   - Door width must fit on shared wall length
   - Error if door larger than shared wall
 
-- [x] **6.7.4** Check for invalid overlaps:
+- [ ] **6.7.4** Check for invalid overlaps:
   - Rooms should not overlap (different from adjacent)
   - Error: "Kitchen and Living Room overlap"
 
-- [x] **6.7.5** Report validation results:
+- [ ] **6.7.5** Report validation results:
   ```typescript
   interface ConnectionValidation {
     orphanRooms: string[]
@@ -297,10 +297,10 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Unit Tests
 
-- [x] Orphan rooms detected
-- [x] Unreachable rooms detected
-- [x] Overlapping rooms flagged
-- [x] Invalid door placement caught
+- [ ] Orphan rooms detected
+- [ ] Unreachable rooms detected
+- [ ] Overlapping rooms flagged
+- [ ] Invalid door placement caught
 
 ---
 
@@ -310,11 +310,10 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [x] **6.8.1** Allow manual connection creation:
+- [ ] **6.8.1** Allow manual connection creation:
   - User can force-connect non-adjacent rooms
   - Use case: rooms on different floors (future)
   - Use case: rooms connected by hallway
-  - *Status*: Core logic implemented.
 
 - [ ] **6.8.2** Create "Link Rooms" UI:
   - Select two rooms
@@ -331,9 +330,9 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Unit Tests
 
-- [x] Manual connection creates link
-- [x] Manual connection persists after recalculation
-- [x] Connection deletion removes link
+- [ ] Manual connection creates link
+- [ ] Manual connection persists after recalculation
+- [ ] Connection deletion removes link
 
 ---
 
@@ -343,9 +342,9 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Test Cases
 
-- [x] **Auto-detection**: Create adjacent rooms → verify connection detected
-- [x] **Move apart**: Move room away → verify connection removed
-- [x] **Multi-room**: Create 5 connected rooms → verify graph correct
+- [ ] **Auto-detection**: Create adjacent rooms → verify connection detected
+- [ ] **Move apart**: Move room away → verify connection removed
+- [ ] **Multi-room**: Create 5 connected rooms → verify graph correct
 - [ ] **Path finding**: Create chain of rooms → verify path found
 - [ ] **Validation**: Create overlapping rooms → verify warning shown
 - [ ] **Selection sync**: Select connection → verify both rooms highlighted
@@ -356,11 +355,11 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 - [x] Adjacent rooms automatically detected
 - [x] Connection graph updates when rooms change
-- [x] Adjacent rooms panel shows correct info
-- [x] Connection lines display in 2D view (when enabled)
-- [x] Path finding works for connected rooms
-- [x] Validation catches orphan and overlapping rooms
-- [x] Unit test coverage > 85%
+- [ ] Adjacent rooms panel shows correct info
+- [ ] Connection lines display in 2D view (when enabled)
+- [ ] Path finding works for connected rooms
+- [ ] Validation catches orphan and overlapping rooms
+- [ ] Unit test coverage > 85%
 
 ---
 
@@ -377,25 +376,17 @@ src/
 │       └── manualConnections.ts
 └── components/
     ├── editor/
-    │   ├── ConnectionLines.tsx
-    │   └── PathVisualization.tsx
+    │   └── ConnectionLines.tsx
     └── properties/
         └── AdjacentRoomsSection.tsx
 
 tests/
 ├── unit/
-│   ├── services/
-│   │   └── adjacency/
-│   │       ├── detection.test.ts
-│   │       ├── graph.test.ts
-│   │       ├── pathfinding.test.ts
-│   │       └── validation.test.ts
-│   └── components/
-│       ├── editor/
-│       │   ├── ConnectionLines.test.tsx
-│       │   └── PathVisualization.test.tsx
-│       └── properties/
-│           └── AdjacentRoomsSection.test.tsx
+│   └── services/
+│       └── adjacency/
+│           ├── detection.test.ts
+│           ├── graph.test.ts
+│           └── pathfinding.test.ts
 └── integration/
     └── adjacency.integration.test.tsx
 ```

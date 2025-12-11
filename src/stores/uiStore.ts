@@ -42,11 +42,6 @@ export interface UIState {
   saveStatus: SaveStatus;
   lastSaveTime: Date | null;
   hoveredRoomId: string | null;
-
-  // Path Visualization
-  showPath: boolean;
-  pathStartRoomId: string | null;
-  pathEndRoomId: string | null;
 }
 
 /**
@@ -54,7 +49,6 @@ export interface UIState {
  */
 export interface UIActions {
   setHoveredRoom: (id: string | null) => void;
-  setPathVisualization: (show: boolean, startId?: string, endId?: string) => void;
   setTheme: (theme: Theme) => void;
   setMode: (mode: EditorMode) => void;
   toggleSidebar: () => void;
@@ -98,10 +92,6 @@ const initialState: UIState = {
   saveStatus: 'saved',
   lastSaveTime: null,
   hoveredRoomId: null,
-
-  showPath: false,
-  pathStartRoomId: null,
-  pathEndRoomId: null,
 };
 
 /**
@@ -114,14 +104,6 @@ export const useUIStore = create<UIStore>()(
 
       setHoveredRoom: (id: string | null) => {
         set({ hoveredRoomId: id });
-      },
-
-      setPathVisualization: (show: boolean, startId?: string, endId?: string) => {
-        set({
-          showPath: show,
-          pathStartRoomId: startId ?? null,
-          pathEndRoomId: endId ?? null
-        });
       },
 
       setTheme: (theme: Theme) => {

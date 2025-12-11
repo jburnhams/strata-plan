@@ -7,6 +7,7 @@ import { Canvas2D } from '../../src/components/editor/Canvas2D';
 import { useFloorplanStore } from '../../src/stores/floorplanStore';
 import { useUIStore } from '../../src/stores/uiStore';
 import { Toaster } from '../../src/components/ui/toaster';
+import { DEFAULT_WALL_THICKNESS } from '../../src/constants/defaults';
 
 // Setup basic environment
 describe('RoomTable Integration Workflow', () => {
@@ -244,30 +245,40 @@ describe('RoomTable Integration Workflow', () => {
     const roomRect = roomGroup.querySelector('rect');
     expect(roomRect).toBeInTheDocument();
 
+    // Default width check (constant)
+    expect(roomRect).toHaveAttribute('stroke-width', String(DEFAULT_WALL_THICKNESS));
+
     // 2. Select in Table -> Highlight in Canvas
     fireEvent.click(roomRow!);
 
     // Verify selection in store
     expect(useFloorplanStore.getState().selectedRoomId).toBe(roomId);
 
-    // Verify visual update in Canvas (stroke width changes)
-    expect(roomRect).toHaveAttribute('stroke-width', '0.1'); // Selected width
+    // Verify visual update in Canvas (stroke color changes to blue, width stays same)
+    expect(roomRect).toHaveAttribute('stroke', '#2563eb');
+    expect(roomRect).toHaveAttribute('stroke-width', String(DEFAULT_WALL_THICKNESS));
 
-    // 3. Deselect via store (since click-background not implemented yet)
+    // Also verify selection overlay appears
+    expect(screen.getByTestId('selection-overlay')).toBeInTheDocument();
+
+    // 3. Deselect via store (since click-background not implemented yet in this test context)
     act(() => {
         useFloorplanStore.getState().selectRoom(null);
     });
 
-    expect(roomRect).toHaveAttribute('stroke-width', '0.05'); // Default width
+    // Verify visual update (stroke color resets)
+    expect(roomRect).toHaveAttribute('stroke', '#666666'); // Default gray
 
     // 4. Hover Table Row -> Highlight Canvas
     fireEvent.mouseEnter(roomRow!);
     expect(useUIStore.getState().hoveredRoomId).toBe(roomId);
-    expect(roomRect).toHaveAttribute('stroke-width', '0.08'); // Hover width
+
+    // Hover visual: stroke color changes to hover blue
+    expect(roomRect).toHaveAttribute('stroke', '#3b82f6');
 
     fireEvent.mouseLeave(roomRow!);
     expect(useUIStore.getState().hoveredRoomId).toBe(null);
-    expect(roomRect).toHaveAttribute('stroke-width', '0.05');
+    expect(roomRect).toHaveAttribute('stroke', '#666666');
 
     // 5. Hover Canvas Room -> Highlight Table Row
     // Hover the group

@@ -8,112 +8,111 @@ import { Room, RoomConnection } from '../../../../src/types';
 // Mock dependencies
 jest.mock('../../../../src/stores/floorplanStore');
 jest.mock('../../../../src/stores/uiStore');
-
-// Mock geometry services to avoid complex math in tests
 jest.mock('../../../../src/services/geometry', () => ({
-  getRoomCenter: jest.fn().mockImplementation((room) => ({
-    x: room.position.x + room.length / 2,
-    z: room.position.z + room.width / 2
-  })),
-  getRoomWallSegments: jest.fn().mockReturnValue([
-    { wallSide: 'north', from: {x:0, z:0}, to: {x:10, z:0} },
-    { wallSide: 'east', from: {x:10, z:0}, to: {x:10, z:10} },
-    // Add dummy values, real logic tested in service tests
-  ]),
+  getRoomCenter: jest.fn((room) => ({ x: room.position.x, z: room.position.z })), // Simplified mock
 }));
 
-jest.mock('../../../../src/services/adjacency/detection', () => ({
-  detectAdjacency: jest.fn().mockReturnValue({
-    sharedWall: {
-      room1Wall: 'north',
-      startPosition: 0.2,
-      endPosition: 0.8
-    }
-  })
-}));
 
 describe('ConnectionLines', () => {
-  const mockRoom1: Room = {
-    id: '1',
-    name: 'Room 1',
-    length: 5,
-    width: 5,
-    height: 2.4,
-    type: 'bedroom',
-    position: { x: 0, z: 0 },
-    rotation: 0,
-    doors: [],
-    windows: []
-  };
+  const mockRooms: Room[] = [
+    {
+      id: 'room1',
+      name: 'Room 1',
+      length: 4,
+      width: 5,
+      height: 3,
+      type: 'bedroom',
+      position: { x: 0, z: 0 },
+      doors: [],
+      windows: [],
+      rotation: 0
+    },
+    {
+      id: 'room2',
+      name: 'Room 2',
+      length: 4,
+      width: 5,
+      height: 3,
+      type: 'living',
+      position: { x: 4, z: 0 }, // Adjacent to Room 1
+      doors: [],
+      windows: [],
+      rotation: 0
+    }
+  ];
 
-  const mockRoom2: Room = {
-    id: '2',
-    name: 'Room 2',
-    length: 5,
-    width: 5,
-    height: 2.4,
-    type: 'bedroom',
-    position: { x: 5, z: 0 },
-    rotation: 0,
-    doors: [],
-    windows: []
-  };
-
-  const mockConnection: RoomConnection = {
-    id: 'c1',
-    room1Id: '1',
-    room2Id: '2',
-    room1Wall: 'east',
-    room2Wall: 'west',
-    sharedWallLength: 5,
-    doors: []
-  };
+  const mockConnections: RoomConnection[] = [
+    {
+      id: 'conn1',
+      room1Id: 'room1',
+      room2Id: 'room2',
+      room1Wall: 'east',
+      room2Wall: 'west',
+      sharedWallLength: 3,
+      doors: []
+    }
+  ];
 
   beforeEach(() => {
-    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) =>
-      selector({
+    jest.clearAllMocks();
+
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
         currentFloorplan: {
-          rooms: [mockRoom1, mockRoom2],
-          connections: [mockConnection],
-          doors: []
+          rooms: mockRooms,
+          connections: mockConnections
         }
-      })
-    );
+      };
+      return selector(state);
+    });
+
+    (useUIStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        showConnections: true,
+      };
+      return selector(state);
+    });
   });
 
-  it('should render nothing if showConnections is false', () => {
-    (useUIStore as unknown as jest.Mock).mockImplementation((selector) =>
-      selector({ showConnections: false })
-    );
+  it('should render nothing when showConnections is false', () => {
+    (useUIStore as unknown as jest.Mock).mockImplementation((selector) => {
+      return selector({ showConnections: false });
+    });
 
-    const { container } = render(<svg><ConnectionLines /></svg>);
-    expect(container.querySelector('line')).toBeNull();
+    const { container } = render(<ConnectionLines />);
+    expect(container.firstChild).toBeNull();
   });
 
   it('should render connection lines when showConnections is true', () => {
-    (useUIStore as unknown as jest.Mock).mockImplementation((selector) =>
-      selector({ showConnections: true })
+    const { container } = render(
+      <svg>
+        <ConnectionLines />
+      </svg>
     );
 
-    const { container } = render(<svg><ConnectionLines /></svg>);
-
-    // Check for main connection line
     const lines = container.querySelectorAll('line');
-    expect(lines.length).toBeGreaterThan(0);
+    const circles = container.querySelectorAll('circle');
 
-    // One line for connection center-to-center, one for shared wall
-    expect(lines.length).toBeGreaterThanOrEqual(2);
+    expect(lines.length).toBe(1);
+    expect(circles.length).toBe(2);
   });
 
-  it('should render shared wall highlight', () => {
-    (useUIStore as unknown as jest.Mock).mockImplementation((selector) =>
-      selector({ showConnections: true })
+  it('should handle missing rooms gracefully', () => {
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
+      return selector({
+        currentFloorplan: {
+          rooms: [mockRooms[0]], // Missing room2
+          connections: mockConnections
+        }
+      });
+    });
+
+    const { container } = render(
+      <svg>
+        <ConnectionLines />
+      </svg>
     );
-
-    const { container } = render(<svg><ConnectionLines /></svg>);
-
-    // Shared wall highlight has specific color (blue-500 #3B82F6)
-    const highlight = container.querySelector('line[stroke="#3B82F6"]');
-    expect(highlight).toBeInTheDocument();
+    const lines = container.querySelectorAll('line');
+    expect(lines.length).toBe(0);
   });
 });
