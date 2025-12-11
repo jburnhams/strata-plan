@@ -7,6 +7,17 @@ import { ViewerControls } from './ViewerControls';
 import { CameraControls, CameraControlsRef } from './CameraControls';
 import { useToast } from '@/hooks/use-toast';
 
+// Define explicit types for GLTFExporter since imports might fail resolution
+// or use 'any' if acceptable for dynamic import situations where types are tricky
+interface GLTFExporterType {
+    parse(
+        input: THREE.Object3D | THREE.Object3D[],
+        onCompleted: (gltf: ArrayBuffer | { [key: string]: any }) => void,
+        onError: (error: ErrorEvent) => void,
+        options?: { binary?: boolean; [key: string]: any }
+    ): void;
+}
+
 // Fallback loader while 3D content loads
 const ViewerLoader = () => (
   <div className="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500">
@@ -77,12 +88,14 @@ const SceneExposer = ({
               exportGLTF: async () => {
                   try {
                       // Dynamic import to avoid heavy bundle load
+                      // Use require/import dynamically and cast to any to bypass strict type check for now if module resolution fails
+                      // @ts-ignore
                       const { GLTFExporter } = await import('three/examples/jsm/exporters/GLTFExporter');
-                      const exporter = new GLTFExporter();
+                      const exporter = new GLTFExporter() as GLTFExporterType;
 
                       exporter.parse(
                         scene,
-                        (result) => {
+                        (result: any) => {
                             const output = JSON.stringify(result, null, 2);
                             const blob = new Blob([output], { type: 'application/json' });
                             const url = URL.createObjectURL(blob);
@@ -96,7 +109,7 @@ const SceneExposer = ({
                             URL.revokeObjectURL(url);
                             toast({ title: "Export Complete", description: "Model exported as glTF." });
                         },
-                        (error) => {
+                        (error: any) => {
                             console.error('An error happened during GLTF export:', error);
                             toast({ variant: "destructive", title: "Export Failed", description: "Could not export model." });
                         },
