@@ -25,14 +25,15 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
 
   // Stroke logic
   let stroke = '#666666';
-  let strokeWidth = 0.05; // meters (thin line)
+  const baseStrokeWidth = DEFAULT_WALL_THICKNESS; // 0.2m
+
+  // When selected, we want to highlight it but keep the wall thickness representation
+  // We can change color or opacity
 
   if (isSelected) {
     stroke = '#2563eb'; // blue-600
-    strokeWidth = 0.1;
   } else if (isHovered) {
     stroke = '#3b82f6'; // blue-500
-    strokeWidth = 0.08;
   }
 
   // Center for rotation
@@ -68,7 +69,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
         fill={fill}
         fillOpacity={0.5}
         stroke={stroke}
-        strokeWidth={strokeWidth}
+        strokeWidth={baseStrokeWidth}
       />
 
       {/* Handles for selection (only if selected) */}

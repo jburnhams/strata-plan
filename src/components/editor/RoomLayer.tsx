@@ -14,6 +14,19 @@ export const RoomLayer: React.FC = () => {
 
   const rooms = currentFloorplan?.rooms || [];
 
+  // Sort rooms so selected ones are rendered last (on top)
+  const sortedRooms = [...rooms].sort((a, b) => {
+    const aSelected = selectedRoomIds.includes(a.id);
+    const bSelected = selectedRoomIds.includes(b.id);
+
+    // If one is selected and other isn't, selected comes later
+    if (aSelected && !bSelected) return 1;
+    if (!aSelected && bSelected) return -1;
+
+    // Stable sort for rest (preserve original order or id)
+    return 0;
+  });
+
   const handleRoomClick = (e: React.MouseEvent, roomId: string) => {
     e.stopPropagation();
 
@@ -32,8 +45,8 @@ export const RoomLayer: React.FC = () => {
   };
 
   return (
-    <g>
-      {rooms.map((room) => (
+    <g data-testid="room-layer">
+      {sortedRooms.map((room) => (
         <RoomShape
           key={room.id}
           room={room}

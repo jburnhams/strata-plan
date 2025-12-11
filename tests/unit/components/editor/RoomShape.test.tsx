@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RoomShape } from '../../../../src/components/editor/RoomShape';
 import { Room, RoomType } from '../../../../src/types';
+import { DEFAULT_WALL_THICKNESS } from '../../../../src/constants/defaults';
 
 describe('RoomShape', () => {
   const mockRoom: Room = {
@@ -31,11 +32,6 @@ describe('RoomShape', () => {
       </svg>
     );
 
-    // Note: rect is not direct child of svg in test, it's inside g inside RoomShape
-    // We can query by role or just internal rect attributes if we can find it.
-    // RoomShape doesn't have a role, but rect inside does if we give it one, or we use container.
-    // The component has data-testid="room-shape-{id}" on the group.
-
     const group = screen.getByTestId('room-shape-room-1');
     const rect = group.querySelector('rect');
 
@@ -43,6 +39,8 @@ describe('RoomShape', () => {
     expect(rect).toHaveAttribute('height', '4');
     expect(rect).toHaveAttribute('x', '0');
     expect(rect).toHaveAttribute('y', '0');
+    // Should use default wall thickness for stroke width
+    expect(rect).toHaveAttribute('stroke-width', String(DEFAULT_WALL_THICKNESS));
   });
 
   it('renders label with name and area', () => {
@@ -74,9 +72,9 @@ describe('RoomShape', () => {
         </svg>
       );
 
-      // We expect 4 handle rects + 1 main rect = 5 rects
       const group = screen.getByTestId('room-shape-room-1');
       const rects = group.querySelectorAll('rect');
+      // Main rect + 4 handles
       expect(rects.length).toBeGreaterThan(1);
   });
 
