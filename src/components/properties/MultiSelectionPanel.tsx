@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { RoomType } from '../../types/room';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Link as LinkIcon } from 'lucide-react';
 import { Room } from '../../types';
 
 const ROOM_TYPES: RoomType[] = [
@@ -38,6 +38,7 @@ export function MultiSelectionPanel() {
 
   const updateRoom = useFloorplanStore(state => state.updateRoom);
   const deleteRoom = useFloorplanStore(state => state.deleteRoom);
+  const addManualConnection = useFloorplanStore(state => state.addManualConnection);
   const units = useFloorplanStore(state => state.currentFloorplan?.units || 'meters');
 
   if (selectedRoomIds.length <= 1) return null;
@@ -116,6 +117,22 @@ export function MultiSelectionPanel() {
     }
   };
 
+  const handleLinkRooms = () => {
+    // Connect every selected room to every other selected room (clique)
+    // Or just connect sequentially?
+    // User expectation for "Link Rooms": Probably connect them all.
+    // For 2 rooms: straightforward.
+    // For >2: A mesh or a chain? A mesh makes sense if they are a cluster.
+    // Let's do a mesh (connect all pairs).
+
+    // Iterate unique pairs
+    for (let i = 0; i < selectedRoomIds.length; i++) {
+      for (let j = i + 1; j < selectedRoomIds.length; j++) {
+        addManualConnection(selectedRoomIds[i], selectedRoomIds[j]);
+      }
+    }
+  };
+
   return (
     <div className="space-y-6" data-testid="multi-selection-panel">
       <div className="flex items-center justify-between">
@@ -123,6 +140,17 @@ export function MultiSelectionPanel() {
       </div>
 
       <div className="space-y-4">
+        {selectedRoomIds.length >= 2 && (
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleLinkRooms}
+          >
+            <LinkIcon className="mr-2 h-4 w-4" />
+            Link Rooms (Manual)
+          </Button>
+        )}
+
         <div className="grid gap-2">
           <Label htmlFor="multi-type">Type</Label>
           <Select

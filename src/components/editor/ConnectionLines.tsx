@@ -82,35 +82,56 @@ export const ConnectionLines: React.FC = () => {
           // Okay, let's just stick to the connection line for now and maybe a small tick mark or color change.
         }
 
+        const isManual = connection.isManual;
+        const sharedLength = connection.sharedWallLength?.toFixed(2) ?? 'Manual';
+        const strokeColor = isManual ? '#A855F7' : '#9CA3AF'; // Purple for manual, Gray for auto
+
         return (
           <g key={connection.id}>
-             <title>{`${room1.name} ↔ ${room2.name} (${connection.sharedWallLength.toFixed(2)}m shared)`}</title>
+             <title>{`${room1.name} ↔ ${room2.name} (${sharedLength}m shared)`}</title>
             {/* Connection Line */}
             <line
               x1={center1.x}
               y1={center1.z}
               x2={center2.x}
               y2={center2.z}
-              stroke="#9CA3AF"
+              stroke={strokeColor}
               strokeWidth={2}
               vectorEffect="non-scaling-stroke"
-              strokeDasharray="5,5"
+              strokeDasharray={isManual ? "2,2" : "5,5"}
             />
 
-            {/* Connection Dots */}
+            {/* Manual Link Label */}
+            {isManual && (
+              <text
+                x={(center1.x + center2.x) / 2}
+                y={(center1.z + center2.z) / 2}
+                fill={strokeColor}
+                fontSize="10" // Small fixed size
+                textAnchor="middle"
+                alignmentBaseline="middle"
+                dy={-5} // Shift up slightly
+                // Note: SVG text size scales with zoom.
+                // For a proper non-scaling label we'd need an HTML overlay or more complex SVG transforms.
+                // Keeping it simple for now.
+              >
+                Manual Link
+              </text>
+            )}
+
             <circle
                 cx={center1.x}
                 cy={center1.z}
                 r={4}
                 vectorEffect="non-scaling-stroke"
-                fill="#9CA3AF"
+                fill={strokeColor}
             />
              <circle
                 cx={center2.x}
                 cy={center2.z}
                 r={4}
                 vectorEffect="non-scaling-stroke"
-                fill="#9CA3AF"
+                fill={strokeColor}
             />
 
             {/* Shared Wall Label (optional, maybe at midpoint) */}

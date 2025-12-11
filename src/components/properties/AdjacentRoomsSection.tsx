@@ -75,12 +75,18 @@ export const AdjacentRoomsSection: React.FC = () => {
                     {otherRoom.name}
                   </button>
                   <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                    {conn.sharedWallLength.toFixed(2)}m shared
+                    {conn.isManual
+                      ? "Manual Link"
+                      : `${conn.sharedWallLength?.toFixed(2) || '?'}m shared`}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center text-xs text-muted-foreground mb-3">
-                  <span>{getWallName(myWall)} Wall ↔ {getWallName(otherWall)} Wall</span>
+                  {conn.isManual ? (
+                    <span>Manual connection</span>
+                  ) : (
+                    <span>{myWall ? getWallName(myWall) : '?'} Wall ↔ {otherWall ? getWallName(otherWall) : '?'} Wall</span>
+                  )}
                 </div>
 
                 <div className="flex justify-between items-center pt-2 border-t border-border/50">
