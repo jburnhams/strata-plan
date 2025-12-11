@@ -74,4 +74,24 @@ describe('CanvasViewport', () => {
 
       expect(handleBackgroundClickMock).not.toHaveBeenCalled();
   });
+
+  it('calls onCursorMove when mouse moves', () => {
+    const onCursorMove = jest.fn();
+    render(<CanvasViewport onCursorMove={onCursorMove} />);
+    const viewport = screen.getByTestId('canvas-viewport');
+
+    fireEvent.mouseMove(viewport, { clientX: 100, clientY: 100 });
+
+    expect(onCursorMove).toHaveBeenCalled();
+  });
+
+  it('calls onCursorMove(null) on mouse leave', () => {
+    const onCursorMove = jest.fn();
+    render(<CanvasViewport onCursorMove={onCursorMove} />);
+    const viewport = screen.getByTestId('canvas-viewport');
+
+    fireEvent.mouseLeave(viewport);
+
+    expect(onCursorMove).toHaveBeenCalledWith(null);
+  });
 });

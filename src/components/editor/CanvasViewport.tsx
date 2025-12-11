@@ -4,17 +4,19 @@ import { PIXELS_PER_METER } from '../../constants/defaults';
 import { MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL } from '../../constants/limits';
 import { Ruler } from './Ruler';
 import { useRoomInteraction } from '../../hooks/useRoomInteraction';
+import { screenToWorld } from '../../utils/coordinates';
 
 interface CanvasViewportProps {
   children?: ReactNode;
   showRulers?: boolean;
+  onCursorMove?: (position: { x: number; z: number } | null) => void;
 }
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-export function CanvasViewport({ children, showRulers = true }: CanvasViewportProps) {
+export function CanvasViewport({ children, showRulers = true, onCursorMove }: CanvasViewportProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -87,6 +89,25 @@ export function CanvasViewport({ children, showRulers = true }: CanvasViewportPr
             setHasMoved(true);
         }
     }
+
+    // Update cursor position
+    if (onCursorMove) {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (rect) {
+        const viewportTransform = {
+          zoom: zoomLevel,
+          pan: panOffset,
+          width: dimensions.width,
+          height: dimensions.height
+        };
+        const worldPos = screenToWorld(
+          e.clientX - rect.left,
+          e.clientY - rect.top,
+          viewportTransform
+        );
+        onCursorMove(worldPos);
+      }
+    }
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
@@ -106,6 +127,9 @@ export function CanvasViewport({ children, showRulers = true }: CanvasViewportPr
 
   const handleMouseLeave = () => {
     setIsDragging(false);
+    if (onCursorMove) {
+      onCursorMove(null);
+    }
   };
 
   // Zoom Handler
