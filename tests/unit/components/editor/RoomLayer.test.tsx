@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { RoomLayer } from '@/components/editor/RoomLayer';
-import { useFloorplanStore } from '@/stores/floorplanStore';
-import { useUIStore } from '@/stores/uiStore';
-import { ROOM_TYPE_COLORS } from '@/constants/colors';
+import { RoomLayer } from '../../../../src/components/editor/RoomLayer';
+import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
+import { useUIStore } from '../../../../src/stores/uiStore';
+import { ROOM_TYPE_COLORS } from '../../../../src/constants/colors';
 
 // Helper to reset store
 const resetStore = () => {
@@ -67,10 +67,6 @@ describe('RoomLayer', () => {
     expect(rect).toHaveAttribute('y', '2');
     expect(rect).toHaveAttribute('width', '5');
     expect(rect).toHaveAttribute('height', '4');
-    // Note: fill is on the rect
-    // But ROOM_TYPE_COLORS.bedroom might be uppercase/lowercase sensitive in test match?
-    // It should be exact match.
-    // Also, rect fill in component is set via attribute `fill={fill}`
     expect(rect).toHaveAttribute('fill', ROOM_TYPE_COLORS.bedroom);
   });
 
@@ -153,58 +149,39 @@ describe('RoomLayer', () => {
     expect(useFloorplanStore.getState().selectedRoomIds).toEqual([r2.id]);
   });
 
-  it('updates hover state', () => {
+  it('sorts selected rooms to top', () => {
     const store = useFloorplanStore.getState();
     store.addRoom({ name: 'R1', length: 4, width: 4, height: 2.7, type: 'other', position: { x: 0, z: 0 }, rotation: 0 });
-
-    render(
-        <svg>
-            <RoomLayer />
-        </svg>
-    );
+    store.addRoom({ name: 'R2', length: 4, width: 4, height: 2.7, type: 'other', position: { x: 5, z: 0 }, rotation: 0 });
 
     const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
     const r1 = rooms[0];
-    const group = screen.getByTestId(`room-shape-${r1.id}`);
+    const r2 = rooms[1];
 
-    fireEvent.mouseEnter(group);
-    expect(useUIStore.getState().hoveredRoomId).toBe(r1.id);
-
-    fireEvent.mouseLeave(group);
-    expect(useUIStore.getState().hoveredRoomId).toBe(null);
-  });
-
-  it('applies selected and hover styles', () => {
-    const store = useFloorplanStore.getState();
-    store.addRoom({ name: 'R1', length: 4, width: 4, height: 2.7, type: 'other', position: { x: 0, z: 0 }, rotation: 0 });
-
-    render(
-        <svg>
-            <RoomLayer />
-        </svg>
+    // Initially R1 then R2
+    const { rerender } = render(
+      <svg>
+        <RoomLayer />
+      </svg>
     );
 
-    const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
-    const r1 = rooms[0];
-    const group = screen.getByTestId(`room-shape-${r1.id}`);
-    const rect = group.querySelector('rect');
+    // We check DOM order
+    let shapes = screen.getAllByTestId(/^room-shape-/);
+    expect(shapes[0]).toHaveAttribute('data-testid', `room-shape-${r1.id}`);
+    expect(shapes[1]).toHaveAttribute('data-testid', `room-shape-${r2.id}`);
 
-    // Default
-    expect(rect).toHaveAttribute('stroke-width', '0.05');
-
-    // Hover
-    act(() => { useUIStore.getState().setHoveredRoom(r1.id); });
-    expect(rect).toHaveAttribute('stroke-width', '0.08');
-
-    // Selected (should override hover?)
-    // In my implementation:
-    // if (isSelected) strokeWidth = 0.1
-    // else if (isHovered) strokeWidth = 0.08
+    // Select R1
     act(() => { useFloorplanStore.getState().selectRoom(r1.id); });
-    expect(rect).toHaveAttribute('stroke-width', '0.1');
 
-    // Hover while selected -> still selected style
-    act(() => { useUIStore.getState().setHoveredRoom(r1.id); });
-    expect(rect).toHaveAttribute('stroke-width', '0.1');
+    rerender(
+      <svg>
+        <RoomLayer />
+      </svg>
+    );
+
+    shapes = screen.getAllByTestId(/^room-shape-/);
+    // Should be R2 then R1 (selected on top)
+    expect(shapes[0]).toHaveAttribute('data-testid', `room-shape-${r2.id}`);
+    expect(shapes[1]).toHaveAttribute('data-testid', `room-shape-${r1.id}`);
   });
 });

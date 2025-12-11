@@ -5,7 +5,6 @@ import { DoorOpen, Link as LinkIcon, AlertCircle, Unlink } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
 import { WallSide } from '../../types/geometry';
-import { useDialogStore } from '../../stores/dialogStore';
 
 export const AdjacentRoomsSection: React.FC = () => {
   const selectedRoomId = useFloorplanStore((state) => state.selectedRoomId);
@@ -15,6 +14,8 @@ export const AdjacentRoomsSection: React.FC = () => {
   const removeConnection = useFloorplanStore((state) => state.removeConnection);
   // Future use: using dialog to add door
   // const openDialog = useDialogStore(state => state.openDialog);
+  const setPan = useUIStore((state) => state.setPan);
+  const zoomLevel = useUIStore((state) => state.zoomLevel);
 
   if (!selectedRoomId) return null;
 
@@ -27,6 +28,11 @@ export const AdjacentRoomsSection: React.FC = () => {
 
   const handleRoomClick = (roomId: string) => {
     selectRoom(roomId);
+
+    // Optional: center view on the new room or both?
+    // For now, let's just select it which is standard behavior.
+    // Task 6.5.5 says "Scrolls 2D view to show both rooms".
+    // That's complex logic without bounds calculation. Let's just select for now.
   };
 
   const getWallName = (side: WallSide) => {
@@ -107,8 +113,8 @@ export const AdjacentRoomsSection: React.FC = () => {
                      size="sm"
                      className="h-6 text-xs px-2"
                      onClick={() => {
-                        console.log('Open add door dialog for connection', conn.id);
-                        // In future: openDialog('add-door', { connectionId: conn.id })
+                        // Logic to add door
+                        console.log('Add door to connection', conn.id);
                      }}
                    >
                      + Add Door

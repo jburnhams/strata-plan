@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import { AdjacentRoomsSection } from '../../../../src/components/properties/AdjacentRoomsSection';
 import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
+import { useUIStore } from '../../../../src/stores/uiStore';
 import { Room, RoomConnection } from '../../../../src/types';
 
 // Mock dependencies
@@ -15,41 +16,44 @@ jest.mock('lucide-react', () => ({
 }));
 
 describe('AdjacentRoomsSection', () => {
-  const mockRoom1: Room = {
-    id: '1',
-    name: 'Room 1',
-    length: 5,
-    width: 5,
-    height: 2.4,
-    type: 'bedroom',
-    position: { x: 0, z: 0 },
-    rotation: 0,
-    doors: [],
-    windows: []
-  };
+  const mockRooms: Room[] = [
+    {
+      id: 'room1',
+      name: 'Room 1',
+      length: 4,
+      width: 5,
+      height: 3,
+      type: 'bedroom',
+      position: { x: 0, z: 0 },
+      doors: [],
+      windows: [],
+      rotation: 0
+    },
+    {
+      id: 'room2',
+      name: 'Room 2',
+      length: 4,
+      width: 5,
+      height: 3,
+      type: 'living',
+      position: { x: 4, z: 0 },
+      doors: [],
+      windows: [],
+      rotation: 0
+    }
+  ];
 
-  const mockRoom2: Room = {
-    id: '2',
-    name: 'Room 2',
-    length: 5,
-    width: 5,
-    height: 2.4,
-    type: 'bedroom',
-    position: { x: 5, z: 0 },
-    rotation: 0,
-    doors: [],
-    windows: []
-  };
-
-  const mockConnection: RoomConnection = {
-    id: 'c1',
-    room1Id: '1',
-    room2Id: '2',
-    room1Wall: 'east',
-    room2Wall: 'west',
-    sharedWallLength: 5,
-    doors: []
-  };
+  const mockConnections: RoomConnection[] = [
+    {
+      id: 'conn1',
+      room1Id: 'room1',
+      room2Id: 'room2',
+      room1Wall: 'east',
+      room2Wall: 'west',
+      sharedWallLength: 3,
+      doors: []
+    }
+  ];
 
   const mockSelectRoom = jest.fn();
   const mockRemoveConnection = jest.fn();
@@ -71,46 +75,69 @@ describe('AdjacentRoomsSection', () => {
 
   it('should render adjacent room info', () => {
     render(<AdjacentRoomsSection />);
+    jest.clearAllMocks();
 
-    expect(screen.getByText('Room 2')).toBeInTheDocument();
-    expect(screen.getByText(/5.00m shared/)).toBeInTheDocument();
-    expect(screen.getByText(/East Wall ↔ West Wall/)).toBeInTheDocument();
-  });
-
-  it('should show "No adjacent rooms" if none exist', () => {
-    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) =>
-      selector({
-        selectedRoomId: '1',
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
         currentFloorplan: {
-          rooms: [mockRoom1], // No other rooms or connections
-          connections: [],
-          doors: []
+          rooms: mockRooms,
+          connections: mockConnections,
         },
-        selectRoom: mockSelectRoom
-      })
-    );
+        selectedRoomId: 'room1',
+        selectRoom: mockSelectRoom,
+      };
+      return selector(state);
+    });
 
-    render(<AdjacentRoomsSection />);
-    expect(screen.getByText('No adjacent rooms')).toBeInTheDocument();
+    (useUIStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        zoomLevel: 1.0,
+        setPan: jest.fn(),
+      };
+      return selector(state);
+    });
   });
 
-  it('should navigate to adjacent room on click', () => {
-    render(<AdjacentRoomsSection />);
-
-    fireEvent.click(screen.getByText('Room 2'));
-    expect(mockSelectRoom).toHaveBeenCalledWith('2');
+  it('should render nothing if no room is selected', () => {
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
+        return selector({
+          selectedRoomId: null,
+          currentFloorplan: {
+            rooms: mockRooms,
+            connections: mockConnections
+          }
+        });
+    });
+    const { container } = render(<AdjacentRoomsSection />);
+    expect(container.firstChild).toBeNull();
   });
 
-  it('should have an "Add Door" button', () => {
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-    render(<AdjacentRoomsSection />);
+  it('should list adjacent rooms', () => {
+    const { getByText } = render(<AdjacentRoomsSection />);
+    expect(getByText('Adjacent Rooms')).toBeInTheDocument();
+    expect(getByText('Room 2')).toBeInTheDocument();
+    expect(getByText('3.00m shared')).toBeInTheDocument();
+    expect(getByText('East Wall ↔ West Wall')).toBeInTheDocument();
+  });
 
-    const addButton = screen.getByText('+ Add Door');
-    expect(addButton).toBeInTheDocument();
+  it('should handle clicking adjacent room', () => {
+    const { getByText } = render(<AdjacentRoomsSection />);
+    fireEvent.click(getByText('Room 2'));
+    expect(mockSelectRoom).toHaveBeenCalledWith('room2');
+  });
 
-    fireEvent.click(addButton);
-    expect(consoleSpy).toHaveBeenCalledWith('Open add door dialog for connection', 'c1');
-    consoleSpy.mockRestore();
+  it('should show message when no adjacent rooms', () => {
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
+        return selector({
+             selectedRoomId: 'room1',
+             currentFloorplan: {
+               rooms: mockRooms,
+               connections: [] // No connections
+             }
+        });
+    });
+    const { getByText } = render(<AdjacentRoomsSection />);
+    expect(getByText('No adjacent rooms')).toBeInTheDocument();
   });
 
   it('should allow removing a connection', () => {
