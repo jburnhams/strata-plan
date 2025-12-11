@@ -2,16 +2,18 @@ import React, { useRef, useEffect, useState, ReactNode } from 'react';
 import { useUIStore } from '../../stores/uiStore';
 import { PIXELS_PER_METER } from '../../constants/defaults';
 import { MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL } from '../../constants/limits';
+import { Ruler } from './Ruler';
 
 interface CanvasViewportProps {
   children?: ReactNode;
+  showRulers?: boolean;
 }
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-export function CanvasViewport({ children }: CanvasViewportProps) {
+export function CanvasViewport({ children, showRulers = true }: CanvasViewportProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -153,6 +155,16 @@ export function CanvasViewport({ children }: CanvasViewportProps) {
              {children}
         </g>
       </svg>
+
+      {/* Helper text for controls */}
+      {showRulers && (
+        <>
+          <Ruler orientation="horizontal" viewportWidth={dimensions.width} viewportHeight={dimensions.height} />
+          <Ruler orientation="vertical" viewportWidth={dimensions.width} viewportHeight={dimensions.height} />
+          {/* Small white box at 0,0 intersection */}
+          <div className="absolute top-0 left-0 w-[20px] h-[20px] bg-slate-50 border-r border-b border-slate-300 z-20 pointer-events-none" />
+        </>
+      )}
 
       {/* Helper text for controls */}
       <div className="absolute bottom-4 left-4 text-xs text-slate-400 pointer-events-none">

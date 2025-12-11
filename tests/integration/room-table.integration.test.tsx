@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, within, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import 'jest-canvas-mock'; // Import canvas mock for Ruler component
 import { RoomTable } from '../../src/components/table/RoomTable';
 import { Canvas2D } from '../../src/components/editor/Canvas2D';
 import { useFloorplanStore } from '../../src/stores/floorplanStore';
@@ -234,8 +235,14 @@ describe('RoomTable Integration Workflow', () => {
     // Verify room appears in Canvas
     const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
     const roomId = rooms[0].id;
-    const roomShape = screen.getByTestId(`room-shape-${roomId}`);
-    expect(roomShape).toBeInTheDocument();
+
+    // room-shape-{id} is now on the <g> group
+    const roomGroup = screen.getByTestId(`room-shape-${roomId}`);
+    expect(roomGroup).toBeInTheDocument();
+
+    // We need to check attributes on the <rect> inside the group
+    const roomRect = roomGroup.querySelector('rect');
+    expect(roomRect).toBeInTheDocument();
 
     // 2. Select in Table -> Highlight in Canvas
     fireEvent.click(roomRow!);
@@ -244,36 +251,37 @@ describe('RoomTable Integration Workflow', () => {
     expect(useFloorplanStore.getState().selectedRoomId).toBe(roomId);
 
     // Verify visual update in Canvas (stroke width changes)
-    expect(roomShape).toHaveAttribute('stroke-width', '0.1'); // Selected width
+    expect(roomRect).toHaveAttribute('stroke-width', '0.1'); // Selected width
 
     // 3. Deselect via store (since click-background not implemented yet)
     act(() => {
         useFloorplanStore.getState().selectRoom(null);
     });
 
-    expect(roomShape).toHaveAttribute('stroke-width', '0.05'); // Default width
+    expect(roomRect).toHaveAttribute('stroke-width', '0.05'); // Default width
 
     // 4. Hover Table Row -> Highlight Canvas
     fireEvent.mouseEnter(roomRow!);
     expect(useUIStore.getState().hoveredRoomId).toBe(roomId);
-    expect(roomShape).toHaveAttribute('stroke-width', '0.08'); // Hover width
+    expect(roomRect).toHaveAttribute('stroke-width', '0.08'); // Hover width
 
     fireEvent.mouseLeave(roomRow!);
     expect(useUIStore.getState().hoveredRoomId).toBe(null);
-    expect(roomShape).toHaveAttribute('stroke-width', '0.05');
+    expect(roomRect).toHaveAttribute('stroke-width', '0.05');
 
     // 5. Hover Canvas Room -> Highlight Table Row
-    fireEvent.mouseEnter(roomShape);
+    // Hover the group
+    fireEvent.mouseEnter(roomGroup);
     expect(useUIStore.getState().hoveredRoomId).toBe(roomId);
 
     // Check row style (bg-blue-50)
     expect(roomRow).toHaveClass('bg-blue-50');
 
-    fireEvent.mouseLeave(roomShape);
+    fireEvent.mouseLeave(roomGroup);
     expect(roomRow).not.toHaveClass('bg-blue-50');
 
     // 6. Click Canvas Room -> Select in Table
-    fireEvent.click(roomShape);
+    fireEvent.click(roomGroup);
     expect(useFloorplanStore.getState().selectedRoomId).toBe(roomId);
 
     // Table row should be selected (checked via class or aria-selected logic if implemented, or just check store)
