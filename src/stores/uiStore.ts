@@ -36,6 +36,9 @@ export interface UIState {
   showRoomLabels: boolean;
   showMeasurements: boolean;
   showConnections: boolean;
+  viewerBrightness: number;
+  viewerShadowQuality: 'off' | 'low' | 'medium' | 'high';
+  viewerWallOpacity: number;
   zoomLevel: number;
   panOffset: Position2D;
   mode: EditorMode;
@@ -59,6 +62,9 @@ export interface UIActions {
   toggleRoomLabels: () => void;
   toggleMeasurements: () => void;
   toggleConnections: () => void;
+  setViewerBrightness: (brightness: number) => void;
+  setViewerShadowQuality: (quality: 'off' | 'low' | 'medium' | 'high') => void;
+  setViewerWallOpacity: (opacity: number) => void;
   setZoom: (level: number) => void;
   zoomIn: () => void;
   zoomOut: () => void;
@@ -86,6 +92,9 @@ const initialState: UIState = {
   showRoomLabels: true,
   showMeasurements: true,
   showConnections: false,
+  viewerBrightness: 1.0,
+  viewerShadowQuality: 'medium',
+  viewerWallOpacity: 1.0,
   zoomLevel: DEFAULT_ZOOM_LEVEL,
   panOffset: { x: 0, z: 0 },
   mode: 'table',
@@ -146,6 +155,18 @@ export const useUIStore = create<UIStore>()(
         set((state) => ({ showConnections: !state.showConnections }));
       },
 
+      setViewerBrightness: (brightness: number) => {
+        set({ viewerBrightness: brightness });
+      },
+
+      setViewerShadowQuality: (quality: 'off' | 'low' | 'medium' | 'high') => {
+        set({ viewerShadowQuality: quality });
+      },
+
+      setViewerWallOpacity: (opacity: number) => {
+        set({ viewerWallOpacity: opacity });
+      },
+
       setZoom: (level: number) => {
         const clampedZoom = clamp(level, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
         set({ zoomLevel: clampedZoom });
@@ -195,6 +216,9 @@ export const useUIStore = create<UIStore>()(
         showRoomLabels: state.showRoomLabels,
         showMeasurements: state.showMeasurements,
         showConnections: state.showConnections,
+        viewerBrightness: state.viewerBrightness,
+        viewerShadowQuality: state.viewerShadowQuality,
+        viewerWallOpacity: state.viewerWallOpacity,
       }),
     }
   )

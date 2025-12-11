@@ -2,7 +2,6 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { Environment } from './Environment';
 
 // Fallback loader while 3D content loads
 const ViewerLoader = () => (
@@ -85,7 +84,6 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({
           // However, if the canvas is destroyed (which happens when unmounting), listeners are gone.
         >
           <SceneExposer onSceneReady={onSceneReady} />
-          <Environment />
           {children}
         </Canvas>
       </Suspense>
