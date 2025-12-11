@@ -137,8 +137,9 @@ export function buildGraph(rooms: Room[]): AdjacencyGraph {
 /**
  * Merges newly detected connections with existing ones to preserve IDs and properties.
  */
-export function mergeConnections(newConnections: RoomConnection[], oldConnections: RoomConnection[]): RoomConnection[] {
-  return newConnections.map(newConn => {
+export function mergeConnections(newConnections: RoomConnection[], oldConnections: RoomConnection[], rooms: Room[]): RoomConnection[] {
+  // 1. Process new (auto-detected) connections
+  const merged = newConnections.map(newConn => {
     // Find matching existing connection (order-insensitive)
     const existing = oldConnections.find(oldConn =>
       (oldConn.room1Id === newConn.room1Id && oldConn.room2Id === newConn.room2Id) ||
@@ -146,16 +147,44 @@ export function mergeConnections(newConnections: RoomConnection[], oldConnection
     );
 
     if (existing) {
-      // Keep existing ID and doors
+      // Keep existing ID and doors. If existing was manual, it is now confirmed by auto-detection.
+      // We should probably keep the auto-detected geometry but preserve ID and metadata.
+      // However, if it was manual, maybe we should unset the manual flag?
+      // Generally, if geometry now supports it, it's just a regular connection.
+      const { isManual, ...rest } = existing;
       return {
         ...newConn,
         id: existing.id,
-        doors: existing.doors
+        doors: existing.doors,
+        // We do NOT copy isManual. If it's auto-detected now, it's no longer manual-only.
       };
     }
 
     return newConn;
   });
+
+  // 2. Preserve manual connections that were NOT auto-detected
+  // Filter for manual connections in old list
+  const manualConnections = oldConnections.filter(c => c.isManual);
+
+  manualConnections.forEach(manualConn => {
+    // Check if this manual connection is already covered by an auto-detected one in the merged list
+    const isCovered = merged.some(m =>
+       (m.room1Id === manualConn.room1Id && m.room2Id === manualConn.room2Id) ||
+       (m.room1Id === manualConn.room2Id && m.room2Id === manualConn.room1Id)
+    );
+
+    // Also check if the rooms still exist. If a room was deleted, the manual connection should go.
+    // The 'rooms' array passed to calculateAllConnections represents the CURRENT valid rooms.
+    const room1Exists = rooms.some(r => r.id === manualConn.room1Id);
+    const room2Exists = rooms.some(r => r.id === manualConn.room2Id);
+
+    if (!isCovered && room1Exists && room2Exists) {
+      merged.push(manualConn);
+    }
+  });
+
+  return merged;
 }
 
 /**
@@ -165,5 +194,5 @@ export function mergeConnections(newConnections: RoomConnection[], oldConnection
 export function calculateAllConnections(rooms: Room[], oldConnections: RoomConnection[] = []): RoomConnection[] {
   const graph = buildGraph(rooms);
   const newConnections = graph.getAllConnections();
-  return mergeConnections(newConnections, oldConnections);
+  return mergeConnections(newConnections, oldConnections, rooms);
 }

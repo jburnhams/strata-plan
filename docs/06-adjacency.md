@@ -167,11 +167,11 @@ The adjacency system automatically detects which rooms share walls, calculates s
   - Line color: light gray
   - Only shown when "Show Connections" enabled
 
-- [ ] **6.4.2** Show shared wall indicator:
+- [x] **6.4.2** Show shared wall indicator:
   - Highlight shared wall segment
   - Different color (e.g., blue)
 
-- [ ] **6.4.3** Show door positions on connections:
+- [x] **6.4.3** Show door positions on connections:
   - Small circle or door icon
   - Positioned along shared wall
 
@@ -188,7 +188,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 - [x] Connection lines render between adjacent rooms
 - [x] Lines not shown for non-adjacent rooms
 - [x] Toggle hides/shows lines
-- [ ] Door icons appear on connections with doors
+- [x] Door icons appear on connections with doors
 
 ---
 
@@ -208,7 +208,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
   - Number of doors
   - Wall sides: "North wall → South wall"
 
-- [ ] **6.5.3** Add door button:
+- [x] **6.5.3** Add door button:
   - "+ Add Door" button per connection
   - Opens door creation flow
 
@@ -225,7 +225,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
 - [x] Adjacent rooms listed correctly
 - [x] Shared wall length displayed
 - [x] Click navigates to adjacent room
-- [ ] Add Door button triggers action
+- [x] Add Door button triggers action
 
 ---
 
@@ -240,7 +240,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
   - Returns array of room IDs forming path
   - Returns empty array if no path exists
 
-- [ ] **6.6.2** Implement path visualization:
+- [x] **6.6.2** Implement path visualization:
   - Highlight rooms in path
   - Show arrows indicating direction
 
@@ -248,7 +248,7 @@ The adjacency system automatically detects which rooms share walls, calculates s
   - Sum of distances between room centers
   - Or: sum of door-to-door distances
 
-- [ ] **6.6.4** Use cases:
+- [x] **6.6.4** Use cases:
   - "How do I get from Bedroom to Kitchen?"
   - Visualization for wayfinding
   - Future: evacuation route planning
@@ -268,24 +268,24 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.7.1** Detect orphan rooms:
+- [x] **6.7.1** Detect orphan rooms:
   - Rooms with no connections
   - Warning: "Kitchen has no adjacent rooms"
 
-- [ ] **6.7.2** Detect unreachable rooms:
+- [x] **6.7.2** Detect unreachable rooms:
   - Rooms not connected to main group
   - Warning: "Garage is not connected to rest of house"
 
-- [ ] **6.7.3** Validate door placement:
+- [x] **6.7.3** Validate door placement:
   - Doors must be on shared walls
   - Door width must fit on shared wall length
   - Error if door larger than shared wall
 
-- [ ] **6.7.4** Check for invalid overlaps:
+- [x] **6.7.4** Check for invalid overlaps:
   - Rooms should not overlap (different from adjacent)
   - Error: "Kitchen and Living Room overlap"
 
-- [ ] **6.7.5** Report validation results:
+- [x] **6.7.5** Report validation results:
   ```typescript
   interface ConnectionValidation {
     orphanRooms: string[]
@@ -297,10 +297,10 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Unit Tests
 
-- [ ] Orphan rooms detected
-- [ ] Unreachable rooms detected
-- [ ] Overlapping rooms flagged
-- [ ] Invalid door placement caught
+- [x] Orphan rooms detected
+- [x] Unreachable rooms detected
+- [x] Overlapping rooms flagged
+- [x] Invalid door placement caught
 
 ---
 
@@ -310,29 +310,29 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.8.1** Allow manual connection creation:
+- [x] **6.8.1** Allow manual connection creation:
   - User can force-connect non-adjacent rooms
   - Use case: rooms on different floors (future)
   - Use case: rooms connected by hallway
 
-- [ ] **6.8.2** Create "Link Rooms" UI:
+- [x] **6.8.2** Create "Link Rooms" UI:
   - Select two rooms
   - Click "Link Rooms" button
   - Creates virtual connection
 
-- [ ] **6.8.3** Allow connection deletion:
+- [x] **6.8.3** Allow connection deletion:
   - Remove auto-detected connection
   - Use case: rooms touch but shouldn't be connected
 
-- [ ] **6.8.4** Mark manual connections:
+- [x] **6.8.4** Mark manual connections:
   - Visual indicator for manual vs auto connections
   - Different line style in 2D view
 
 ### Unit Tests
 
-- [ ] Manual connection creates link
-- [ ] Manual connection persists after recalculation
-- [ ] Connection deletion removes link
+- [x] Manual connection creates link
+- [x] Manual connection persists after recalculation
+- [x] Connection deletion removes link
 
 ---
 
@@ -342,12 +342,12 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Test Cases
 
-- [ ] **Auto-detection**: Create adjacent rooms → verify connection detected
-- [ ] **Move apart**: Move room away → verify connection removed
-- [ ] **Multi-room**: Create 5 connected rooms → verify graph correct
-- [ ] **Path finding**: Create chain of rooms → verify path found
-- [ ] **Validation**: Create overlapping rooms → verify warning shown
-- [ ] **Selection sync**: Select connection → verify both rooms highlighted
+- [x] **Auto-detection**: Create adjacent rooms → verify connection detected
+- [x] **Move apart**: Move room away → verify connection removed
+- [x] **Multi-room**: Create 5 connected rooms → verify graph correct
+- [x] **Path finding**: Create chain of rooms → verify path found
+- [x] **Validation**: Create overlapping rooms → verify warning shown
+- [x] **Selection sync**: Select connection → verify both rooms highlighted
 
 ---
 
@@ -355,11 +355,11 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 - [x] Adjacent rooms automatically detected
 - [x] Connection graph updates when rooms change
-- [ ] Adjacent rooms panel shows correct info
-- [ ] Connection lines display in 2D view (when enabled)
-- [ ] Path finding works for connected rooms
-- [ ] Validation catches orphan and overlapping rooms
-- [ ] Unit test coverage > 85%
+- [x] Adjacent rooms panel shows correct info
+- [x] Connection lines display in 2D view (when enabled)
+- [x] Path finding works for connected rooms
+- [x] Validation catches orphan and overlapping rooms
+- [x] Unit test coverage > 85%
 
 ---
 
@@ -386,7 +386,7 @@ tests/
 │       └── adjacency/
 │           ├── detection.test.ts
 │           ├── graph.test.ts
-│           └── pathfinding.test.ts
+│           ├── pathfinding.test.ts
 └── integration/
     └── adjacency.integration.test.tsx
 ```

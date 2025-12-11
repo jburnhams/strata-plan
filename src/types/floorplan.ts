@@ -22,10 +22,14 @@ export interface RoomConnection {
   id: string;
   room1Id: string;
   room2Id: string;
-  room1Wall: WallSide;
-  room2Wall: WallSide;
-  sharedWallLength: number;
+  room1Wall?: WallSide; // Optional for manual connections
+  room2Wall?: WallSide; // Optional for manual connections
+  sharedWallLength?: number; // Optional for manual connections
+  sharedWall?: 'manual'; // Specific field for manual connections, although we can check isManual
+  overlapStart?: number;
+  overlapEnd?: number;
   doors: string[]; // Door IDs
+  isManual?: boolean;
 }
 
 /**
