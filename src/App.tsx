@@ -8,6 +8,7 @@ import { CameraControls, CameraControlsRef } from './components/viewer/CameraCon
 import { ViewerControls } from './components/viewer/ViewerControls';
 import { Lighting } from './components/viewer/Lighting';
 import { SceneManager } from './components/viewer/SceneManager';
+import { Environment } from './components/viewer/Environment';
 import { useFloorplanStore } from './stores/floorplanStore';
 import { useUIStore } from './stores/uiStore';
 import { TooltipProvider } from './components/ui/tooltip';
@@ -18,7 +19,14 @@ import { KeyboardShortcutProvider } from './components/layout/KeyboardShortcutPr
 function App() {
   const currentFloorplan = useFloorplanStore((state) => state.currentFloorplan);
   const createFloorplan = useFloorplanStore((state) => state.createFloorplan);
-  const mode = useUIStore((state) => state.mode);
+  const {
+    mode,
+    showGrid,
+    showRoomLabels,
+    viewerBrightness,
+    viewerShadowQuality,
+    viewerWallOpacity
+  } = useUIStore();
   const cameraControlsRef = useRef<CameraControlsRef>(null);
 
   useEffect(() => {
@@ -41,9 +49,21 @@ function App() {
             {mode === 'view3d' && (
               <div className="h-full w-full relative">
                 <Viewer3D>
+                  <Environment showGrid={showGrid} />
                   <CameraControls ref={cameraControlsRef} />
-                  <Lighting />
-                  <SceneManager />
+                  <Lighting
+                    brightness={viewerBrightness}
+                    castShadows={viewerShadowQuality !== 'off'}
+                    shadowMapSize={
+                      viewerShadowQuality === 'high' ? 2048 :
+                      viewerShadowQuality === 'medium' ? 1024 :
+                      viewerShadowQuality === 'low' ? 512 : 2048
+                    }
+                  />
+                  <SceneManager
+                    wallOpacity={viewerWallOpacity}
+                    showLabels={showRoomLabels}
+                  />
                 </Viewer3D>
                 <ViewerControls cameraControlsRef={cameraControlsRef} />
               </div>

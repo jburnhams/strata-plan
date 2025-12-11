@@ -60,10 +60,13 @@ describe('Viewer3D', () => {
     expect(await screen.findByTestId('r3f-canvas')).toBeInTheDocument();
   });
 
-  it('renders environment', async () => {
-    render(<Viewer3D />);
-    // Since we mock Canvas to just render children in a div, Environment should be present
-    expect(await screen.findByTestId('environment')).toBeInTheDocument();
+  it('renders children', async () => {
+    render(
+      <Viewer3D>
+        <div data-testid="test-child" />
+      </Viewer3D>
+    );
+    expect(await screen.findByTestId('test-child')).toBeInTheDocument();
   });
 
   it('initializes WebGL context listeners', async () => {

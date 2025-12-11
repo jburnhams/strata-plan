@@ -189,4 +189,21 @@ describe('UI Store', () => {
       expect(useUIStore.getState().hoveredRoomId).toBeNull();
     });
   });
+
+  describe('Viewer Settings', () => {
+    it('should set viewer brightness', () => {
+      useUIStore.getState().setViewerBrightness(1.5);
+      expect(useUIStore.getState().viewerBrightness).toBe(1.5);
+    });
+
+    it('should set viewer shadow quality', () => {
+      useUIStore.getState().setViewerShadowQuality('high');
+      expect(useUIStore.getState().viewerShadowQuality).toBe('high');
+    });
+
+    it('should set viewer wall opacity', () => {
+      useUIStore.getState().setViewerWallOpacity(0.5);
+      expect(useUIStore.getState().viewerWallOpacity).toBe(0.5);
+    });
+  });
 });

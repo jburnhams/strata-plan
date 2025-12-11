@@ -408,7 +408,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Zoom in (+) / Zoom out (-) buttons
   - Zoom to fit button
 
-- [ ] **5.9.4** Settings dropdown:
+- [x] **5.9.4** Settings dropdown:
   - Brightness slider
   - Shadow quality selector
   - Wall opacity slider
