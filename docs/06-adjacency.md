@@ -310,10 +310,11 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Subtasks
 
-- [ ] **6.8.1** Allow manual connection creation:
+- [x] **6.8.1** Allow manual connection creation:
   - User can force-connect non-adjacent rooms
   - Use case: rooms on different floors (future)
   - Use case: rooms connected by hallway
+  - *Status*: Core logic implemented.
 
 - [ ] **6.8.2** Create "Link Rooms" UI:
   - Select two rooms
@@ -330,9 +331,9 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Unit Tests
 
-- [ ] Manual connection creates link
-- [ ] Manual connection persists after recalculation
-- [ ] Connection deletion removes link
+- [x] Manual connection creates link
+- [x] Manual connection persists after recalculation
+- [x] Connection deletion removes link
 
 ---
 
@@ -342,9 +343,9 @@ The adjacency system automatically detects which rooms share walls, calculates s
 
 ### Test Cases
 
-- [ ] **Auto-detection**: Create adjacent rooms → verify connection detected
-- [ ] **Move apart**: Move room away → verify connection removed
-- [ ] **Multi-room**: Create 5 connected rooms → verify graph correct
+- [x] **Auto-detection**: Create adjacent rooms → verify connection detected
+- [x] **Move apart**: Move room away → verify connection removed
+- [x] **Multi-room**: Create 5 connected rooms → verify graph correct
 - [ ] **Path finding**: Create chain of rooms → verify path found
 - [ ] **Validation**: Create overlapping rooms → verify warning shown
 - [ ] **Selection sync**: Select connection → verify both rooms highlighted
