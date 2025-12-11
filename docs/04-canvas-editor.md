@@ -167,7 +167,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Subtasks
 
-- [ ] **4.4.1** Implement click-to-select:
+- [x] **4.4.1** Implement click-to-select:
   - Click room → select (update store)
   - Click empty area → deselect
   - Shift+click → add to selection (multi-select)
@@ -178,7 +178,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Rooms intersecting box become selected
   - Shift+drag → add to existing selection
 
-- [ ] **4.4.3** Create selection handles:
+- [x] **4.4.3** Create selection handles:
   - 4 corner handles for resize
   - 4 edge handles for single-axis resize
   - 1 rotation handle (circle above top edge)
@@ -199,9 +199,9 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Unit Tests
 
-- [ ] Click selects room
-- [ ] Click outside deselects
-- [ ] Shift+click adds to selection
+- [x] Click selects room
+- [x] Click outside deselects
+- [x] Shift+click adds to selection
 - [ ] Box selection selects multiple rooms
 - [ ] Escape deselects all
 

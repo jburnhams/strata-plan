@@ -65,7 +65,7 @@ describe('RoomShape', () => {
       expect(screen.queryByText('Living Room')).not.toBeInTheDocument();
   });
 
-  it('shows selection handles when selected', () => {
+  it('does NOT show selection handles when selected (moved to SelectionOverlay)', () => {
     render(
         <svg>
           <RoomShape {...defaultProps} isSelected={true} />
@@ -74,8 +74,8 @@ describe('RoomShape', () => {
 
       const group = screen.getByTestId('room-shape-room-1');
       const rects = group.querySelectorAll('rect');
-      // Main rect + 4 handles
-      expect(rects.length).toBeGreaterThan(1);
+      // Should ONLY have the main rect
+      expect(rects.length).toBe(1);
   });
 
   it('calls onClick handler', () => {

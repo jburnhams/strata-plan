@@ -3,6 +3,7 @@ import { useUIStore } from '../../stores/uiStore';
 import { PIXELS_PER_METER } from '../../constants/defaults';
 import { MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL } from '../../constants/limits';
 import { Ruler } from './Ruler';
+import { useRoomInteraction } from '../../hooks/useRoomInteraction';
 
 interface CanvasViewportProps {
   children?: ReactNode;
@@ -17,6 +18,7 @@ export function CanvasViewport({ children, showRulers = true }: CanvasViewportPr
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [hasMoved, setHasMoved] = useState(false);
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
 
   const {
@@ -25,6 +27,8 @@ export function CanvasViewport({ children, showRulers = true }: CanvasViewportPr
     setZoom,
     setPan
   } = useUIStore();
+
+  const { handleBackgroundClick } = useRoomInteraction();
 
   // Resize Observer
   useEffect(() => {
@@ -46,10 +50,16 @@ export function CanvasViewport({ children, showRulers = true }: CanvasViewportPr
 
   // Pan Handler
   const handleMouseDown = (e: React.MouseEvent) => {
-    // Middle mouse (1) or Alt+Left (0)
-    if (e.button === 1 || (e.button === 0 && e.altKey)) {
+    // Check if right click or middle click or alt for pan
+    if (e.button === 1 || e.button === 2 || (e.button === 0 && e.altKey)) {
       e.preventDefault();
       setIsDragging(true);
+      setHasMoved(false);
+      setLastMousePos({ x: e.clientX, y: e.clientY });
+    } else if (e.button === 0) {
+      // Left click without alt - potential selection click
+      // We still track it to distinguish click vs drag if we implement drag selection later
+      setHasMoved(false);
       setLastMousePos({ x: e.clientX, y: e.clientY });
     }
   };
@@ -59,17 +69,39 @@ export function CanvasViewport({ children, showRulers = true }: CanvasViewportPr
       const dx = e.clientX - lastMousePos.x;
       const dy = e.clientY - lastMousePos.y;
 
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+          setHasMoved(true);
+      }
+
       setPan({
         x: panOffset.x + dx,
         z: panOffset.z + dy,
       });
 
       setLastMousePos({ x: e.clientX, y: e.clientY });
+    } else {
+        // Track movement for click detection on normal left click too
+        const dx = e.clientX - lastMousePos.x;
+        const dy = e.clientY - lastMousePos.y;
+        if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+            setHasMoved(true);
+        }
     }
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (isDragging) {
+      setIsDragging(false);
+    }
+    // We do NOT handle background click here anymore. We use onClick.
+    // onClick fires after mouseUp, and respects bubbling/propagation correctly relative to child onClick.
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Only handle if it was a pure click (not a drag) and left button
+    if (e.button === 0 && !hasMoved && !e.altKey) {
+        handleBackgroundClick(e);
+    }
   };
 
   const handleMouseLeave = () => {
@@ -78,14 +110,8 @@ export function CanvasViewport({ children, showRulers = true }: CanvasViewportPr
 
   // Zoom Handler
   const handleWheel = (e: React.WheelEvent) => {
-    // Prevent default scroll if possible (might need passive: false on native listener)
-    // But in React 18+ we can't easily set passive: false on inline handlers.
-    // For now we rely on the fact that we are just updating state.
-
     if (e.ctrlKey) {
        // Allow browser zoom if user really wants it? Or handle pinch zoom?
-       // Task 4.1.6 says "Pinch to zoom on touch devices".
-       // Wheel is for mouse.
     }
 
     const rect = containerRef.current?.getBoundingClientRect();
@@ -141,8 +167,10 @@ export function CanvasViewport({ children, showRulers = true }: CanvasViewportPr
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onClick={handleClick}
       onMouseLeave={handleMouseLeave}
       onWheel={handleWheel}
+      onContextMenu={(e) => e.preventDefault()} // Disable context menu for right-drag
       style={{ cursor: isDragging ? 'grabbing' : 'default' }}
       data-testid="canvas-viewport"
     >

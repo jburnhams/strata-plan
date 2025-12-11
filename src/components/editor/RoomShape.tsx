@@ -27,9 +27,6 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
   let stroke = '#666666';
   const baseStrokeWidth = DEFAULT_WALL_THICKNESS; // 0.2m
 
-  // When selected, we want to highlight it but keep the wall thickness representation
-  // We can change color or opacity
-
   if (isSelected) {
     stroke = '#2563eb'; // blue-600
   } else if (isHovered) {
@@ -72,16 +69,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
         strokeWidth={baseStrokeWidth}
       />
 
-      {/* Handles for selection (only if selected) */}
-      {isSelected && (
-        <g>
-           {/* Corners */}
-           <rect x={room.position.x - 0.2} y={room.position.z - 0.2} width={0.4} height={0.4} fill="white" stroke="#2563eb" strokeWidth={0.05} />
-           <rect x={room.position.x + room.length - 0.2} y={room.position.z - 0.2} width={0.4} height={0.4} fill="white" stroke="#2563eb" strokeWidth={0.05} />
-           <rect x={room.position.x - 0.2} y={room.position.z + room.width - 0.2} width={0.4} height={0.4} fill="white" stroke="#2563eb" strokeWidth={0.05} />
-           <rect x={room.position.x + room.length - 0.2} y={room.position.z + room.width - 0.2} width={0.4} height={0.4} fill="white" stroke="#2563eb" strokeWidth={0.05} />
-        </g>
-      )}
+      {/* Handles removed - now in SelectionOverlay */}
 
       {/* Label */}
       {showLabel && (
@@ -92,7 +80,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
           dominantBaseline="middle"
           fill="#1e293b" // slate-800
           fontSize={fontSize}
-          style={{ userSelect: 'none' }}
+          style={{ userSelect: 'none', pointerEvents: 'none' }}
         >
           {room.name}
         </text>
@@ -106,6 +94,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
             dominantBaseline="middle"
             fill="#475569" // slate-600
             fontSize={fontSize * 0.7}
+            style={{ userSelect: 'none', pointerEvents: 'none' }}
           >
             {area.toFixed(1)} m²
           </text>
