@@ -7,6 +7,7 @@ interface RoomShapeProps {
   room: Room;
   isSelected: boolean;
   isHovered: boolean;
+  isOverlapping?: boolean;
   onClick: (e: React.MouseEvent, roomId: string) => void;
   onDoubleClick: (e: React.MouseEvent, roomId: string) => void;
   onMouseDown: (e: React.MouseEvent) => void;
@@ -18,6 +19,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
   room,
   isSelected,
   isHovered,
+  isOverlapping,
   onClick,
   onDoubleClick,
   onMouseDown,
@@ -31,7 +33,9 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
   let stroke = '#666666';
   const baseStrokeWidth = DEFAULT_WALL_THICKNESS; // 0.2m
 
-  if (isSelected) {
+  if (isOverlapping) {
+    stroke = '#ef4444'; // red-500
+  } else if (isSelected) {
     stroke = '#2563eb'; // blue-600
   } else if (isHovered) {
     stroke = '#3b82f6'; // blue-500
