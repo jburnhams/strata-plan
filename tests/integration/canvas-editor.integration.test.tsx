@@ -183,4 +183,45 @@ describe('Canvas Editor Integration', () => {
          // Check a specific tool button
          expect(screen.getByTestId('tool-select')).toBeInTheDocument();
     });
+
+    it('opens properties panel on double click', async () => {
+        // Setup room
+        act(() => {
+            useFloorplanStore.getState().addRoom({
+                name: 'Click Me',
+                length: 5, width: 4, height: 3, type: 'living',
+                position: { x: 0, z: 0 }, rotation: 0
+            });
+        });
+        const room = useFloorplanStore.getState().currentFloorplan!.rooms[0];
+
+        // Ensure closed
+        act(() => {
+            useUIStore.setState({ propertiesPanelOpen: false, focusProperty: null });
+        });
+
+        const { RoomLayer } = await import('../../src/components/editor/RoomLayer');
+        const { Grid } = await import('../../src/components/editor/Grid');
+
+        render(
+            <CanvasViewport>
+                <Grid />
+                <RoomLayer />
+            </CanvasViewport>
+        );
+
+        // Double click room
+        const roomShape = await screen.findByTestId(`room-shape-${room.id}`);
+        act(() => {
+             const dblClickEvent = new MouseEvent('dblclick', {
+                bubbles: true, cancelable: true,
+             });
+             roomShape.dispatchEvent(dblClickEvent);
+        });
+
+        // Verify store
+        expect(useUIStore.getState().propertiesPanelOpen).toBe(true);
+        expect(useUIStore.getState().focusProperty).toBe('room-name');
+        expect(useFloorplanStore.getState().selectedRoomId).toBe(room.id);
+    });
 });

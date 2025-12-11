@@ -194,7 +194,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Determine which room is under cursor
   - Apply hover highlight
 
-- [ ] **4.4.6** Double-click behavior:
+- [x] **4.4.6** Double-click behavior:
   - Double-click room → open properties panel
   - Focus on name input in properties
 
