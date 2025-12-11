@@ -304,33 +304,33 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Subtasks
 
-- [ ] **4.7.1** Create rotation handle:
+- [x] **4.7.1** Create rotation handle:
   - Circle above top edge of room
   - Line connecting to room
 
-- [ ] **4.7.2** Implement drag-to-rotate:
+- [x] **4.7.2** Implement drag-to-rotate:
   - Drag rotation handle to rotate
   - Snap to 90-degree increments
   - Rotate around room center
 
-- [ ] **4.7.3** Implement rotation snapping:
+- [x] **4.7.3** Implement rotation snapping:
   - Without modifier: snap to 0, 90, 180, 270
   - With modifier (Ctrl): free rotation (future feature)
 
-- [ ] **4.7.4** Keyboard rotation:
+- [x] **4.7.4** Keyboard rotation:
   - R key: rotate 90° clockwise
   - Shift+R: rotate 90° counter-clockwise
 
-- [ ] **4.7.5** Update dimensions after rotation:
+- [x] **4.7.5** Update dimensions after rotation:
   - Swap length/width for 90/270 degree rotations
   - Ensure room footprint stays consistent
 
 ### Unit Tests
 
-- [ ] Rotation handle appears on selected room
-- [ ] Drag rotates to nearest 90° increment
-- [ ] R key rotates 90° clockwise
-- [ ] Dimensions swap correctly on 90° rotation
+- [x] Rotation handle appears on selected room
+- [x] Drag rotates to nearest 90° increment
+- [x] R key rotates 90° clockwise
+- [x] Dimensions swap correctly on 90° rotation
 
 ---
 

@@ -1,6 +1,7 @@
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useUIStore } from '@/stores/uiStore';
 import { useDialogStore } from '@/stores/dialogStore';
+import { useRoomRotation } from '@/hooks/useRoomRotation';
 
 export function KeyboardShortcutProvider() {
   const toggleSidebar = useUIStore((state) => state.toggleSidebar);
@@ -10,6 +11,8 @@ export function KeyboardShortcutProvider() {
   const zoomOut = useUIStore((state) => state.zoomOut);
 
   const openDialog = useDialogStore((state) => state.openDialog);
+
+  const { rotateSelectedRoom } = useRoomRotation();
 
   useKeyboardShortcuts({
     handlers: {
@@ -29,6 +32,8 @@ export function KeyboardShortcutProvider() {
       ESCAPE: () => console.log('Escape triggered'),
       TOGGLE_SIDEBAR: toggleSidebar,
       TOGGLE_PROPERTIES: togglePropertiesPanel,
+      ROTATE_CW: () => rotateSelectedRoom('cw'),
+      ROTATE_CCW: () => rotateSelectedRoom('ccw'),
     }
   });
 

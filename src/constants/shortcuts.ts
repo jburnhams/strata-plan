@@ -24,4 +24,6 @@ export const SHORTCUTS: Record<string, ShortcutDef> = {
   ESCAPE: { key: 'Escape', description: 'Cancel / Deselect', category: 'General' },
   TOGGLE_SIDEBAR: { key: '[', description: 'Toggle Sidebar', category: 'View' },
   TOGGLE_PROPERTIES: { key: ']', description: 'Toggle Properties', category: 'View' },
+  ROTATE_CW: { key: 'r', description: 'Rotate Clockwise', category: 'Edit' },
+  ROTATE_CCW: { key: 'R', shift: true, description: 'Rotate Counter-Clockwise', category: 'Edit' },
 };

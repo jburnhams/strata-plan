@@ -3,12 +3,14 @@ import { useFloorplanStore } from '../../stores/floorplanStore';
 import { useUIStore } from '../../stores/uiStore';
 import { PIXELS_PER_METER } from '../../constants/defaults';
 import { useRoomResize, ResizeHandle } from '../../hooks/useRoomResize';
+import { useRoomRotation } from '../../hooks/useRoomRotation';
 
 export const SelectionOverlay: React.FC = () => {
   const selectedRoomIds = useFloorplanStore((state) => state.selectedRoomIds);
   const currentFloorplan = useFloorplanStore((state) => state.currentFloorplan);
   const zoomLevel = useUIStore((state) => state.zoomLevel);
   const { handleResizeStart } = useRoomResize();
+  const { handleRotationStart } = useRoomRotation();
 
   const rooms = currentFloorplan?.rooms || [];
   const selectedRooms = rooms.filter(r => selectedRoomIds.includes(r.id));
@@ -31,6 +33,11 @@ export const SelectionOverlay: React.FC = () => {
     // Only left click
     if (e.button !== 0) return;
     handleResizeStart(e, roomId, handle);
+  };
+
+  const onRotationMouseDown = (e: React.MouseEvent, roomId: string) => {
+    if (e.button !== 0) return;
+    handleRotationStart(e, roomId);
   };
 
   const handleHandleClick = (e: React.MouseEvent) => {
@@ -189,6 +196,8 @@ export const SelectionOverlay: React.FC = () => {
                 stroke="#2563eb"
                 strokeWidth={strokeWidth}
                 cursor="grab"
+                data-testid={`handle-rotate-${room.id}`}
+                onMouseDown={(e) => onRotationMouseDown(e, room.id)}
                 onClick={handleHandleClick}
             />
 
