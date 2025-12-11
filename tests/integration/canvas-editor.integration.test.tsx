@@ -172,4 +172,15 @@ describe('Canvas Editor Integration', () => {
         expect(updatedRoom.length).toBeCloseTo(6.0);
         expect(updatedRoom.width).toBeCloseTo(5.0);
     });
+
+    it('renders the full Canvas2D interface with toolbar', async () => {
+         const { Canvas2D } = await import('../../src/components/editor/Canvas2D');
+
+         render(<Canvas2D />);
+
+         expect(screen.getByTestId('editor-toolbar')).toBeInTheDocument();
+         expect(screen.getByTestId('canvas-viewport')).toBeInTheDocument();
+         // Check a specific tool button
+         expect(screen.getByTestId('tool-select')).toBeInTheDocument();
+    });
 });

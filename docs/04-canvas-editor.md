@@ -91,14 +91,14 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - At zoom 0.5-1.0: show 0.5m and 1m lines
   - At zoom > 1.0: show 0.1m, 0.5m, and 1m lines
 
-- [ ] **4.2.3** Create coordinate display:
+- [x] **4.2.3** Create coordinate display:
   - Axis labels at edges (0, 1, 2, 3... meters)
   - Update as viewport pans/zooms
   - Optional: origin marker at (0,0)
 
 - [x] **4.2.4** Add grid toggle (from uiStore.showGrid)
 
-- [ ] **4.2.5** Create "snap to grid" indicator:
+- [x] **4.2.5** Create "snap to grid" indicator:
   - Show snap points as small dots when snap enabled
   - Highlight nearest snap point to cursor
 
@@ -106,7 +106,8 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 - [x] Grid renders at correct density for zoom level
 - [x] Grid respects showGrid toggle
-- [ ] Coordinate labels update with pan
+- [x] Coordinate labels update with pan
+- [x] Snap indicator shows at correct position
 
 ---
 
@@ -454,7 +455,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Subtasks
 
-- [ ] **4.11.1** Create tool state store:
+- [x] **4.11.1** Create tool state store:
   ```typescript
   interface ToolState {
     activeTool: 'select' | 'pan' | 'wall' | 'measure' | 'door' | 'window'
@@ -462,7 +463,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   }
   ```
 
-- [ ] **4.11.2** Create toolbar component:
+- [x] **4.11.2** Create toolbar component:
   - Select tool (S) - default
   - Pan tool (H) - hand
   - Wall tool (W) - for drawing walls
@@ -470,21 +471,21 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Door tool (D)
   - Window tool (N)
 
-- [ ] **4.11.3** Implement tool keyboard shortcuts
+- [x] **4.11.3** Implement tool keyboard shortcuts
 
-- [ ] **4.11.4** Create toolbar tooltips:
+- [x] **4.11.4** Create toolbar tooltips:
   - Tool name + keyboard shortcut
   - Brief description
 
-- [ ] **4.11.5** Active tool indicator:
+- [x] **4.11.5** Active tool indicator:
   - Highlighted button for active tool
   - Cursor changes based on tool
 
 ### Unit Tests
 
-- [ ] Tool buttons activate correct tool
-- [ ] Keyboard shortcuts work
-- [ ] Active tool is highlighted
+- [x] Tool buttons activate correct tool
+- [x] Keyboard shortcuts work
+- [x] Active tool is highlighted
 
 ---
 
