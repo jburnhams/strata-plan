@@ -213,13 +213,13 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Subtasks
 
-- [ ] **4.5.1** Implement drag-to-move:
+- [x] **4.5.1** Implement drag-to-move:
   - Mouse down on selected room starts drag
   - Mouse move updates position
   - Mouse up commits new position
   - Cursor: "move" during drag
 
-- [ ] **4.5.2** Apply grid snapping:
+- [x] **4.5.2** Apply grid snapping:
   - Snap position to grid if snapToGrid enabled
   - Snap to grid size from uiStore
   - Show snap feedback (line to snap point)
@@ -235,7 +235,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Vertical guide when left/right/center aligns
   - Snap to guides
 
-- [ ] **4.5.5** Multi-room drag:
+- [x] **4.5.5** Multi-room drag:
   - Dragging one room in multi-selection moves all
   - Maintain relative positions
 
@@ -245,10 +245,10 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Unit Tests
 
-- [ ] Drag updates room position
-- [ ] Grid snapping works at different grid sizes
+- [x] Drag updates room position
+- [x] Grid snapping works at different grid sizes
 - [ ] Smart guides appear when aligned
-- [ ] Multi-select drag maintains relative positions
+- [x] Multi-select drag maintains relative positions
 - [ ] Collision warning appears for overlapping rooms
 
 ---

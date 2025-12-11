@@ -8,6 +8,7 @@ interface RoomShapeProps {
   isSelected: boolean;
   isHovered: boolean;
   onClick: (e: React.MouseEvent, roomId: string) => void;
+  onMouseDown: (e: React.MouseEvent) => void;
   onMouseEnter: (roomId: string) => void;
   onMouseLeave: () => void;
 }
@@ -17,6 +18,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
   isSelected,
   isHovered,
   onClick,
+  onMouseDown,
   onMouseEnter,
   onMouseLeave,
 }) => {
@@ -53,6 +55,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
     <g
       transform={room.rotation ? `rotate(${room.rotation}, ${cx}, ${cy})` : undefined}
       onClick={(e) => onClick(e, room.id)}
+      onMouseDown={onMouseDown}
       onMouseEnter={() => onMouseEnter(room.id)}
       onMouseLeave={onMouseLeave}
       data-testid={`room-shape-${room.id}`}
@@ -68,8 +71,6 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
         stroke={stroke}
         strokeWidth={baseStrokeWidth}
       />
-
-      {/* Handles removed - now in SelectionOverlay */}
 
       {/* Label */}
       {showLabel && (

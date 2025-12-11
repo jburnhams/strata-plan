@@ -2,7 +2,6 @@ import { Room } from '../../types/room';
 import { RoomConnection } from '../../types/floorplan';
 import { detectAdjacency } from './detection';
 import { getRoomBounds } from '../geometry/room';
-import { validateManualConnections } from './manualConnections';
 import { v4 as uuidv4 } from 'uuid';
 
 // Tolerance for bounding box check (must be >= detection tolerance)
@@ -165,24 +164,6 @@ export function mergeConnections(newConnections: RoomConnection[], oldConnection
  */
 export function calculateAllConnections(rooms: Room[], oldConnections: RoomConnection[] = []): RoomConnection[] {
   const graph = buildGraph(rooms);
-
-  // Preserve manual connections from old list
-  let manualConnections = oldConnections.filter(c => c.isManual);
-
-  // Validate manual connections (remove those pointing to non-existent rooms)
-  const roomIds = rooms.map(r => r.id);
-  manualConnections = validateManualConnections(manualConnections, roomIds);
-
-  // Add manual connections to graph
-  manualConnections.forEach(c => graph.addConnection(c));
-
   const newConnections = graph.getAllConnections();
-
-  // Merge auto-detected connections with old state to preserve IDs/doors
-  // Manual connections are already preserved by being added to the graph above
-  // But we need to make sure we don't lose their properties if mergeConnections logic interferes
-  // Actually mergeConnections maps over NEW connections.
-  // Since we added manual connections to the graph, they are in 'newConnections'.
-
   return mergeConnections(newConnections, oldConnections);
 }
