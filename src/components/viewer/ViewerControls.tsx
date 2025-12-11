@@ -12,7 +12,13 @@ import {
   Grid,
   Type,
   Sun,
-  Layers
+  Layers,
+  User,
+  Download,
+  Maximize,
+  HelpCircle,
+  FileImage,
+  FileBox,
 } from 'lucide-react';
 import { CameraControlsRef } from './CameraControls';
 import { useUIStore } from '@/stores/uiStore';
@@ -22,6 +28,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
@@ -33,12 +40,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 interface ViewerControlsProps {
   cameraControlsRef: React.RefObject<CameraControlsRef | null>;
+  isFirstPerson?: boolean;
+  onToggleFirstPerson?: () => void;
+  onTakeScreenshot?: () => void;
+  onExportGLTF?: () => void;
+  onToggleFullscreen?: () => void;
 }
 
-export const ViewerControls: React.FC<ViewerControlsProps> = ({ cameraControlsRef }) => {
+export const ViewerControls: React.FC<ViewerControlsProps> = ({
+  cameraControlsRef,
+  isFirstPerson = false,
+  onToggleFirstPerson,
+  onTakeScreenshot,
+  onExportGLTF,
+  onToggleFullscreen,
+}) => {
   const {
     showGrid, toggleGrid,
     showRoomLabels, toggleRoomLabels,
@@ -54,6 +81,9 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({ cameraControlsRe
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
       }
+
+      // If in first person mode, ignore camera preset shortcuts
+      if (isFirstPerson) return;
 
       if (!cameraControlsRef.current) return;
 
@@ -90,15 +120,26 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({ cameraControlsRe
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cameraControlsRef]);
+  }, [cameraControlsRef, isFirstPerson]);
 
   return (
     <div className="absolute top-4 right-4 flex flex-col gap-2 bg-white/90 p-2 rounded-lg shadow-md border border-gray-200 z-10">
       <div className="flex gap-1" role="group" aria-label="Camera Presets">
         <Button
+          variant={isFirstPerson ? "secondary" : "outline"}
+          size="icon"
+          onClick={onToggleFirstPerson}
+          title={isFirstPerson ? "Exit First Person" : "First Person Walk"}
+          className={isFirstPerson ? "bg-blue-100 text-blue-700 hover:bg-blue-200" : ""}
+        >
+          <User className="h-4 w-4" />
+        </Button>
+        <div className="w-px h-8 bg-gray-200 mx-1" />
+        <Button
           variant="outline" size="icon"
           onClick={() => cameraControlsRef.current?.setPreset('isometric')}
           title="Isometric View (1)"
+          disabled={isFirstPerson}
         >
           <Box className="h-4 w-4" />
         </Button>
@@ -106,6 +147,7 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({ cameraControlsRe
           variant="outline" size="icon"
           onClick={() => cameraControlsRef.current?.setPreset('top')}
           title="Top View (2)"
+          disabled={isFirstPerson}
         >
           <ArrowDown className="h-4 w-4" />
         </Button>
@@ -113,6 +155,7 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({ cameraControlsRe
           variant="outline" size="icon"
           onClick={() => cameraControlsRef.current?.setPreset('front')}
           title="Front View (3)"
+          disabled={isFirstPerson}
         >
           <ArrowUp className="h-4 w-4" />
         </Button>
@@ -120,6 +163,7 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({ cameraControlsRe
           variant="outline" size="icon"
           onClick={() => cameraControlsRef.current?.setPreset('side')}
           title="Side View (4)"
+          disabled={isFirstPerson}
         >
           <ArrowRight className="h-4 w-4" />
         </Button>
@@ -130,6 +174,7 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({ cameraControlsRe
           variant="ghost" size="icon"
           onClick={() => cameraControlsRef.current?.zoomIn()}
           title="Zoom In (+)"
+          disabled={isFirstPerson}
         >
           <ZoomIn className="h-4 w-4" />
         </Button>
@@ -137,6 +182,7 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({ cameraControlsRe
           variant="ghost" size="icon"
           onClick={() => cameraControlsRef.current?.zoomOut()}
           title="Zoom Out (-)"
+          disabled={isFirstPerson}
         >
           <ZoomOut className="h-4 w-4" />
         </Button>
@@ -144,9 +190,81 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({ cameraControlsRe
           variant="ghost" size="icon"
           onClick={() => cameraControlsRef.current?.reset()}
           title="Reset View (R)"
+          disabled={isFirstPerson}
         >
           <RotateCcw className="h-4 w-4" />
         </Button>
+
+        {/* Download Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" title="Export">
+              <Download className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Export</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onTakeScreenshot}>
+              <FileImage className="mr-2 h-4 w-4" />
+              Screenshot (PNG)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onExportGLTF}>
+              <FileBox className="mr-2 h-4 w-4" />
+              Export Model (glTF)
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Button
+          variant="ghost" size="icon"
+          onClick={onToggleFullscreen}
+          title="Toggle Fullscreen"
+        >
+          <Maximize className="h-4 w-4" />
+        </Button>
+
+        {/* Help Dialog */}
+        <Dialog>
+          <DialogTrigger asChild>
+             <Button variant="ghost" size="icon" title="Help">
+              <HelpCircle className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>3D Viewer Controls</DialogTitle>
+              <DialogDescription>
+                How to navigate your floorplan in 3D.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="font-semibold">Orbit Mode (Default)</div>
+                <div></div>
+                <div className="text-sm text-muted-foreground">Rotate</div>
+                <div className="text-sm">Left Click + Drag</div>
+                <div className="text-sm text-muted-foreground">Pan</div>
+                <div className="text-sm">Right Click + Drag</div>
+                <div className="text-sm text-muted-foreground">Zoom</div>
+                <div className="text-sm">Mouse Wheel / Pinch</div>
+              </div>
+              <DialogDescription className="mt-4 border-t pt-4">
+                <span className="font-semibold block mb-2">First Person Mode</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="text-sm text-muted-foreground">Move</div>
+                  <div className="text-sm">W, A, S, D</div>
+                  <div className="text-sm text-muted-foreground">Look</div>
+                  <div className="text-sm">Mouse Movement</div>
+                  <div className="text-sm text-muted-foreground">Run</div>
+                  <div className="text-sm">Hold Shift</div>
+                  <div className="text-sm text-muted-foreground">Exit</div>
+                  <div className="text-sm">ESC</div>
+                </div>
+              </DialogDescription>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
