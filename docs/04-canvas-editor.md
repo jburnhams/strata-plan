@@ -66,11 +66,11 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Unit Tests (`tests/unit/components/editor/CanvasViewport.test.tsx`)
 
-- [ ] worldToScreen converts coordinates correctly at zoom 1.0
-- [ ] worldToScreen accounts for zoom level
-- [ ] worldToScreen accounts for pan offset
-- [ ] screenToWorld is inverse of worldToScreen
-- [ ] Zoom clamps to bounds
+- [x] worldToScreen converts coordinates correctly at zoom 1.0
+- [x] worldToScreen accounts for zoom level
+- [x] worldToScreen accounts for pan offset
+- [x] screenToWorld is inverse of worldToScreen
+- [x] Zoom clamps to bounds
 
 ---
 
@@ -173,7 +173,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Shift+click → add to selection (multi-select)
   - Ctrl+click → toggle selection
 
-- [ ] **4.4.2** Implement box selection:
+- [x] **4.4.2** Implement box selection:
   - Drag in empty area → draw selection box
   - Rooms intersecting box become selected
   - Shift+drag → add to existing selection
@@ -188,7 +188,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Delete: delete selected rooms
   - Escape: deselect all
 
-- [ ] **4.4.5** Implement hover states:
+- [x] **4.4.5** Implement hover states:
   - Track mouse position
   - Determine which room is under cursor
   - Apply hover highlight
@@ -202,7 +202,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 - [x] Click selects room
 - [x] Click outside deselects
 - [x] Shift+click adds to selection
-- [ ] Box selection selects multiple rooms
+- [x] Box selection selects multiple rooms
 - [ ] Escape deselects all
 
 ---
