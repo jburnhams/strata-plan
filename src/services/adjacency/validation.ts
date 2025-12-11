@@ -1,6 +1,6 @@
 import { Room, RoomConnection } from '../../types';
-import { getRoomBounds, doRectanglesOverlap } from '../geometry/room';
-import { AdjacencyGraph, buildGraph } from './graph';
+import { getRoomBounds } from '../geometry/room';
+import { AdjacencyGraph } from './graph';
 
 export interface ConnectionValidationResult {
   orphanRooms: string[];
