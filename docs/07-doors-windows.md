@@ -171,41 +171,41 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Subtasks
 
-- [ ] **7.4.1** Create door placement tool:
+- [x] **7.4.1** Create door placement tool:
   - Activate via toolbar button (hotkey: D)
   - Cursor changes to door icon
   - Click on wall to place door
 
-- [ ] **7.4.2** Implement wall detection:
+- [x] **7.4.2** Implement wall detection:
   - Raycast/hit test to find wall under cursor
   - Only allow placement on room walls
   - Show wall highlight when hoverable
 
-- [ ] **7.4.3** Calculate position along wall:
+- [x] **7.4.3** Calculate position along wall:
   - Convert click position to 0.0-1.0 along wall
   - Snap to reasonable intervals (0.1 = 10% of wall)
 
-- [ ] **7.4.4** Show door preview:
+- [x] **7.4.4** Show door preview:
   - Ghost door at cursor position
   - Shows door width
   - Red if invalid placement, green if valid
 
-- [ ] **7.4.5** Validate placement:
+- [x] **7.4.5** Validate placement:
   - Door fits within wall (with margins)
   - No overlap with existing doors/windows
   - Wall belongs to valid room
 
-- [ ] **7.4.6** Create door on click:
+- [x] **7.4.6** Create door on click:
   - If on shared wall, create interior door (link to connection)
   - If on exterior wall, create exterior door
   - Select new door after placement
 
 ### Unit Tests
 
-- [ ] Door tool activates
-- [ ] Wall detection works
-- [ ] Invalid placement shows error indicator
-- [ ] Door created on click
+- [x] Door tool activates
+- [x] Wall detection works
+- [x] Invalid placement shows error indicator
+- [x] Door created on click
 
 ---
 
@@ -215,33 +215,33 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Subtasks
 
-- [ ] **7.5.1** Create window placement tool:
+- [x] **7.5.1** Create window placement tool:
   - Activate via toolbar button (hotkey: N)
   - Similar to door tool
 
-- [ ] **7.5.2** Implement placement logic:
+- [x] **7.5.2** Implement placement logic:
   - Click on wall to place window
   - Calculate position along wall
   - Default sill height applied
 
-- [ ] **7.5.3** Show window preview:
+- [x] **7.5.3** Show window preview:
   - Ghost window at cursor position
   - Shows width and height
 
-- [ ] **7.5.4** Validate placement:
+- [x] **7.5.4** Validate placement:
   - Window fits within wall
   - No overlap with doors or other windows
   - Sill height + height < ceiling height
 
-- [ ] **7.5.5** Create window on click:
+- [x] **7.5.5** Create window on click:
   - Add to store
   - Select new window
 
 ### Unit Tests
 
-- [ ] Window tool activates
-- [ ] Valid placement creates window
-- [ ] Overlap detection prevents placement
+- [x] Window tool activates
+- [x] Valid placement creates window
+- [x] Overlap detection prevents placement
 
 ---
 
@@ -506,8 +506,11 @@ tests/
 │   └── components/
 │       ├── editor/
 │       │   └── DoorTool.test.tsx
+│       │   └── WindowTool.test.tsx
 │       └── viewer/
 │           └── DoorMesh.test.tsx
+│   └── hooks/
+│       └── useWindowPlacement.test.ts
 └── integration/
     └── doors-windows.integration.test.tsx
 ```

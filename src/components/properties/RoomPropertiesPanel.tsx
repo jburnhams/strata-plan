@@ -11,10 +11,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '../ui/accordion';
 import { RoomType } from '../../types/room';
 import { Trash2 } from 'lucide-react';
 import { calculateArea, calculateVolume } from '../../services/geometry/room';
 import { AdjacentRoomsSection } from './AdjacentRoomsSection';
+import { MaterialPicker } from './MaterialPicker';
+import { ROOM_TYPE_MATERIALS } from '../../constants/defaults';
+import { CeilingMaterial, FloorMaterial, WallMaterial } from '../../types/materials';
 
 const ROOM_TYPES: RoomType[] = [
   'bedroom',
@@ -33,6 +42,10 @@ export function RoomPropertiesPanel() {
   const selectedRoom = useFloorplanStore(state => state.getSelectedRoom());
   const updateRoom = useFloorplanStore(state => state.updateRoom);
   const deleteRoom = useFloorplanStore(state => state.deleteRoom);
+  const setRoomFloorMaterial = useFloorplanStore(state => state.setRoomFloorMaterial);
+  const setRoomWallMaterial = useFloorplanStore(state => state.setRoomWallMaterial);
+  const setRoomCeilingMaterial = useFloorplanStore(state => state.setRoomCeilingMaterial);
+  const setRoomCustomColor = useFloorplanStore(state => state.setRoomCustomColor);
   const units = useFloorplanStore(state => state.currentFloorplan?.units || 'meters');
 
   const focusProperty = useUIStore(state => state.focusProperty);
@@ -65,6 +78,21 @@ export function RoomPropertiesPanel() {
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this room?')) {
       deleteRoom(selectedRoom.id);
+    }
+  };
+
+  const handleResetMaterials = () => {
+    const defaultMaterials = ROOM_TYPE_MATERIALS[selectedRoom.type];
+    if (defaultMaterials) {
+      // Update all three materials and clear custom colors in one go
+      updateRoom(selectedRoom.id, {
+        floorMaterial: defaultMaterials.floor,
+        wallMaterial: defaultMaterials.wall,
+        ceilingMaterial: defaultMaterials.ceiling,
+        customFloorColor: undefined,
+        customWallColor: undefined,
+        customCeilingColor: undefined,
+      });
     }
   };
 
@@ -157,25 +185,73 @@ export function RoomPropertiesPanel() {
             </span>
           </div>
         </div>
-
-        <div className="grid gap-2">
-          <Label htmlFor="room-color">Color</Label>
-          <div className="flex gap-2">
-            <Input
-              id="room-color"
-              type="color"
-              value={selectedRoom.color || '#ffffff'}
-              onChange={(e) => handleChange('color', e.target.value)}
-              className="w-12 h-8 p-1 cursor-pointer"
-            />
-            <Input
-              value={selectedRoom.color || '#ffffff'}
-              onChange={(e) => handleChange('color', e.target.value)}
-              className="font-mono"
-            />
-          </div>
-        </div>
       </div>
+
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="materials">
+          <AccordionTrigger>Materials & Finishes</AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-4 pt-2">
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <Label>Floor</Label>
+                  <span className="text-xs text-muted-foreground capitalize">
+                    {selectedRoom.floorMaterial?.replace(/-/g, ' ')}
+                  </span>
+                </div>
+                <MaterialPicker
+                  type="floor"
+                  value={selectedRoom.floorMaterial}
+                  onChange={(m) => setRoomFloorMaterial(selectedRoom.id, m as FloorMaterial)}
+                  customColor={selectedRoom.customFloorColor}
+                  onCustomColorChange={(c) => setRoomCustomColor(selectedRoom.id, 'floor', c)}
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <Label>Walls</Label>
+                  <span className="text-xs text-muted-foreground capitalize">
+                    {selectedRoom.wallMaterial?.replace(/-/g, ' ')}
+                  </span>
+                </div>
+                <MaterialPicker
+                  type="wall"
+                  value={selectedRoom.wallMaterial}
+                  onChange={(m) => setRoomWallMaterial(selectedRoom.id, m as WallMaterial)}
+                  customColor={selectedRoom.customWallColor}
+                  onCustomColorChange={(c) => setRoomCustomColor(selectedRoom.id, 'wall', c)}
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <Label>Ceiling</Label>
+                  <span className="text-xs text-muted-foreground capitalize">
+                    {selectedRoom.ceilingMaterial?.replace(/-/g, ' ')}
+                  </span>
+                </div>
+                <MaterialPicker
+                  type="ceiling"
+                  value={selectedRoom.ceilingMaterial}
+                  onChange={(m) => setRoomCeilingMaterial(selectedRoom.id, m as CeilingMaterial)}
+                  customColor={selectedRoom.customCeilingColor}
+                  onCustomColorChange={(c) => setRoomCustomColor(selectedRoom.id, 'ceiling', c)}
+                />
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResetMaterials}
+                className="w-full mt-4"
+              >
+                Reset to {selectedRoom.type} Defaults
+              </Button>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       <div className="pt-4 border-t">
         <AdjacentRoomsSection />

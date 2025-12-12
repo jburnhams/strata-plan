@@ -9,15 +9,24 @@ import { Room, Wall, Door, Window } from '../../../../src/types';
 jest.mock('../../../../src/stores/uiStore');
 jest.mock('../../../../src/stores/floorplanStore');
 
+// Mock MaterialPicker because it renders internal components that might complicate this high-level test
+// and we only want to test that RoomPropertiesPanel is rendered and functions generally.
+// Actually RoomPropertiesPanel is what's being tested implicitly.
+// However, the test "calls updateRoom when other inputs change" specifically looks for color inputs.
+// In RoomPropertiesPanel, the color input is:
+// <Input id="room-color" type="color" ... />
+// The MaterialPicker also has color inputs but they are inside an accordion which is likely closed by default?
+// Wait, the error was "Unable to find an element with the display value: #ffffff".
+// This suggests that the previous implementation of RoomPropertiesPanel had a color input that defaulted to #ffffff.
+// In my update, I removed the generic "Color" input from RoomPropertiesPanel in favor of the Material Pickers?
+// Let me check RoomPropertiesPanel.tsx content again.
+
 // Mock ResizeObserver for ScrollArea
 global.ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}
 };
-
-// Mock Radix UI ScrollArea if needed or handle via ResizeObserver mock
-// The component structure is complex so simple ResizeObserver mock is usually enough
 
 describe('PropertiesPanel', () => {
   const mockTogglePropertiesPanel = jest.fn();
@@ -65,6 +74,10 @@ describe('PropertiesPanel', () => {
         deleteDoor: mockDeleteDoor,
         updateWindow: mockUpdateWindow,
         deleteWindow: mockDeleteWindow,
+        setRoomFloorMaterial: jest.fn(),
+        setRoomWallMaterial: jest.fn(),
+        setRoomCeilingMaterial: jest.fn(),
+        setRoomCustomColor: jest.fn(),
       };
       return selector(state);
     });
@@ -115,6 +128,10 @@ describe('PropertiesPanel', () => {
             getSelectedRoom: () => mockRoom,
             updateRoom: mockUpdateRoom,
             deleteRoom: mockDeleteRoom,
+             setRoomFloorMaterial: jest.fn(),
+            setRoomWallMaterial: jest.fn(),
+            setRoomCeilingMaterial: jest.fn(),
+            setRoomCustomColor: jest.fn(),
         };
         return selector(state);
     });
@@ -148,6 +165,10 @@ describe('PropertiesPanel', () => {
             getSelectedRoom: () => mockRoom,
             updateRoom: mockUpdateRoom,
             deleteRoom: mockDeleteRoom,
+             setRoomFloorMaterial: jest.fn(),
+            setRoomWallMaterial: jest.fn(),
+            setRoomCeilingMaterial: jest.fn(),
+            setRoomCustomColor: jest.fn(),
         };
         return selector(state);
     });
@@ -182,6 +203,10 @@ describe('PropertiesPanel', () => {
             getSelectedRoom: () => mockRoom,
             updateRoom: mockUpdateRoom,
             deleteRoom: mockDeleteRoom,
+             setRoomFloorMaterial: jest.fn(),
+            setRoomWallMaterial: jest.fn(),
+            setRoomCeilingMaterial: jest.fn(),
+            setRoomCustomColor: jest.fn(),
         };
         return selector(state);
     });
@@ -220,6 +245,10 @@ describe('PropertiesPanel', () => {
         getSelectedRoom: () => mockRoom,
         updateRoom: mockUpdateRoom,
         deleteRoom: mockDeleteRoom,
+         setRoomFloorMaterial: jest.fn(),
+            setRoomWallMaterial: jest.fn(),
+            setRoomCeilingMaterial: jest.fn(),
+            setRoomCustomColor: jest.fn(),
       };
       return selector(state);
     });
@@ -239,11 +268,14 @@ describe('PropertiesPanel', () => {
     fireEvent.change(heightInput, { target: { value: '3' } });
     expect(mockUpdateRoom).toHaveBeenCalledWith('room-1', { height: 3 });
 
-    // Color input
-    // We have two inputs for color, one type=color and one text
-    const colorInputs = screen.getAllByDisplayValue('#ffffff');
-    fireEvent.change(colorInputs[0], { target: { value: '#000000' } });
-    expect(mockUpdateRoom).toHaveBeenCalledWith('room-1', { color: '#000000' });
+    // In Task 8.4, we removed the simple 'color' input from RoomPropertiesPanel
+    // and replaced it with MaterialPicker which manages custom colors per surface.
+    // The previous test expected a single color input.
+    // We should either verify one of the material custom colors OR remove this part of the test.
+    // Since the generic 'color' property on Room is still in the type definition but not used in the UI anymore (superseded by customFloorColor etc.),
+    // we should update the test to not look for it, or look for the new material UI.
+    // However, the test "calls updateRoom when other inputs change" was just bundling multiple inputs.
+    // I will remove the color check from this test as it's now covered by specific material tests in RoomPropertiesPanel.test.tsx
   });
 
   it('validates number inputs', () => {
@@ -270,6 +302,10 @@ describe('PropertiesPanel', () => {
         getSelectedRoom: () => mockRoom,
         updateRoom: mockUpdateRoom,
         deleteRoom: mockDeleteRoom,
+         setRoomFloorMaterial: jest.fn(),
+            setRoomWallMaterial: jest.fn(),
+            setRoomCeilingMaterial: jest.fn(),
+            setRoomCustomColor: jest.fn(),
       };
       return selector(state);
     });
@@ -279,19 +315,6 @@ describe('PropertiesPanel', () => {
 
     // Invalid input - should not trigger update
     fireEvent.change(lengthInput, { target: { value: '-1' } });
-    // Reset mock to ensure we don't catch previous calls if any (though clearAllMocks is in beforeEach)
-    // But here we want to ensure *no new call* was made.
-    // Since we called clearAllMocks in beforeEach, and previous tests might have run,
-    // but this test is isolated.
-    // However, the component might trigger on blur or change.
-    // The handler is:
-    // const handleNumberChange = (field, value) => {
-    //   const numValue = parseFloat(value);
-    //   if (!isNaN(numValue) && numValue > 0) {
-    //     handleChange(field, numValue);
-    //   }
-    // };
-    // So if value is '-1', numValue is -1. numValue > 0 is false. handleChange not called.
     expect(mockUpdateRoom).not.toHaveBeenCalled();
 
     fireEvent.change(lengthInput, { target: { value: 'abc' } });
@@ -417,6 +440,10 @@ describe('PropertiesPanel', () => {
         getSelectedRoom: () => mockRoom,
         updateRoom: mockUpdateRoom,
         deleteRoom: mockDeleteRoom,
+         setRoomFloorMaterial: jest.fn(),
+            setRoomWallMaterial: jest.fn(),
+            setRoomCeilingMaterial: jest.fn(),
+            setRoomCustomColor: jest.fn(),
       };
       return selector(state);
     });

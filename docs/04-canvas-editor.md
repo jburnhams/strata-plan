@@ -240,7 +240,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Dragging one room in multi-selection moves all
   - Maintain relative positions
 
-- [ ] **4.5.6** Implement undo for move:
+- [x] **4.5.6** Implement undo for move:
   - Store previous position before drag
   - On undo: restore previous position
 
@@ -351,10 +351,10 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Show wall length as label
   - Show angle relative to horizontal
 
-- [ ] **4.8.3** Implement wall snapping:
+- [x] **4.8.3** Implement wall snapping:
   - [x] Snap to grid points
-  - [ ] Snap to existing wall endpoints
-  - [ ] Snap to perpendicular angles (0°, 90°)
+  - [x] Snap to existing wall endpoints
+  - [x] Snap to perpendicular angles (0°, 90°)
   - [ ] Snap to 45° angles (optional)
 
 - [x] **4.8.4** Implement continuous wall drawing:
@@ -375,7 +375,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 - [x] Wall tool activates on button click
 - [x] Wall preview shows correct length
 - [x] Grid snapping works for wall endpoints
-- [ ] Wall-to-wall snapping works
+- [x] Wall-to-wall snapping works
 - [x] Escape cancels current wall
 
 ---
@@ -386,7 +386,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Subtasks
 
-- [ ] **4.9.1** Implement enclosed area detection:
+- [x] **4.9.1** Implement enclosed area detection:
   - Find closed polygons formed by walls
   - Use graph algorithm (find cycles)
 
@@ -395,7 +395,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Highlight detected area on hover
   - Click creates room with that boundary
 
-- [ ] **4.9.3** Implement polygon-to-room conversion:
+- [x] **4.9.3** Implement polygon-to-room conversion:
   - Calculate bounding box for dimensions
   - Set room position from bounding box
   - Store polygon vertices for non-rectangular rooms
@@ -407,10 +407,10 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Unit Tests
 
-- [ ] Enclosed area detection finds simple rectangles
-- [ ] Enclosed area detection finds L-shapes
+- [x] Enclosed area detection finds simple rectangles
+- [x] Enclosed area detection finds L-shapes
 - [ ] Click inside area creates room
-- [ ] Polygon area calculated correctly
+- [x] Polygon area calculated correctly
 
 ---
 
@@ -555,6 +555,8 @@ tests/
 │   └── hooks/
 │       ├── useRoomResize.test.ts
 │       └── useRoomResize_advanced.test.ts
+│   └── services/
+│       └── roomDetection.test.ts
 └── integration/
     └── canvas-editor.integration.test.tsx
 ```

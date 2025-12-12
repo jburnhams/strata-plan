@@ -37,6 +37,7 @@ export interface Room {
   type: RoomType;
   position: Position2D; // Top-left corner in world space
   rotation: 0 | 90 | 180 | 270; // Rotation in degrees
+  vertices?: Position2D[]; // Optional vertices for non-rectangular rooms
   color?: string; // Hex color override
   floorMaterial?: FloorMaterial;
   wallMaterial?: WallMaterial;

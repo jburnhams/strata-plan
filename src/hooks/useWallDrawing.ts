@@ -5,10 +5,13 @@ import { useUIStore } from '../stores/uiStore';
 import { Position2D, Wall } from '../types';
 import { PIXELS_PER_METER } from '../constants/defaults';
 import { screenToWorld } from '../utils/coordinates';
+import { getWallSnapPoints } from '../services/geometry/snapping';
 
 export const useWallDrawing = () => {
   const activeTool = useToolStore((state) => state.activeTool);
-  const { addWall } = useFloorplanStore();
+  const { addWall, currentFloorplan } = useFloorplanStore();
+  // We need walls from the floorplan for snapping
+  const existingWalls = currentFloorplan?.walls || [];
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState<Position2D | null>(null);
@@ -23,15 +26,17 @@ export const useWallDrawing = () => {
 
   const gridSize = 0.5; // Could be from store
 
-  // Snap to grid helper
-  const snapToGrid = useCallback((point: Position2D): Position2D => {
-    if (!showGrid) return point;
+  // Centralized snap calculation
+  const calculateSnap = useCallback((point: Position2D, start?: Position2D | null) => {
+    return getWallSnapPoints(
+      point,
+      existingWalls,
+      start,
+      gridSize,
+      showGrid
+    ).position;
+  }, [existingWalls, gridSize, showGrid]);
 
-    const snappedX = Math.round(point.x / gridSize) * gridSize;
-    const snappedZ = Math.round(point.z / gridSize) * gridSize;
-
-    return { x: snappedX, z: snappedZ };
-  }, [showGrid]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (activeTool !== 'wall') return;
@@ -53,13 +58,6 @@ export const useWallDrawing = () => {
         height: rect.height
     };
 
-    // screenToWorld expects clientX relative to the viewport?
-    // No, existing usage in CanvasViewport: e.clientX - rect.left.
-    // The utility function takes "screenX" which usually implies "relative to viewport origin" in this codebase context?
-    // Let's check CanvasViewport usage:
-    // const worldPos = screenToWorld(e.clientX - rect.left, e.clientY - rect.top, ...);
-    // So yes, it expects coordinates relative to the viewport container top-left.
-
     const relativeX = e.clientX - rect.left;
     const relativeY = e.clientY - rect.top;
 
@@ -69,7 +67,8 @@ export const useWallDrawing = () => {
       transform
     );
 
-    const snappedPos = snapToGrid({ x: worldPos.x, z: worldPos.z });
+    // Apply snapping (pass startPoint if we are drawing)
+    const snappedPos = calculateSnap(worldPos, isDrawing ? startPoint : null);
 
     if (!isDrawing) {
       // Start drawing
@@ -98,7 +97,7 @@ export const useWallDrawing = () => {
         }
       }
     }
-  }, [activeTool, isDrawing, startPoint, zoomLevel, panOffset, snapToGrid, addWall]);
+  }, [activeTool, isDrawing, startPoint, zoomLevel, panOffset, calculateSnap, addWall]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDrawing || activeTool !== 'wall' || !viewportRectRef.current) return;
@@ -120,9 +119,10 @@ export const useWallDrawing = () => {
       transform
     );
 
-    const snappedPos = snapToGrid(worldPos);
+    // Use centralized snap logic
+    const snappedPos = calculateSnap(worldPos, startPoint);
     setCurrentPoint(snappedPos);
-  }, [isDrawing, activeTool, zoomLevel, panOffset, snapToGrid]);
+  }, [isDrawing, activeTool, zoomLevel, panOffset, calculateSnap, startPoint]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape' && isDrawing) {

@@ -92,7 +92,7 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Subtasks
 
-- [ ] **8.2.1** Extend Room interface:
+- [x] **8.2.1** Extend Room interface:
   ```typescript
   interface Room {
     // ... existing properties
@@ -105,7 +105,7 @@ This section adds visual richness through material selection, textures, and colo
   }
   ```
 
-- [ ] **8.2.2** Add material defaults based on room type:
+- [x] **8.2.2** Add material defaults based on room type:
   ```typescript
   const ROOM_TYPE_MATERIALS = {
     bedroom: { floor: 'hardwood', wall: 'drywall-painted' },
@@ -117,7 +117,7 @@ This section adds visual richness through material selection, textures, and colo
   }
   ```
 
-- [ ] **8.2.3** Add store actions:
+- [x] **8.2.3** Add store actions:
   ```typescript
   setRoomFloorMaterial(roomId: string, material: FloorMaterial): void
   setRoomWallMaterial(roomId: string, material: WallMaterial): void
@@ -127,9 +127,9 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Unit Tests
 
-- [ ] Material assignment updates room
-- [ ] Custom color overrides material default
-- [ ] Room type defaults applied on creation
+- [x] Material assignment updates room
+- [x] Custom color overrides material default
+- [x] Room type defaults applied on creation
 
 ---
 
@@ -139,7 +139,7 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Subtasks
 
-- [ ] **8.3.1** Create material picker UI:
+- [x] **8.3.1** Create material picker UI:
   ```typescript
   interface MaterialPickerProps {
     type: 'floor' | 'wall' | 'ceiling'
@@ -150,31 +150,31 @@ This section adds visual richness through material selection, textures, and colo
   }
   ```
 
-- [ ] **8.3.2** Display material options:
+- [x] **8.3.2** Display material options:
   - Grid of material swatches
   - Material name below swatch
   - Grouped by category (Wood, Tile, etc.)
   - Selected material highlighted
 
-- [ ] **8.3.3** Material preview swatch:
+- [x] **8.3.3** Material preview swatch:
   - Show texture thumbnail if available
   - Show solid color if no texture
 
-- [ ] **8.3.4** Custom color option:
+- [x] **8.3.4** Custom color option:
   - "Custom Color" as last option
   - Opens color picker on select
   - Shows color swatch
 
-- [ ] **8.3.5** Color picker integration:
+- [x] **8.3.5** Color picker integration:
   - Use Shadcn/ui color picker or react-colorful
   - Hex input for precise colors
   - Recent colors palette
 
 ### Unit Tests
 
-- [ ] Material picker displays all options
-- [ ] Selection triggers onChange
-- [ ] Custom color shows color picker
+- [x] Material picker displays all options
+- [x] Selection triggers onChange
+- [x] Custom color shows color picker
 
 ---
 
@@ -184,17 +184,17 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Subtasks
 
-- [ ] **8.4.1** Add material section to room properties:
+- [x] **8.4.1** Add material section to room properties:
   - Collapsible section: "Materials"
   - Floor material picker
   - Wall material picker
   - Ceiling material picker
 
-- [ ] **8.4.2** Show material preview:
+- [x] **8.4.2** Show material preview:
   - Small 3D preview cube showing materials
   - Or: flat preview swatches
 
-- [ ] **8.4.3** "Reset to Default" button:
+- [x] **8.4.3** "Reset to Default" button:
   - Resets materials to room type defaults
 
 - [ ] **8.4.4** Apply material to all rooms:
@@ -203,9 +203,9 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Unit Tests
 
-- [ ] Material section renders in properties panel
-- [ ] Changing material updates store
-- [ ] Reset restores defaults
+- [x] Material section renders in properties panel
+- [x] Changing material updates store
+- [x] Reset restores defaults
 
 ---
 
@@ -215,7 +215,7 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Subtasks
 
-- [ ] **8.5.1** Apply floor color based on material:
+- [x] **8.5.1** Apply floor color based on material:
   - Use material's defaultColor
   - Or custom color if set
 
@@ -230,8 +230,8 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Unit Tests
 
-- [ ] Room fill color matches floor material
-- [ ] Custom color overrides material color
+- [x] Room fill color matches floor material
+- [x] Custom color overrides material color
 
 ---
 
