@@ -4,6 +4,7 @@ import { RoomLayer } from './RoomLayer';
 import { Grid } from './Grid';
 import { ConnectionLines } from './ConnectionLines';
 import { SelectionOverlay } from './SelectionOverlay';
+import { MeasurementOverlay } from './MeasurementOverlay';
 import { SnapIndicator } from './SnapIndicator';
 import { WallOverlay, WallPreview } from './WallOverlay';
 import { EditorToolbar } from './EditorToolbar';
@@ -49,6 +50,7 @@ export function Canvas2D() {
           <RoomLayer />
           <WallPreview isDrawing={isDrawing} startPoint={startPoint} currentPoint={currentPoint} />
           <SelectionOverlay />
+          <MeasurementOverlay />
        </CanvasViewport>
     </div>
   );
