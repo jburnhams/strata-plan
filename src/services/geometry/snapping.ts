@@ -1,4 +1,4 @@
-import { Room, Position2D } from '../../types';
+import { Room, Position2D, Wall } from '../../types';
 import { getRoomBounds } from './room';
 
 export interface SnapGuide {
@@ -11,6 +11,12 @@ export interface SnapGuide {
 export interface SnapResult {
   position: Position2D;
   guides: SnapGuide[];
+}
+
+export interface WallSnapResult {
+  position: Position2D;
+  snappedTo: 'none' | 'endpoint' | 'grid' | 'angle';
+  snapSource?: Position2D; // The point we snapped to (for endpoint)
 }
 
 /**
@@ -123,13 +129,6 @@ export const getSnapGuides = (
       z: proposedPosition.z + bestDeltaZ
   };
 
-  // Re-adjust guide extents based on the FINAL snapped position?
-  // The guide 'start/end' calculated above used the *unsnapped* bounds (tempRoom).
-  // Ideally, visually, it should align with where the room ends up.
-  // But the difference is small (< snapTolerance). It's probably fine.
-  // If we wanted to be perfect, we'd recalculate guide extents using snappedPos.
-  // Let's do that for polish if needed, but for now this is okay.
-
   const guides: SnapGuide[] = [];
   if (guideX) guides.push(guideX);
   if (guideZ) guides.push(guideZ);
@@ -137,5 +136,96 @@ export const getSnapGuides = (
   return {
       position: snappedPos,
       guides
+  };
+};
+
+/**
+ * Calculates snap points for wall drawing
+ * Priority: Endpoint > Angle > Grid
+ */
+export const getWallSnapPoints = (
+  currentPoint: Position2D,
+  walls: Wall[],
+  startPoint: Position2D | null = null,
+  gridSize: number = 0.5,
+  showGrid: boolean = true,
+  snapTolerance: number = 0.3
+): WallSnapResult => {
+  // 1. Check for wall endpoints
+  for (const wall of walls) {
+    const endpoints = [wall.from, wall.to];
+    for (const endpoint of endpoints) {
+      const dist = Math.sqrt(
+        Math.pow(currentPoint.x - endpoint.x, 2) +
+        Math.pow(currentPoint.z - endpoint.z, 2)
+      );
+
+      if (dist < snapTolerance) {
+        return {
+          position: endpoint,
+          snappedTo: 'endpoint',
+          snapSource: endpoint
+        };
+      }
+    }
+  }
+
+  // 2. Check for angle snapping if start point exists (0, 90 degrees)
+  if (startPoint) {
+    const dx = currentPoint.x - startPoint.x;
+    const dz = currentPoint.z - startPoint.z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+
+    // Only snap angle if we've moved a bit
+    if (dist > snapTolerance) {
+      // Check proximity to axes (within ~10 degrees = 0.17 rad)
+      const angleTolerance = 0.17;
+
+      const isHorizontal = Math.abs(dz) < dist * Math.sin(angleTolerance); // Close to 0 or 180
+      const isVertical = Math.abs(dx) < dist * Math.sin(angleTolerance); // Close to 90 or 270
+
+      if (isHorizontal) {
+        // Snap Z to match startPoint.z (make line perfectly horizontal)
+        // If showGrid is true, we should snap X to grid
+        const snappedX = showGrid
+          ? Math.round(currentPoint.x / gridSize) * gridSize
+          : currentPoint.x;
+
+        return {
+          position: { x: snappedX, z: startPoint.z },
+          snappedTo: 'angle'
+        };
+      }
+
+      if (isVertical) {
+        // Snap X to match startPoint.x (make line perfectly vertical)
+        // If showGrid is true, we should snap Z to grid
+        const snappedZ = showGrid
+          ? Math.round(currentPoint.z / gridSize) * gridSize
+          : currentPoint.z;
+
+        return {
+          position: { x: startPoint.x, z: snappedZ },
+          snappedTo: 'angle'
+        };
+      }
+    }
+  }
+
+  // 3. Grid snapping
+  if (showGrid) {
+    const snappedX = Math.round(currentPoint.x / gridSize) * gridSize;
+    const snappedZ = Math.round(currentPoint.z / gridSize) * gridSize;
+
+    return {
+      position: { x: snappedX, z: snappedZ },
+      snappedTo: 'grid'
+    };
+  }
+
+  // 4. No snapping
+  return {
+    position: currentPoint,
+    snappedTo: 'none'
   };
 };
