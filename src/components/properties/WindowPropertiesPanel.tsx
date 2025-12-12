@@ -3,6 +3,7 @@ import { useFloorplanStore } from '../../stores/floorplanStore';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
+import { Slider } from '../ui/slider';
 import {
   Select,
   SelectContent,
@@ -10,24 +11,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { WindowFrameType, WindowMaterial } from '../../types';
+import { WindowFrameType, WindowMaterial, WindowOpeningType } from '../../types';
 import { Trash2 } from 'lucide-react';
 
-const WINDOW_FRAMES: WindowFrameType[] = ['single', 'double', 'triple'];
-const WINDOW_MATERIALS: WindowMaterial[] = ['wood', 'aluminum', 'pvc'];
+const FRAME_TYPES: WindowFrameType[] = ['single', 'double', 'triple'];
+const MATERIALS: WindowMaterial[] = ['wood', 'aluminum', 'pvc'];
+const OPENING_TYPES: WindowOpeningType[] = ['fixed', 'casement', 'sliding', 'awning', 'hopper'];
 
 export function WindowPropertiesPanel() {
   const selectedWindowId = useFloorplanStore(state => state.selectedWindowId);
   const selectedWindow = useFloorplanStore(state => state.getWindowById(selectedWindowId || ''));
   const updateWindow = useFloorplanStore(state => state.updateWindow);
   const deleteWindow = useFloorplanStore(state => state.deleteWindow);
-  const units = useFloorplanStore(state => state.currentFloorplan?.units || 'meters');
+  const currentFloorplan = useFloorplanStore(state => state.currentFloorplan);
+  const units = currentFloorplan?.units || 'meters';
 
   if (!selectedWindow) return null;
 
+  // Find Room Info
+  const room = currentFloorplan?.rooms.find(r => r.id === selectedWindow.roomId);
+  const roomName = room?.name || 'Unknown Room';
+  const wallSide = selectedWindow.wallSide.charAt(0).toUpperCase() + selectedWindow.wallSide.slice(1);
+
   const handleNumberChange = (field: 'width' | 'height' | 'sillHeight', value: string) => {
     const numValue = parseFloat(value);
-    if (!isNaN(numValue) && numValue > 0) {
+    if (!isNaN(numValue) && numValue >= 0) {
       updateWindow(selectedWindow.id, { [field]: numValue });
     }
   };
@@ -44,24 +52,31 @@ export function WindowPropertiesPanel() {
         <h2 className="text-lg font-semibold">Window Properties</h2>
       </div>
 
+      {/* Info Section */}
+      <div className="bg-muted/50 p-3 rounded text-sm space-y-1">
+          <div className="flex justify-between">
+              <span className="text-muted-foreground">Location:</span>
+              <span className="font-medium">{roomName}</span>
+          </div>
+          <div className="flex justify-between">
+              <span className="text-muted-foreground">Wall:</span>
+              <span className="font-medium">{wallSide} Wall</span>
+          </div>
+      </div>
+
       <div className="space-y-4">
-        <div className="grid gap-2">
-          <Label htmlFor="window-frame">Frame Type</Label>
-          <Select
-            value={selectedWindow.frameType}
-            onValueChange={(value) => updateWindow(selectedWindow.id, { frameType: value as WindowFrameType })}
-          >
-            <SelectTrigger id="window-frame">
-              <SelectValue placeholder="Select frame type" />
-            </SelectTrigger>
-            <SelectContent>
-              {WINDOW_FRAMES.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Position Slider */}
+        <div className="space-y-2">
+             <div className="flex justify-between">
+                <Label>Position on Wall</Label>
+                <span className="text-xs text-muted-foreground">{Math.round(selectedWindow.position * 100)}%</span>
+             </div>
+             <Slider
+                value={[selectedWindow.position]}
+                max={1}
+                step={0.01}
+                onValueChange={(vals) => updateWindow(selectedWindow.id, { position: vals[0] })}
+             />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -102,18 +117,56 @@ export function WindowPropertiesPanel() {
         </div>
 
         <div className="grid gap-2">
+          <Label htmlFor="window-opening">Opening Type</Label>
+          <Select
+            value={selectedWindow.openingType}
+            onValueChange={(value) => updateWindow(selectedWindow.id, { openingType: value as WindowOpeningType })}
+          >
+            <SelectTrigger id="window-opening">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {OPENING_TYPES.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid gap-2">
+          <Label htmlFor="window-frame">Frame Type</Label>
+          <Select
+            value={selectedWindow.frameType}
+            onValueChange={(value) => updateWindow(selectedWindow.id, { frameType: value as WindowFrameType })}
+          >
+            <SelectTrigger id="window-frame">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FRAME_TYPES.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid gap-2">
           <Label htmlFor="window-material">Material</Label>
           <Select
-            value={selectedWindow.material || 'pvc'}
+            value={selectedWindow.material}
             onValueChange={(value) => updateWindow(selectedWindow.id, { material: value as WindowMaterial })}
           >
             <SelectTrigger id="window-material">
-              <SelectValue placeholder="Select material" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {WINDOW_MATERIALS.map((mat) => (
-                <SelectItem key={mat} value={mat}>
-                  {mat.charAt(0).toUpperCase() + mat.slice(1)}
+              {MATERIALS.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
                 </SelectItem>
               ))}
             </SelectContent>
