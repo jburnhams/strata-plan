@@ -204,7 +204,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 - [x] Click outside deselects
 - [x] Shift+click adds to selection
 - [x] Box selection selects multiple rooms
-- [ ] Escape deselects all
+- [x] Escape deselects all
 
 ---
 
@@ -250,7 +250,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 - [x] Grid snapping works at different grid sizes
 - [ ] Smart guides appear when aligned
 - [x] Multi-select drag maintains relative positions
-- [ ] Collision warning appears for overlapping rooms
+- [x] Collision warning appears for overlapping rooms
 
 ---
 
@@ -274,10 +274,10 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Maximum dimension: 100m
   - Snap to grid if enabled
 
-- [ ] **4.6.4** Proportional resize:
+- [x] **4.6.4** Proportional resize:
   - Hold Shift during resize to maintain aspect ratio
 
-- [ ] **4.6.5** Resize from center:
+- [x] **4.6.5** Resize from center:
   - Hold Alt during resize to resize from center
   - Both sides move equally
 
@@ -294,7 +294,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 - [x] Corner resize changes both dimensions
 - [x] Edge resize changes single dimension
 - [x] Minimum dimension enforced
-- [ ] Shift constrains aspect ratio
+- [x] Shift constrains aspect ratio
 - [ ] Dimension labels update during resize
 
 ---
@@ -552,6 +552,9 @@ tests/
 │           ├── CanvasViewport.test.tsx
 │           ├── RoomShape.test.tsx
 │           └── Grid.test.tsx
+│   └── hooks/
+│       ├── useRoomResize.test.ts
+│       └── useRoomResize_advanced.test.ts
 └── integration/
     └── canvas-editor.integration.test.tsx
 ```
