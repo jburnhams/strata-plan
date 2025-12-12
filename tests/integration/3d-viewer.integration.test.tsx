@@ -1,11 +1,10 @@
 import React from 'react';
 import { render, screen, act, waitFor } from '@testing-library/react';
 import { Viewer3D } from '../../src/components/viewer/Viewer3D';
+import { SceneManager } from '../../src/components/viewer/SceneManager';
 import { useFloorplanStore } from '../../src/stores/floorplanStore';
 import { Room } from '../../src/types';
 import * as THREE from 'three';
-// @ts-ignore
-import { createCanvas } from '@napi-rs/canvas';
 
 // --- MOCKS ---
 
@@ -167,7 +166,11 @@ describe('3D Viewer Integration', () => {
     });
 
     it('initializes and renders rooms', async () => {
-        render(<Viewer3D />);
+        render(
+            <Viewer3D>
+                <SceneManager />
+            </Viewer3D>
+        );
 
         // Check if Canvas is present
         expect(screen.getByTestId('r3f-canvas')).toBeInTheDocument();
@@ -175,13 +178,17 @@ describe('3D Viewer Integration', () => {
         // Check if RoomMesh is rendered
         await waitFor(() => {
             expect(screen.getByTestId('room-mesh-room-1')).toBeInTheDocument();
-        }, { timeout: 3000 }); // Increased timeout
+        }, { timeout: 3000 });
 
         expect(screen.getByText('Living Room')).toBeInTheDocument();
     });
 
     it('updates when a new room is added', async () => {
-        render(<Viewer3D />);
+        render(
+            <Viewer3D>
+                <SceneManager />
+            </Viewer3D>
+        );
 
         // Wait for initial render
         await waitFor(() => expect(screen.getByTestId('room-mesh-room-1')).toBeInTheDocument(), { timeout: 3000 });
@@ -207,7 +214,11 @@ describe('3D Viewer Integration', () => {
     });
 
     it('updates selection state', async () => {
-        render(<Viewer3D />);
+        render(
+            <Viewer3D>
+                <SceneManager />
+            </Viewer3D>
+        );
 
         await waitFor(() => expect(screen.getByTestId('room-mesh-room-1')).toBeInTheDocument(), { timeout: 3000 });
 

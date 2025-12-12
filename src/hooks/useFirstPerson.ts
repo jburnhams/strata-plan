@@ -17,10 +17,6 @@ export const useFirstPerson = (isEnabled: boolean) => {
   const moveRight = useRef(false);
   const isRunning = useRef(false);
 
-  // Track movement velocity for smooth transitions
-  const velocity = useRef(new THREE.Vector3());
-  const direction = useRef(new THREE.Vector3());
-
   // Collision raycaster
   const raycaster = useRef(new THREE.Raycaster());
 

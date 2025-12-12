@@ -487,7 +487,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [x] **5.11.1** Implement level of detail (LOD):
+- [ ] **5.11.1** Implement level of detail (LOD):
   - Simplified geometry at distance
   - Full detail when close
 
