@@ -11,8 +11,13 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { SHORTCUTS } from "@/constants/shortcuts"
 import { Search } from "lucide-react"
 
-export function KeyboardShortcutsDialog() {
-  const { isOpen, closeDialog } = useDialog('shortcuts')
+interface KeyboardShortcutsDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function KeyboardShortcutsDialog({ open, onOpenChange }: KeyboardShortcutsDialogProps) {
+  // const { isOpen, closeDialog } = useDialog('shortcuts')
   const [search, setSearch] = useState('')
 
   const groupedShortcuts = Object.values(SHORTCUTS).reduce((acc, shortcut) => {
@@ -39,7 +44,7 @@ export function KeyboardShortcutsDialog() {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && closeDialog()}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Keyboard Shortcuts</DialogTitle>

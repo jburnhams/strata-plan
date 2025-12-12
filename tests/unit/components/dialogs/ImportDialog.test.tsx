@@ -40,6 +40,7 @@ describe('ImportDialog', () => {
   const mockCloseDialog = jest.fn();
   const mockImportFile = jest.fn();
   const mockReset = jest.fn();
+  const mockOnOpenChange = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -68,17 +69,12 @@ describe('ImportDialog', () => {
   });
 
   it('should not render when dialog is not active', () => {
-    (useDialogStore as unknown as jest.Mock).mockReturnValue({
-      activeDialog: null,
-      closeDialog: mockCloseDialog,
-    });
-
-    render(<ImportDialog />);
+    render(<ImportDialog open={false} onOpenChange={mockOnOpenChange} />);
     expect(screen.queryByTestId('dialog')).not.toBeInTheDocument();
   });
 
   it('should render dropzone when no file selected', () => {
-    render(<ImportDialog />);
+    render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
 
     expect(screen.getByText('Import Project')).toBeInTheDocument();
     expect(screen.getByText('Drag and drop your file here')).toBeInTheDocument();
@@ -86,7 +82,7 @@ describe('ImportDialog', () => {
   });
 
   it('should handle file selection via input', () => {
-    render(<ImportDialog />);
+    render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
 
     const file = new File(['{}'], 'test.json', { type: 'application/json' });
     const input = screen.getByLabelText(/Upload file drop zone/i).querySelector('input') as HTMLInputElement;
@@ -98,7 +94,7 @@ describe('ImportDialog', () => {
   });
 
   it('should handle drag and drop', () => {
-    render(<ImportDialog />);
+    render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
 
     const dropzone = screen.getByRole('button', { name: /Upload file drop zone/i });
     const file = new File(['{}'], 'test.json', { type: 'application/json' });
@@ -111,7 +107,7 @@ describe('ImportDialog', () => {
   });
 
   it('should call importFile when import button clicked', () => {
-    render(<ImportDialog />);
+    render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
 
     // Select file
     const file = new File(['{}'], 'test.json', { type: 'application/json' });
@@ -139,7 +135,7 @@ describe('ImportDialog', () => {
       reset: mockReset,
     });
 
-    render(<ImportDialog />);
+    render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
 
     // Select file to trigger error view state (although in reality error usually comes after import attempt)
     const file = new File(['{}'], 'test.json', { type: 'application/json' });
@@ -161,7 +157,7 @@ describe('ImportDialog', () => {
       reset: mockReset,
     });
 
-    render(<ImportDialog />);
+    render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
 
     // Select file
     const file = new File(['{}'], 'test.json', { type: 'application/json' });
@@ -175,7 +171,7 @@ describe('ImportDialog', () => {
   });
 
   it('should allow removing selected file', () => {
-    render(<ImportDialog />);
+    render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
 
     const file = new File(['{}'], 'test.json', { type: 'application/json' });
     const input = screen.getByLabelText(/Upload file drop zone/i).querySelector('input') as HTMLInputElement;

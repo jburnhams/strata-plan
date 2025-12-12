@@ -5,6 +5,7 @@ import { useFloorplanStore } from '@/stores/floorplanStore';
 import { useProject } from '@/hooks/useProject';
 import { useDialogStore } from '@/stores/dialogStore';
 import { useToast } from '@/hooks/use-toast';
+import { saveProject } from '@/services/storage/projectStorage';
 
 // Mock dependencies
 jest.mock('@/services/import/index', () => ({
@@ -19,6 +20,10 @@ jest.mock('@/hooks/useProject', () => ({
   useProject: jest.fn(),
 }));
 
+jest.mock('@/services/storage/projectStorage', () => ({
+  saveProject: jest.fn(),
+}));
+
 jest.mock('@/stores/dialogStore', () => ({
   useDialogStore: jest.fn(),
 }));
@@ -31,7 +36,7 @@ jest.mock('@/hooks/use-toast', () => ({
 
 describe('useImport Hook', () => {
   const mockLoadFloorplan = jest.fn();
-  const mockSaveProject = jest.fn();
+  // const mockSaveProject = jest.fn(); // Use the imported one
   const mockCloseDialog = jest.fn();
   const mockToast = jest.fn();
 
@@ -43,7 +48,7 @@ describe('useImport Hook', () => {
     });
 
     (useProject as unknown as jest.Mock).mockReturnValue({
-      saveProject: mockSaveProject,
+      // saveProject: mockSaveProject, // No longer used from hook
     });
 
     (useDialogStore as unknown as jest.Mock).mockReturnValue({
@@ -84,8 +89,8 @@ describe('useImport Hook', () => {
     expect(result.current.error).toBeNull();
 
     expect(mockLoadFloorplan).toHaveBeenCalledWith(mockFloorplan);
-    expect(mockSaveProject).toHaveBeenCalledWith(mockFloorplan);
-    expect(mockCloseDialog).toHaveBeenCalledWith('import-project');
+    expect(saveProject).toHaveBeenCalledWith(mockFloorplan);
+    expect(mockCloseDialog).toHaveBeenCalledWith();
     expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Import Successful',
     }));
@@ -115,7 +120,7 @@ describe('useImport Hook', () => {
     });
 
     expect(mockLoadFloorplan).not.toHaveBeenCalled();
-    expect(mockSaveProject).not.toHaveBeenCalled();
+    expect(saveProject).not.toHaveBeenCalled();
   });
 
   it('should handle exception during import', async () => {

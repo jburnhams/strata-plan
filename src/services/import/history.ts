@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS } from '../../constants/defaults';
+// import { DEFAULT_SETTINGS } from '../../constants/defaults';
 import { getSettings, saveSettings } from '../storage/settingsStorage';
 
 const MAX_HISTORY_ITEMS = 10;

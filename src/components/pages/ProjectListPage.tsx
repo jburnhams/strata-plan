@@ -18,7 +18,8 @@ import { duplicateProject, updateProject, deleteProject as deleteProjectFromStor
 
 export function ProjectListPage() {
   const { navigateTo, openProject } = useNavigation();
-  const { projects, refreshProjects } = useProjectList();
+  const { projects, refresh } = useProjectList();
+  const refreshProjects = refresh; // Alias for consistency
   const { filteredProjects, searchQuery, setSearchQuery, sortBy, setSortBy } = useProjectFilters(projects);
   const { openDialog } = useDialogStore();
 

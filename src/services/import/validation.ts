@@ -106,5 +106,5 @@ function isValidRoomType(type: string): boolean {
     'living', 'kitchen', 'bedroom', 'bathroom', 'dining',
     'office', 'hallway', 'garage', 'generic'
   ];
-  return validTypes.includes(type as RoomType);
+  return validTypes.includes(type as RoomType) || type === 'generic';
 }

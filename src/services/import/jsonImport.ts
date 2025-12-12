@@ -87,12 +87,17 @@ function regenerateIds(floorplan: Floorplan): Floorplan {
     room.id = newId;
 
     // Regenerate door/window IDs
-    room.doors.forEach(door => {
-      door.id = uuidv4();
-    });
-    room.windows.forEach(window => {
-      window.id = uuidv4();
-    });
+    // The Room type doesn't have doors/windows, but if they are nested in import (legacy), we handle it
+    if ((room as any).doors) {
+      (room as any).doors.forEach((door: any) => {
+        door.id = uuidv4();
+      });
+    }
+    if ((room as any).windows) {
+      (room as any).windows.forEach((window: any) => {
+        window.id = uuidv4();
+      });
+    }
   });
 
   // Update connections with new room IDs

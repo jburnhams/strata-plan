@@ -60,6 +60,7 @@ const DEFAULT_ROOM_DIMENSIONS: Record<RoomType, { length: number; width: number 
   hallway: { length: 3, width: 1.5 },
   closet: { length: 2, width: 1.5 },
   garage: { length: 6, width: 3 },
+  generic: { length: 4, width: 4 },
   other: { length: 3, width: 3 },
 };
 

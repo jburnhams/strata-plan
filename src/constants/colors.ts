@@ -17,6 +17,7 @@ export const ROOM_TYPE_COLORS: Record<RoomType, string> = {
   hallway: '#e5e7eb', // Light gray
   closet: '#f5d0fe', // Light pink
   garage: '#d1d5db', // Gray
+  generic: '#e5e7eb', // Light gray
   other: '#f3f4f6', // Very light gray
 };
 
@@ -34,6 +35,7 @@ export const ROOM_TYPE_COLORS_COLORBLIND: Record<RoomType, string> = {
   hallway: '#9CA3AF', // Medium gray
   closet: '#E879F9', // Magenta
   garage: '#6B7280', // Dark gray
+  generic: '#9CA3AF', // Medium gray
   other: '#D1D5DB', // Light gray
 };
 

@@ -5,6 +5,7 @@ import { addToImportHistory } from '../services/import/history';
 import { useToast } from '../hooks/use-toast';
 import { useProject } from '../hooks/useProject';
 import { useDialogStore } from '../stores/dialogStore';
+import { saveProject } from '../services/storage/projectStorage';
 
 export interface UseImportReturn {
   importFile: (file: File, options?: ImportOptions) => Promise<ImportResult>;
@@ -27,7 +28,7 @@ export function useImport(): UseImportReturn {
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
 
   const { loadFloorplan } = useFloorplanStore();
-  const { saveProject } = useProject();
+  // const { saveProject } = useProject(); // useProject does not export saveProject
   const { closeDialog } = useDialogStore();
   const { toast } = useToast();
 
@@ -92,7 +93,7 @@ export function useImport(): UseImportReturn {
       });
 
       // Close the dialog on success
-      closeDialog('import-project');
+      closeDialog();
 
       setIsImporting(false);
       return result;

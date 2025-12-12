@@ -20,7 +20,7 @@ export function useNavigation() {
   const setCurrentView = useNavigationStore((state) => state.setCurrentView);
 
   const createFloorplan = useFloorplanStore((state) => state.createFloorplan);
-  const loadFloorplan = useFloorplanStore((state) => state.setFloorplan);
+  const loadFloorplan = useFloorplanStore((state) => state.loadFloorplan);
 
   // Dialog store might be used for unsaved changes confirmation in future
   // const openDialog = useDialogStore((state) => state.openDialog);
