@@ -420,7 +420,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Subtasks
 
-- [ ] **4.10.1** Create measurement display:
+- [x] **4.10.1** Create measurement display:
   - Show dimensions on selected room edges
   - Format: "5.0 m" with unit from project settings
 
