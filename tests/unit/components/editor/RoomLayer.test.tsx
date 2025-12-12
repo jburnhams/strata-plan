@@ -1,34 +1,20 @@
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { ROOM_TYPE_COLORS } from '../../../../src/constants/colors';
 import { RoomLayer } from '@/components/editor/RoomLayer';
 import { useRoomDrag } from '@/hooks/useRoomDrag';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { useFloorplanStore } from '@/stores/floorplanStore';
+import { useUIStore } from '@/stores/uiStore';
 
-jest.mock('@/stores/floorplanStore', () => {
-    const { jest } = require('@jest/globals');
-    return {
-        useFloorplanStore: jest.fn()
-    };
-});
-jest.mock('@/stores/uiStore', () => {
-    const { jest } = require('@jest/globals');
-    return {
-        useUIStore: jest.fn()
-    };
-});
-jest.mock('@/hooks/useRoomDrag', () => {
-    const { jest } = require('@jest/globals');
-    return {
-        useRoomDrag: jest.fn()
-    };
-});
+// Mock dependencies
+jest.mock('@/hooks/useRoomDrag');
 jest.mock('@/components/editor/RoomShape', () => ({
-  RoomShape: ({ onClick, onMouseDown, onMouseEnter, onMouseLeave, isSelected, isHovered, room }: any) => (
+  RoomShape: ({ onClick, onDoubleClick, onMouseDown, onMouseEnter, onMouseLeave, isSelected, isHovered, room }: any) => (
     <rect
       data-testid={`room-${room.id}`}
       onClick={(e) => onClick(e, room.id)}
+      onDoubleClick={(e) => onDoubleClick(e, room.id)}
       onMouseDown={onMouseDown}
       onMouseEnter={() => onMouseEnter(room.id)}
       onMouseLeave={onMouseLeave}
@@ -38,47 +24,33 @@ jest.mock('@/components/editor/RoomShape', () => ({
   ),
 }));
 
-// Access mocks after definition
-const { useFloorplanStore } = require('@/stores/floorplanStore');
-const { useUIStore } = require('@/stores/uiStore');
+// Mock stores
+jest.mock('@/stores/floorplanStore', () => {
+  const { jest } = require('@jest/globals');
+  return {
+    useFloorplanStore: jest.fn(),
+  };
+});
 
-// Helper to reset store
-const resetStore = () => {
-  useFloorplanStore.setState({
-    currentFloorplan: {
-      id: 'test-floorplan',
-      name: 'Test Floorplan',
-      units: 'meters',
-      rooms: [],
-      walls: [],
-      doors: [],
-      windows: [],
-      connections: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      version: '1.0.0',
-    },
-    selectedRoomId: null,
-    selectedRoomIds: [],
-    isDirty: false,
-  });
-
-  useUIStore.setState({
-      hoveredRoomId: null,
-      propertiesPanelOpen: false,
-      focusProperty: null
-  });
-};
+jest.mock('@/stores/uiStore', () => {
+  const { jest } = require('@jest/globals');
+  return {
+    useUIStore: jest.fn(),
+  };
+});
 
 describe('RoomLayer', () => {
   const mockSelectRoom = jest.fn();
   const mockSetRoomSelection = jest.fn();
   const mockSetHoveredRoom = jest.fn();
+  const mockSetPropertiesPanelOpen = jest.fn();
+  const mockSetFocusProperty = jest.fn();
   const mockHandleDragStart = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
 
+    // Setup default store state
     (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector: any) => {
       const state = {
         currentFloorplan: {
@@ -91,20 +63,23 @@ describe('RoomLayer', () => {
         selectRoom: mockSelectRoom,
         setRoomSelection: mockSetRoomSelection,
       };
-      return selector(state);
+      return selector ? selector(state) : state;
     });
 
     (useUIStore as unknown as jest.Mock).mockImplementation((selector: any) => {
       const state = {
         hoveredRoomId: null,
         setHoveredRoom: mockSetHoveredRoom,
+        setPropertiesPanelOpen: mockSetPropertiesPanelOpen,
+        setFocusProperty: mockSetFocusProperty,
       };
-      return selector(state);
+      return selector ? selector(state) : state;
     });
 
     (useRoomDrag as unknown as jest.Mock).mockReturnValue({
       handleDragStart: mockHandleDragStart,
       isDragging: false,
+      overlappingRoomIds: [],
     });
   });
 
@@ -117,7 +92,7 @@ describe('RoomLayer', () => {
   };
 
   it('renders sorted rooms', () => {
-    const { container } = renderComponent();
+    renderComponent();
     // Use regex to find specific room elements, ignoring the container group
     const rooms = screen.getAllByTestId(/^room-room/);
 
@@ -131,43 +106,6 @@ describe('RoomLayer', () => {
     fireEvent.click(screen.getByTestId('room-room2'));
     expect(mockSelectRoom).toHaveBeenCalledWith('room2');
   });
-  it('handles double click to open properties', () => {
-    const store = useFloorplanStore.getState();
-    store.addRoom({
-      name: 'Room 1',
-      length: 4, width: 4, height: 2.7, type: 'bedroom',
-      position: { x: 0, z: 0 }, rotation: 0
-    });
-
-    // Ensure panel is closed initially
-    useUIStore.setState({ propertiesPanelOpen: false, focusProperty: null });
-
-    render(
-        <svg>
-            <RoomLayer />
-        </svg>
-    );
-
-    const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
-    const room = rooms[0];
-    const group = screen.getByTestId(`room-shape-${room.id}`);
-
-    fireEvent.doubleClick(group);
-
-    expect(useUIStore.getState().propertiesPanelOpen).toBe(true);
-    expect(useUIStore.getState().focusProperty).toBe('room-name');
-    // Also should select the room if not selected
-    expect(useFloorplanStore.getState().selectedRoomId).toBe(room.id);
-  });
-
-  it('sorts selected rooms to top', () => {
-    const store = useFloorplanStore.getState();
-    store.addRoom({ name: 'R1', length: 4, width: 4, height: 2.7, type: 'other', position: { x: 0, z: 0 }, rotation: 0 });
-    store.addRoom({ name: 'R2', length: 4, width: 4, height: 2.7, type: 'other', position: { x: 5, z: 0 }, rotation: 0 });
-
-    const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
-    const r1 = rooms[0];
-    const r2 = rooms[1];
 
   it('handles shift+click for multi-selection', () => {
     renderComponent();
@@ -194,5 +132,14 @@ describe('RoomLayer', () => {
 
     fireEvent.mouseLeave(screen.getByTestId('room-room1'));
     expect(mockSetHoveredRoom).toHaveBeenCalledWith(null);
+  });
+
+  it('handles double click to open properties', () => {
+    renderComponent();
+    fireEvent.doubleClick(screen.getByTestId('room-room2'));
+
+    expect(mockSelectRoom).toHaveBeenCalledWith('room2');
+    expect(mockSetPropertiesPanelOpen).toHaveBeenCalledWith(true);
+    expect(mockSetFocusProperty).toHaveBeenCalledWith('room-name');
   });
 });

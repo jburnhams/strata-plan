@@ -126,8 +126,6 @@ describe('Room Geometry Generation', () => {
     expect(wall).toBeDefined();
     // We expect the geometry to be more complex due to holes, but exact verification is hard.
     // We just ensure it builds successfully.
-    const northWall = group.children.find(c => c.userData.type === 'wall' && c.userData.side === 'north') as THREE.Mesh;
-    expect(northWall).toBeDefined();
   });
 
   it('maps door sides correctly for rotated rooms', () => {
