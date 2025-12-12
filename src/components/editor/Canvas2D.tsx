@@ -7,6 +7,7 @@ import { SelectionOverlay } from './SelectionOverlay';
 import { MeasurementOverlay } from './MeasurementOverlay';
 import { SnapIndicator } from './SnapIndicator';
 import { WallOverlay, WallPreview } from './WallOverlay';
+import { DoorTool } from './DoorTool';
 import { EditorToolbar } from './EditorToolbar';
 import { Position2D } from '../../types';
 import { useKeyboardSelection } from '../../hooks/useKeyboardSelection';
@@ -49,6 +50,7 @@ export function Canvas2D() {
           <SnapIndicator cursorPosition={cursorPosition} />
           <RoomLayer />
           <WallPreview isDrawing={isDrawing} startPoint={startPoint} currentPoint={currentPoint} />
+          <DoorTool cursorPosition={cursorPosition} />
           <SelectionOverlay />
           <MeasurementOverlay />
        </CanvasViewport>
