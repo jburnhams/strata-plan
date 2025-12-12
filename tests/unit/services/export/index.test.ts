@@ -1,10 +1,14 @@
 import { generateFilename, downloadBlob, exportFloorplan } from '../../../../src/services/export/index';
 import { exportToJSON } from '../../../../src/services/export/jsonExport';
+import { exportToGLTF } from '../../../../src/services/export/gltfExport';
 import { Floorplan } from '../../../../src/types/floorplan';
 
-// Mock jsonExport
+// Mock jsonExport and gltfExport
 jest.mock('../../../../src/services/export/jsonExport', () => ({
   exportToJSON: jest.fn()
+}));
+jest.mock('../../../../src/services/export/gltfExport', () => ({
+  exportToGLTF: jest.fn()
 }));
 
 describe('Export Service', () => {
@@ -118,9 +122,22 @@ describe('Export Service', () => {
         expect(exportToJSON).toHaveBeenCalledWith(mockFloorplan);
     });
 
+    it('should handle gltf export', async () => {
+        const link = document.createElement('a');
+        jest.spyOn(document, 'createElement').mockReturnValue(link);
+        jest.spyOn(document.body, 'appendChild').mockImplementation(() => link);
+        jest.spyOn(document.body, 'removeChild').mockImplementation(() => link);
+        (exportToGLTF as jest.Mock).mockResolvedValue(mockBlob);
+
+        await exportFloorplan(mockFloorplan, 'gltf');
+
+        expect(exportToGLTF).toHaveBeenCalledWith(mockFloorplan, undefined);
+    });
+
     it('should throw for unsupported formats', async () => {
-        await expect(exportFloorplan(mockFloorplan, 'gltf')).rejects.toThrow('GLTF export not implemented yet');
         await expect(exportFloorplan(mockFloorplan, 'pdf')).rejects.toThrow('PDF export not implemented yet');
+        // @ts-ignore
+        await expect(exportFloorplan(mockFloorplan, 'xyz')).rejects.toThrow('Unsupported export format: xyz');
     });
   });
 });

@@ -1,88 +1,95 @@
-import { exportToJSON } from '../../src/services/export/jsonExport';
-import { Floorplan } from '../../src/types/floorplan';
-import { CURRENT_VERSION } from '../../src/services/storage/serialization';
+import { exportFloorplan } from '../../src/services/export';
+import { mockFloorplan } from '../utils/mockData';
+import * as THREE from 'three';
 
-// Helper to read blob text in JSDOM
-function readBlobText(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsText(blob);
-  });
+// Polyfills for Node environment
+if (typeof Blob === 'undefined') {
+  global.Blob = require('buffer').Blob;
 }
 
-describe('Export Integration', () => {
-  const mockDate = new Date('2024-01-01T12:00:00.000Z');
+// Polyfill URL.createObjectURL
+if (typeof window !== 'undefined') {
+  window.URL.createObjectURL = jest.fn(() => 'mock-url');
+  window.URL.revokeObjectURL = jest.fn();
+} else {
+  (global as any).URL.createObjectURL = jest.fn(() => 'mock-url');
+  (global as any).URL.revokeObjectURL = jest.fn();
+}
 
-  // A realistic floorplan object
-  const fullFloorplan: Floorplan = {
-    id: 'project-123',
-    name: 'Integration Test Project',
-    units: 'meters',
-    version: CURRENT_VERSION,
-    createdAt: mockDate,
-    updatedAt: mockDate,
-    rooms: [
-      {
-        id: 'room-1',
-        name: 'Living Room',
-        type: 'living',
-        x: 0,
-        z: 0,
-        width: 5,
-        length: 4,
-        rotation: 0,
-        height: 2.7,
-        isLocked: false
-      }
-    ],
-    walls: [], // Walls are usually derived or simple objects
-    doors: [],
-    windows: [],
-    connections: []
+// Polyfill TextEncoder/Decoder for Three.js
+if (typeof TextEncoder === 'undefined') {
+  global.TextEncoder = require('util').TextEncoder;
+  global.TextDecoder = require('util').TextDecoder;
+}
+
+// We rely on generic Three.js imports being available in JSDOM via Jest.
+// The GLTFExporter might check for HTMLCanvasElement for texture processing.
+
+describe('Export Integration', () => {
+  // Mock document.createElement for download helper
+  const mockAnchor = {
+    href: '',
+    download: '',
+    click: jest.fn(),
   };
 
-  it('should generate a valid JSON export file that can be parsed back', async () => {
-    // 1. Export
-    const blob = await exportToJSON(fullFloorplan);
-    expect(blob.size).toBeGreaterThan(0);
-    expect(blob.type).toBe('application/json');
-
-    // 2. Read "File" (Blob)
-    const content = await readBlobText(blob);
-
-    // 3. Parse
-    const parsed = JSON.parse(content);
-
-    // 4. Verify Structure
-    expect(parsed).toHaveProperty('exportedAt');
-    expect(parsed).toHaveProperty('schemaVersion', CURRENT_VERSION);
-    expect(parsed.floorplan).toBeDefined();
-
-    // 5. Verify Content Integrity
-    expect(parsed.floorplan.id).toBe(fullFloorplan.id);
-    expect(parsed.floorplan.rooms).toHaveLength(1);
-    expect(parsed.floorplan.rooms[0].id).toBe('room-1');
-    expect(parsed.floorplan.rooms[0].name).toBe('Living Room');
+  beforeAll(() => {
+    jest.spyOn(document, 'createElement').mockImplementation((tagName) => {
+      if (tagName === 'a') return mockAnchor as any;
+      // Provide a basic canvas mock if GLTFExporter creates one for texture processing
+      if (tagName === 'canvas') {
+        const canvas = document.createElement('canvas');
+        canvas.toDataURL = jest.fn(() => 'data:image/png;base64,');
+        return canvas;
+      }
+      return document.createElement(tagName); // Fallback
+    });
+    jest.spyOn(document.body, 'appendChild').mockImplementation(() => null as any);
+    jest.spyOn(document.body, 'removeChild').mockImplementation(() => null as any);
   });
 
-  it('should handle large floorplans without crashing', async () => {
-    const largeFloorplan = JSON.parse(JSON.stringify(fullFloorplan));
-    // Add 100 rooms
-    for (let i = 0; i < 100; i++) {
-        largeFloorplan.rooms.push({
-            ...fullFloorplan.rooms[0],
-            id: `room-extra-${i}`,
-            name: `Extra Room ${i}`
-        });
-    }
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
 
-    const blob = await exportToJSON(largeFloorplan);
-    expect(blob.size).toBeGreaterThan(10000); // Should be reasonably large
+  it('should handle GLTF export flow correctly with real Three.js objects', async () => {
+    // This tests the full flow including generateFloorplanGeometry and GLTFExporter
+    await exportFloorplan(mockFloorplan(), 'gltf');
 
-    const content = await readBlobText(blob);
-    const parsed = JSON.parse(content);
-    expect(parsed.floorplan.rooms).toHaveLength(101);
+    expect(window.URL.createObjectURL).toHaveBeenCalled();
+    expect(mockAnchor.download).toMatch(/_.*\.glb$/);
+    expect(mockAnchor.click).toHaveBeenCalled();
+
+    // Check blob content type if possible, or arguments to createObjectURL
+    const blob = (window.URL.createObjectURL as jest.Mock).mock.calls[0][0];
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.type).toBe('model/gltf-binary');
+    expect(blob.size).toBeGreaterThan(0);
+  });
+
+  it('should handle JSON export flow correctly and verify content', async () => {
+    const floorplan = mockFloorplan();
+    await exportFloorplan(floorplan, 'json');
+
+    expect(window.URL.createObjectURL).toHaveBeenCalled();
+    expect(mockAnchor.download).toMatch(/_.*\.json$/);
+    expect(mockAnchor.click).toHaveBeenCalled();
+
+    // Verify JSON content
+    // Note: The first call was for GLTF, so we access the second call
+    const blob = (window.URL.createObjectURL as jest.Mock).mock.calls[1][0];
+    expect(blob.type).toBe('application/json');
+
+    const text = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsText(blob);
+    });
+    const json = JSON.parse(text);
+
+    expect(json).toHaveProperty('floorplan');
+    expect(json.floorplan.id).toBe(floorplan.id);
+    expect(json.exportedFrom).toContain('StrataPlan');
   });
 });

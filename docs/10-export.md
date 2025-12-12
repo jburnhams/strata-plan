@@ -116,12 +116,12 @@ The export system allows users to download their floorplans in multiple formats:
 
 ### Subtasks
 
-- [ ] **10.3.1** Install Three.js GLTFExporter:
+- [x] **10.3.1** Install Three.js GLTFExporter:
   ```typescript
   import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter'
   ```
 
-- [ ] **10.3.2** Create export function:
+- [x] **10.3.2** Create export function:
   ```typescript
   async function exportToGLTF(
     floorplan: Floorplan,
@@ -135,12 +135,12 @@ The export system allows users to download their floorplans in multiple formats:
   }
   ```
 
-- [ ] **10.3.3** Generate 3D scene for export:
+- [x] **10.3.3** Generate 3D scene for export:
   - Create Three.js scene from floorplan
   - Include all rooms, doors, windows
   - Apply materials
 
-- [ ] **10.3.4** Configure exporter:
+- [x] **10.3.4** Configure exporter:
   ```typescript
   const exporter = new GLTFExporter()
   exporter.parse(scene, (gltf) => {
@@ -148,25 +148,25 @@ The export system allows users to download their floorplans in multiple formats:
   }, { binary: options.binary })
   ```
 
-- [ ] **10.3.5** Handle binary vs JSON:
+- [x] **10.3.5** Handle binary vs JSON:
   - `.glb`: Binary format, smaller file
   - `.gltf`: JSON format, human-readable
   - Default to binary
 
-- [ ] **10.3.6** Include scene metadata:
+- [x] **10.3.6** Include scene metadata:
   - Project name in scene name
   - Room names as object names
 
-- [ ] **10.3.7** Texture embedding:
+- [x] **10.3.7** Texture embedding:
   - If includeTextures true, embed texture data
   - Otherwise, materials are solid colors
 
 ### Unit Tests
 
-- [ ] glTF export produces valid blob
-- [ ] Binary option produces .glb
-- [ ] Scene contains correct number of objects
-- [ ] Room names preserved
+- [x] glTF export produces valid blob
+- [x] Binary option produces .glb
+- [x] Scene contains correct number of objects
+- [x] Room names preserved
 
 ---
 
