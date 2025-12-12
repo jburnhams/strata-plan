@@ -17,7 +17,7 @@ jest.mock('@react-three/fiber', () => {
   const THREE = require('three');
 
   return {
-    Canvas: ({ children, onCreated }: any) => {
+    Canvas: ({ children, onCreated, frameloop }: any) => {
       React.useEffect(() => {
         if (onCreated) {
           onCreated({
@@ -30,7 +30,7 @@ jest.mock('@react-three/fiber', () => {
           });
         }
       }, [onCreated]);
-      return <div data-testid="r3f-canvas">{children}</div>;
+      return <div data-testid="r3f-canvas" data-frameloop={frameloop}>{children}</div>;
     },
     useThree: () => ({
       scene: new THREE.Scene(),
@@ -69,7 +69,11 @@ jest.mock('../../../../src/components/viewer/CameraControls', () => {
 
 // Mock ViewerControls
 jest.mock('../../../../src/components/viewer/ViewerControls', () => ({
-    ViewerControls: () => <div data-testid="viewer-controls" />
+    ViewerControls: ({ onToggleFirstPerson }: any) => (
+        <div data-testid="viewer-controls">
+            <button data-testid="toggle-fp-btn" onClick={onToggleFirstPerson}>Toggle FP</button>
+        </div>
+    )
 }));
 
 describe('Viewer3D', () => {
@@ -171,5 +175,26 @@ describe('Viewer3D', () => {
       // When error is null, it renders Canvas.
       expect(screen.queryByText('WebGL context lost')).not.toBeInTheDocument();
       expect(screen.getByTestId('r3f-canvas')).toBeInTheDocument();
+  });
+
+  it('toggles frameloop based on first person mode', async () => {
+      render(<Viewer3D />);
+
+      await act(async () => {
+          await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+
+      const canvas = screen.getByTestId('r3f-canvas');
+      expect(canvas).toHaveAttribute('data-frameloop', 'demand');
+
+      // Toggle First Person Mode
+      const toggleBtn = screen.getByTestId('toggle-fp-btn');
+      fireEvent.click(toggleBtn);
+
+      expect(canvas).toHaveAttribute('data-frameloop', 'always');
+
+      // Toggle back
+      fireEvent.click(toggleBtn);
+      expect(canvas).toHaveAttribute('data-frameloop', 'demand');
   });
 });
