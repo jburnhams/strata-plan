@@ -1,6 +1,7 @@
 import { initDatabase, StoredProject } from './database';
-import { serializeFloorplan, deserializeFloorplan } from './serialization';
+import { serializeFloorplan, deserializeFloorplan, CURRENT_VERSION } from './serialization';
 import { generateThumbnail } from './thumbnails';
+import { migrateData } from './migrations';
 import { Floorplan, FloorplanMetadata } from '@/types/floorplan';
 
 export interface ProjectMetadata extends FloorplanMetadata {}
@@ -52,8 +53,35 @@ export const loadProject = async (id: string): Promise<Floorplan | null> => {
   if (!stored) return null;
 
   try {
-      // TODO: Add migration logic here in future tasks
-      return deserializeFloorplan(stored.data);
+      // Check for migration
+      let data = stored.data;
+      const storedVersion = data.version || '0.0.0';
+
+      if (storedVersion !== CURRENT_VERSION) {
+          console.log(`Migrating project ${id} from ${storedVersion} to ${CURRENT_VERSION}`);
+          data = migrateData(data, CURRENT_VERSION);
+
+          // Note: We don't automatically save back here to avoid unintentional side effects on load.
+          // The application should decide when to persist the migrated data (e.g. on next save).
+          // However, the requirements say "Save migrated data back".
+          // So I will implement that, but be careful.
+
+          // Deserialize first to ensure it's valid
+          const floorplan = deserializeFloorplan(data);
+
+          // Update the stored record with migrated data
+          // We preserve original timestamps unless migration changed them
+          stored.data = data;
+          stored.version = CURRENT_VERSION;
+
+          // We can run this async without awaiting if we don't want to block load,
+          // but safer to await to ensure consistency.
+          await db.put('projects', stored);
+
+          return floorplan;
+      }
+
+      return deserializeFloorplan(data);
   } catch (error) {
       console.error(`Failed to deserialize project ${id}:`, error);
       throw new Error(`Failed to load project: ${(error as Error).message}`);
@@ -62,10 +90,6 @@ export const loadProject = async (id: string): Promise<Floorplan | null> => {
 
 /**
  * Updates an existing project.
- * This is effectively the same as saveProject but checks existence first?
- * The requirements distinguish them, likely for semantic reasons or specific validations.
- * For now, we will just use saveProject logic but ensure we update timestamps if not handled by caller.
- * Actually, the caller (store) usually handles updating the 'updatedAt' field on the object before saving.
  */
 export const updateProject = async (id: string, floorplan: Floorplan): Promise<void> => {
     if (id !== floorplan.id) {
@@ -102,21 +126,8 @@ export const listProjects = async (): Promise<ProjectMetadata[]> => {
     // getAllFromIndex returns in ascending order (oldest first). We want newest first.
     return projects.reverse().map(p => {
         // Safe access using SerializedFloorplan type structure
-        // Note: p.data is typed as SerializedFloorplan in StoredProject
-        // However, SerializedFloorplan is defined in another file and has unknown property access if not imported carefully?
-        // No, SerializedFloorplan is imported. But deserialization might be needed if we want strict typing?
-        // Actually SerializedFloorplan interface defines rooms as Room[] (inherited from Omit<Floorplan...>) so it should be fine.
-        // Wait, SerializedFloorplan omits createdAt/updatedAt but keeps rooms.
-        // But database.ts defines SerializedFloorplan as 'unknown' initially.
-        // Ah, I updated database.ts to import the real one.
-        // But StoredProject uses SerializedFloorplan from './serialization'.
-        // Let's ensure types are correct.
-        const data = p.data as any; // Using any for safety if types are misaligned, but cleaner would be:
-        // const roomCount = (p.data as unknown as { rooms: any[] }).rooms?.length || 0;
-        // But if types align:
-        // const roomCount = p.data.rooms.length;
+        const data = p.data as any;
 
-        // Let's assume dynamic access for robustness against data corruption
         const rooms = (data && Array.isArray(data.rooms)) ? data.rooms : [];
 
         const totalArea = rooms.reduce((sum: number, room: any) => {
