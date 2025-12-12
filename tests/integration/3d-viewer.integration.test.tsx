@@ -120,8 +120,12 @@ jest.mock('@react-three/drei', () => ({
 
 // Mock RoomMesh
 jest.mock('../../src/components/viewer/RoomMesh', () => ({
-    RoomMesh: ({ room, isSelected }: any) => (
-        <div data-testid={`room-mesh-${room.id}`} data-selected={isSelected ? "true" : "false"}>
+    RoomMesh: ({ room, isSelected, quality }: any) => (
+        <div
+            data-testid={`room-mesh-${room.id}`}
+            data-selected={isSelected ? "true" : "false"}
+            data-quality={quality}
+        >
             {room.name}
         </div>
     )
@@ -229,6 +233,18 @@ describe('3D Viewer Integration', () => {
 
         await waitFor(() => {
              expect(screen.getByTestId('room-mesh-room-1')).toHaveAttribute('data-selected', 'true');
+        }, { timeout: 3000 });
+    });
+
+    it('passes quality setting to RoomMesh', async () => {
+        render(
+            <Viewer3D>
+                <SceneManager quality="low" />
+            </Viewer3D>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByTestId('room-mesh-room-1')).toHaveAttribute('data-quality', 'low');
         }, { timeout: 3000 });
     });
 });

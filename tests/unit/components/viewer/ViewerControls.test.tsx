@@ -27,7 +27,7 @@ jest.mock('lucide-react', () => ({
 
 // Mock UI Store
 const mockSetViewerBrightness = jest.fn();
-const mockSetViewerShadowQuality = jest.fn();
+const mockSetViewerQuality = jest.fn();
 const mockSetViewerWallOpacity = jest.fn();
 const mockToggleGrid = jest.fn();
 const mockToggleRoomLabels = jest.fn();
@@ -40,8 +40,8 @@ jest.mock('@/stores/uiStore', () => ({
     toggleRoomLabels: mockToggleRoomLabels,
     viewerBrightness: 1.0,
     setViewerBrightness: mockSetViewerBrightness,
-    viewerShadowQuality: 'medium',
-    setViewerShadowQuality: mockSetViewerShadowQuality,
+    viewerQuality: 'medium',
+    setViewerQuality: mockSetViewerQuality,
     viewerWallOpacity: 1.0,
     setViewerWallOpacity: mockSetViewerWallOpacity,
   })),
@@ -171,11 +171,11 @@ describe('ViewerControls', () => {
     expect(mockSetViewerWallOpacity).toHaveBeenCalledWith(0.5);
   });
 
-  it('changes shadow quality', () => {
+  it('changes quality preset', () => {
       render(<ViewerControls cameraControlsRef={mockRef} />);
       const select = screen.getByTestId('select');
       fireEvent.change(select, { target: { value: 'high' } });
-      expect(mockSetViewerShadowQuality).toHaveBeenCalledWith('high');
+      expect(mockSetViewerQuality).toHaveBeenCalledWith('high');
   });
 
   it('calls setPreset when preset buttons are clicked', () => {
