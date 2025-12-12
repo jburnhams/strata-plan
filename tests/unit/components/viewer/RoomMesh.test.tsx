@@ -118,7 +118,7 @@ describe('RoomMesh Component', () => {
     expect(screen.queryByTestId('room-label')).not.toBeInTheDocument();
   });
 
-  it('updates opacity when wallOpacity changes (single material)', () => {
+  it('passes wallOpacity to generateRoomGeometry', () => {
     const { rerender } = render(
         <RoomMesh
             room={mockRoom}
@@ -128,8 +128,8 @@ describe('RoomMesh Component', () => {
         />
     );
 
-    expect(currentMockMesh.material.transparent).toBe(true);
-    expect(currentMockMesh.material.opacity).toBe(0.5);
+    const { generateRoomGeometry } = require('../../../../src/services/geometry3d/roomGeometry');
+    expect(generateRoomGeometry).toHaveBeenCalledWith(mockRoom, [], [], 0.5);
 
     rerender(
         <RoomMesh
@@ -140,25 +140,7 @@ describe('RoomMesh Component', () => {
         />
     );
 
-    expect(currentMockMesh.material.opacity).toBe(0.8);
-  });
-
-  it('updates opacity when wallOpacity changes (array material)', () => {
-    currentMockMesh = createMockMesh(true);
-
-    render(
-        <RoomMesh
-            room={mockRoom}
-            isSelected={false}
-            onSelect={mockOnSelect}
-            wallOpacity={0.5}
-        />
-    );
-
-    expect(currentMockMesh.material[0].transparent).toBe(true);
-    expect(currentMockMesh.material[0].opacity).toBe(0.5);
-    expect(currentMockMesh.material[1].transparent).toBe(true);
-    expect(currentMockMesh.material[1].opacity).toBe(0.5);
+    expect(generateRoomGeometry).toHaveBeenCalledWith(mockRoom, [], [], 0.8);
   });
 
   it('highlights room when selected', () => {
