@@ -12,6 +12,11 @@ export interface StoredProject {
   version: string; // schema version
 }
 
+export interface StoredSettings {
+    key: string;
+    value: unknown;
+}
+
 export interface StrataPlanDB extends DBSchema {
   projects: {
     key: string; // project ID
@@ -23,7 +28,7 @@ export interface StrataPlanDB extends DBSchema {
   };
   settings: {
     key: string;
-    value: unknown;
+    value: StoredSettings;
   };
 }
 

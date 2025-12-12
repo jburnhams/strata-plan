@@ -36,8 +36,44 @@ export function useProject(id: string | null): UseProjectResult {
   }, [id]);
 
   useEffect(() => {
-    fetchProject();
-  }, [fetchProject]);
+    let isActive = true;
+
+    const load = async () => {
+        if (!id) {
+            if (isActive) {
+                setProject(null);
+                setLoading(false);
+            }
+            return;
+        }
+
+        if (isActive) setLoading(true);
+        if (isActive) setError(null);
+
+        try {
+            const data = await loadProject(id);
+            if (isActive) {
+                setProject(data);
+            }
+        } catch (err) {
+            if (isActive) {
+                console.error('Error loading project:', err);
+                setError(err instanceof Error ? err : new Error('Unknown error loading project'));
+                setProject(null);
+            }
+        } finally {
+            if (isActive) {
+                setLoading(false);
+            }
+        }
+    };
+
+    load();
+
+    return () => {
+        isActive = false;
+    };
+  }, [id]);
 
   return { project, loading, error, reload: fetchProject };
 }

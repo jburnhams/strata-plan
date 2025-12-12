@@ -415,7 +415,7 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Return stored settings
   - Apply defaults for missing values
 
-- [x] **9.8.4** Sync with UI store:
+- [ ] **9.8.4** Sync with UI store:
   - Load settings into uiStore on app start
   - Save settings when uiStore changes
 
@@ -481,7 +481,7 @@ This section implements client-side persistence using IndexedDB. All project dat
   }
   ```
 
-- [x] **9.10.2** Initialize on app start:
+- [ ] **9.10.2** Initialize on app start:
   - Call in App.tsx or main.tsx
   - Load settings into stores
   - Handle initialization errors
