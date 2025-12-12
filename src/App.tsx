@@ -4,8 +4,6 @@ import { ThemeProvider } from './components/layout/ThemeProvider';
 import { RoomTable } from './components/table/RoomTable';
 import { Canvas2D } from './components/editor/Canvas2D';
 import { Viewer3D } from './components/viewer/Viewer3D';
-import { CameraControls, CameraControlsRef } from './components/viewer/CameraControls';
-import { ViewerControls } from './components/viewer/ViewerControls';
 import { Lighting } from './components/viewer/Lighting';
 import { SceneManager } from './components/viewer/SceneManager';
 import { Environment } from './components/viewer/Environment';
@@ -24,10 +22,9 @@ function App() {
     showGrid,
     showRoomLabels,
     viewerBrightness,
-    viewerShadowQuality,
+    viewerQuality,
     viewerWallOpacity
   } = useUIStore();
-  const cameraControlsRef = useRef<CameraControlsRef>(null);
 
   useEffect(() => {
     if (!currentFloorplan) {
@@ -50,22 +47,17 @@ function App() {
               <div className="h-full w-full relative">
                 <Viewer3D>
                   <Environment showGrid={showGrid} />
-                  <CameraControls ref={cameraControlsRef} />
                   <Lighting
                     brightness={viewerBrightness}
-                    castShadows={viewerShadowQuality !== 'off'}
-                    shadowMapSize={
-                      viewerShadowQuality === 'high' ? 2048 :
-                      viewerShadowQuality === 'medium' ? 1024 :
-                      viewerShadowQuality === 'low' ? 512 : 2048
-                    }
+                    castShadows={viewerQuality !== 'low'}
+                    shadowMapSize={viewerQuality === 'high' ? 2048 : 1024}
                   />
                   <SceneManager
                     wallOpacity={viewerWallOpacity}
                     showLabels={showRoomLabels}
+                    quality={viewerQuality}
                   />
                 </Viewer3D>
-                <ViewerControls cameraControlsRef={cameraControlsRef} />
               </div>
             )}
           </div>

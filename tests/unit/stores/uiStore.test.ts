@@ -196,9 +196,9 @@ describe('UI Store', () => {
       expect(useUIStore.getState().viewerBrightness).toBe(1.5);
     });
 
-    it('should set viewer shadow quality', () => {
-      useUIStore.getState().setViewerShadowQuality('high');
-      expect(useUIStore.getState().viewerShadowQuality).toBe('high');
+    it('should set viewer quality', () => {
+      useUIStore.getState().setViewerQuality('high');
+      expect(useUIStore.getState().viewerQuality).toBe('high');
     });
 
     it('should set viewer wall opacity', () => {

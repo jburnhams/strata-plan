@@ -70,7 +70,7 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({
     showGrid, toggleGrid,
     showRoomLabels, toggleRoomLabels,
     viewerBrightness, setViewerBrightness,
-    viewerShadowQuality, setViewerShadowQuality,
+    viewerQuality, setViewerQuality,
     viewerWallOpacity, setViewerWallOpacity
   } = useUIStore();
 
@@ -341,19 +341,18 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({
 
               <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-1">
-                   <Label className="text-sm">Shadow Quality</Label>
+                   <Label className="text-sm">Quality Preset</Label>
                 </div>
                 <Select
-                  value={viewerShadowQuality}
-                  onValueChange={(val: any) => setViewerShadowQuality(val)}
+                  value={viewerQuality}
+                  onValueChange={(val: any) => setViewerQuality(val)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select quality" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="off">Off (Fastest)</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low (Fastest)</SelectItem>
+                    <SelectItem value="medium">Medium (Balanced)</SelectItem>
                     <SelectItem value="high">High (Best)</SelectItem>
                   </SelectContent>
                 </Select>
