@@ -125,9 +125,6 @@ describe('Room Geometry Generation', () => {
 
     const group = generateRoomGeometry(room, doors, []);
     const northWall = group.children.find(c => c.userData.type === 'wall' && c.userData.side === 'north') as THREE.Mesh;
-    // We can't easily check for holes in ShapeGeometry without complex logic, but we can assume if it runs without error it's likely working.
-    // Ideally we'd inspect the shape.
-    // The internal `addHole` function is called.
     expect(northWall).toBeDefined();
   });
 
@@ -172,6 +169,37 @@ describe('Room Geometry Generation', () => {
       const group = generateRoomGeometry(room, [], windows);
       const southWall = group.children.find(c => c.userData.type === 'wall' && c.userData.side === 'south');
       expect(southWall).toBeDefined();
+  });
+
+  it('applies wall opacity when specified', () => {
+    const opacity = 0.5;
+    const group = generateRoomGeometry(mockRoom, [], [], opacity);
+
+    const walls = group.children.filter(c => c.userData.type === 'wall');
+    expect(walls.length).toBeGreaterThan(0);
+
+    walls.forEach(wall => {
+      const mesh = wall as THREE.Mesh;
+      const material = mesh.material as THREE.MeshStandardMaterial;
+
+      expect(material.transparent).toBe(true);
+      expect(material.opacity).toBe(opacity);
+    });
+  });
+
+  it('uses default opacity (1.0) when not specified', () => {
+    const group = generateRoomGeometry(mockRoom);
+
+    const walls = group.children.filter(c => c.userData.type === 'wall');
+
+    walls.forEach(wall => {
+      const mesh = wall as THREE.Mesh;
+      const material = mesh.material as THREE.MeshStandardMaterial;
+
+      // Default behavior from materials.ts: if opacity is 1.0, transparent is not set (undefined)
+      expect(material.opacity).toBe(1.0);
+      expect(material.transparent).toBeFalsy();
+    });
   });
 });
 

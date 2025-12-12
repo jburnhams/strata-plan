@@ -8,9 +8,10 @@ import { createRoomMaterial } from './materials';
  * @param room The room to generate geometry for
  * @param doors List of all doors in the floorplan (will be filtered by roomId)
  * @param windows List of all windows in the floorplan (will be filtered by roomId)
+ * @param wallOpacity Opacity for the walls (0.0 to 1.0)
  * @returns A THREE.Group containing the room parts
  */
-export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Window[] = []): THREE.Group {
+export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Window[] = [], wallOpacity: number = 1.0): THREE.Group {
   const group = new THREE.Group();
 
   // Calculate effective dimensions based on rotation
@@ -101,7 +102,7 @@ export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Wi
   };
 
   // Create materials
-  const materials = createRoomMaterial(room);
+  const materials = createRoomMaterial(room, { quality: 'standard', wallOpacity });
 
   // --- Floor ---
   const floorShape = new THREE.Shape();

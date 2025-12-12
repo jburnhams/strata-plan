@@ -29,40 +29,7 @@ export const RoomMesh: React.FC<RoomMeshProps> = ({
   // But given constraints, I will keep the opacity logic here but optimized.
 
   const roomGroup = useMemo(() => {
-    const group = generateRoomGeometry(room);
-
-    // Efficiently update opacity without full regeneration if possible?
-    // generateRoomGeometry creates new geometries.
-    // If we want to support dynamic opacity without geometry rebuild, we should separate material creation.
-    // But for MVP, rebuilding on opacity change is acceptable if not frequent (slider use might lag).
-    // Reviewer noted this.
-
-    // To fix: Pass opacity to generateRoomGeometry?
-    // I need to update `generateRoomGeometry` signature.
-    // But I can't easily change that in this step without touching another file.
-    // I will apply the opacity post-creation as before but cleaner.
-
-    if (wallOpacity < 1.0) {
-       group.traverse((child) => {
-         if ((child as THREE.Mesh).isMesh && child.userData.type === 'wall') {
-            const mesh = child as THREE.Mesh;
-            const mat = mesh.material;
-            if (Array.isArray(mat)) {
-                mat.forEach(m => {
-                    m.transparent = true;
-                    m.opacity = wallOpacity;
-                    m.needsUpdate = true;
-                });
-            } else {
-                mat.transparent = true;
-                mat.opacity = wallOpacity;
-                mat.needsUpdate = true;
-            }
-         }
-       });
-    }
-
-    return group;
+    return generateRoomGeometry(room, [], [], wallOpacity);
   }, [room, wallOpacity]);
 
   // Clean up on unmount

@@ -31,9 +31,17 @@ jest.mock('../../../../src/components/editor/EditorToolbar', () => ({
   EditorToolbar: () => <div data-testid="mock-toolbar" />,
 }));
 
+// Mock hook
+jest.mock('../../../../src/hooks/useKeyboardSelection', () => ({
+  useKeyboardSelection: jest.fn(),
+}));
+import { useKeyboardSelection } from '../../../../src/hooks/useKeyboardSelection';
+
 describe('Canvas2D', () => {
   it('renders all child components', () => {
     render(<Canvas2D />);
+
+    expect(useKeyboardSelection).toHaveBeenCalled();
 
     expect(screen.getByTestId('mock-toolbar')).toBeInTheDocument();
     expect(screen.getByTestId('mock-viewport')).toBeInTheDocument();

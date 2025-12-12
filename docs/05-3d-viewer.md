@@ -377,7 +377,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Apply in single render frame
   - Prevents flickering
 
-- [ ] **5.8.6** Create "Regenerate Scene" function:
+- [x] **5.8.6** Create "Regenerate Scene" function:
   - Clears and rebuilds entire scene
   - Use when data structure changes significantly
 
@@ -415,24 +415,24 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Show grid toggle
   - Show labels toggle
 
-- [ ] **5.9.5** Download button:
+- [x] **5.9.5** Download button:
   - Export as glTF
   - Export as screenshot (PNG)
 
-- [ ] **5.9.6** Fullscreen toggle:
+- [x] **5.9.6** Fullscreen toggle:
   - Button to enter/exit fullscreen
   - Use Fullscreen API
 
-- [ ] **5.9.7** Help overlay:
+- [x] **5.9.7** Help overlay:
   - "?" button shows controls help
   - Lists mouse/keyboard controls
 
 ### Unit Tests
 
-- [ ] Preset buttons trigger camera changes
-- [ ] Brightness slider updates lighting
-- [ ] Download buttons work
-- [ ] Fullscreen toggles correctly
+- [x] Preset buttons trigger camera changes
+- [x] Brightness slider updates lighting
+- [x] Download buttons work
+- [x] Fullscreen toggles correctly
 
 ---
 
@@ -442,42 +442,42 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [ ] **5.10.1** Create first-person camera mode:
+- [x] **5.10.1** Create first-person camera mode:
   - Camera at eye height (1.6m)
   - Position inside a room
 
-- [ ] **5.10.2** Implement mouse look:
+- [x] **5.10.2** Implement mouse look:
   - Lock pointer on activation
   - Mouse X → rotate camera horizontally
   - Mouse Y → rotate camera vertically (limited)
 
-- [ ] **5.10.3** Implement WASD movement:
+- [x] **5.10.3** Implement WASD movement:
   - W: forward
   - S: backward
   - A: strafe left
   - D: strafe right
   - Smooth acceleration/deceleration
 
-- [ ] **5.10.4** Implement collision detection:
+- [x] **5.10.4** Implement collision detection:
   - Prevent walking through walls
   - Raycast in movement direction
   - Stop at wall surface
 
-- [ ] **5.10.5** Create mode toggle:
+- [x] **5.10.5** Create mode toggle:
   - Button to enter first-person mode
   - Escape to exit
   - Smooth transition animation
 
-- [ ] **5.10.6** Add movement speed control:
+- [x] **5.10.6** Add movement speed control:
   - Normal speed: 2m/s
   - Shift to run: 4m/s
 
 ### Unit Tests
 
-- [ ] First-person mode activates
-- [ ] WASD moves camera
-- [ ] Escape exits first-person mode
-- [ ] Collision prevents wall clipping
+- [x] First-person mode activates
+- [x] WASD moves camera
+- [x] Escape exits first-person mode
+- [x] Collision prevents wall clipping
 
 ---
 
@@ -502,7 +502,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Only render when camera moves or scene changes
   - Use dirty flag pattern
 
-- [ ] **5.11.5** Create performance monitor:
+- [x] **5.11.5** Create performance monitor:
   - FPS counter
   - Draw call count
   - Triangle count
@@ -519,7 +519,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Unit Tests
 
-- [ ] LOD switches at correct distances
+- [x] LOD switches at correct distances
 - [ ] Render-on-demand prevents unnecessary renders
 - [ ] Quality presets apply correct settings
 
@@ -533,11 +533,11 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 Note: Full WebGL testing may require special setup or mocking. Focus on:
 
-- [ ] **Scene initialization**: Create floorplan → viewer initializes without error
-- [ ] **Room rendering**: Add room to store → verify mesh created in scene
-- [ ] **Update sync**: Change room dimensions → verify geometry updates
+- [x] **Scene initialization**: Create floorplan → viewer initializes without error
+- [x] **Room rendering**: Add room to store → verify mesh created in scene
+- [x] **Update sync**: Change room dimensions → verify geometry updates
 - [ ] **Camera presets**: Click preset button → verify camera position changes
-- [ ] **Selection sync**: Select room in store → verify selection highlight in viewer
+- [x] **Selection sync**: Select room in store → verify selection highlight in viewer
 - [ ] **Memory cleanup**: Delete room → verify geometry disposed
 
 ---

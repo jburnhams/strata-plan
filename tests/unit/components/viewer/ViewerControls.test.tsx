@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { ViewerControls } from '@/components/viewer/ViewerControls';
 import { CameraControlsRef } from '@/components/viewer/CameraControls';
 
@@ -17,6 +17,12 @@ jest.mock('lucide-react', () => ({
   Type: () => <div data-testid="icon-type" />,
   Sun: () => <div data-testid="icon-sun" />,
   Layers: () => <div data-testid="icon-layers" />,
+  User: () => <div data-testid="icon-user" />,
+  Download: () => <div data-testid="icon-download" />,
+  Maximize: () => <div data-testid="icon-maximize" />,
+  HelpCircle: () => <div data-testid="icon-help" />,
+  FileImage: () => <div data-testid="icon-file-image" />,
+  FileBox: () => <div data-testid="icon-file-box" />,
 }));
 
 // Mock UI Store
@@ -46,8 +52,18 @@ jest.mock('@/components/ui/dropdown-menu', () => ({
   DropdownMenu: ({ children }: any) => <div>{children}</div>,
   DropdownMenuTrigger: ({ children }: any) => <div>{children}</div>,
   DropdownMenuContent: ({ children }: any) => <div data-testid="dropdown-content">{children}</div>,
+  DropdownMenuItem: ({ children, onClick }: any) => <div role="button" onClick={onClick}>{children}</div>,
   DropdownMenuLabel: ({ children }: any) => <div>{children}</div>,
   DropdownMenuSeparator: () => <hr />,
+}));
+
+jest.mock('@/components/ui/dialog', () => ({
+  Dialog: ({ children }: any) => <div>{children}</div>,
+  DialogTrigger: ({ children }: any) => <div>{children}</div>,
+  DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
+  DialogHeader: ({ children }: any) => <div>{children}</div>,
+  DialogTitle: ({ children }: any) => <div>{children}</div>,
+  DialogDescription: ({ children }: any) => <div>{children}</div>,
 }));
 
 jest.mock('@/components/ui/slider', () => ({
@@ -112,11 +128,17 @@ describe('ViewerControls', () => {
     expect(screen.getByTitle(/Zoom Out/)).toBeInTheDocument();
     expect(screen.getByTitle(/Reset/)).toBeInTheDocument();
     expect(screen.getByTitle(/View Settings/)).toBeInTheDocument();
+    expect(screen.getByTitle(/First Person Walk/)).toBeInTheDocument();
+    expect(screen.getByTitle(/Export/)).toBeInTheDocument();
+    expect(screen.getByTitle(/Toggle Fullscreen/)).toBeInTheDocument();
+    expect(screen.getByTitle(/Help/)).toBeInTheDocument();
   });
 
   it('renders settings menu content', () => {
     render(<ViewerControls cameraControlsRef={mockRef} />);
-    expect(screen.getByTestId('dropdown-content')).toBeInTheDocument();
+    // There are now multiple dropdowns, so we expect multiple contents
+    const contents = screen.getAllByTestId('dropdown-content');
+    expect(contents.length).toBeGreaterThan(0);
   });
 
   it('toggles grid setting', () => {
@@ -202,5 +224,37 @@ describe('ViewerControls', () => {
 
     fireEvent.keyDown(window, { key: 'r' });
     expect(mockControls.reset).toHaveBeenCalled();
+  });
+
+  it('toggles first person mode', () => {
+    const onToggle = jest.fn();
+    render(<ViewerControls cameraControlsRef={mockRef} isFirstPerson={false} onToggleFirstPerson={onToggle} />);
+
+    fireEvent.click(screen.getByTitle(/First Person Walk/));
+    expect(onToggle).toHaveBeenCalled();
+  });
+
+  it('disables controls in first person mode', () => {
+    render(<ViewerControls cameraControlsRef={mockRef} isFirstPerson={true} />);
+
+    expect(screen.getByTitle(/Isometric/)).toBeDisabled();
+    expect(screen.getByTitle(/Zoom In/)).toBeDisabled();
+
+    // Keyboard shortcuts should also be ignored
+    fireEvent.keyDown(window, { key: '1' });
+    expect(mockControls.setPreset).not.toHaveBeenCalled();
+  });
+
+  it('calls onToggleFullscreen when fullscreen button clicked', () => {
+    const onFullscreen = jest.fn();
+    render(<ViewerControls cameraControlsRef={mockRef} onToggleFullscreen={onFullscreen} />);
+
+    fireEvent.click(screen.getByTitle(/Toggle Fullscreen/));
+    expect(onFullscreen).toHaveBeenCalled();
+  });
+
+  it('renders help content', () => {
+    render(<ViewerControls cameraControlsRef={mockRef} />);
+    expect(screen.getByTestId('dialog-content')).toBeInTheDocument();
   });
 });

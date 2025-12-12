@@ -12,8 +12,10 @@ export const RoomLayer: React.FC = () => {
 
   const hoveredRoomId = useUIStore((state) => state.hoveredRoomId);
   const setHoveredRoom = useUIStore((state) => state.setHoveredRoom);
+  const setPropertiesPanelOpen = useUIStore((state) => state.setPropertiesPanelOpen);
+  const setFocusProperty = useUIStore((state) => state.setFocusProperty);
 
-  const { handleDragStart, isDragging } = useRoomDrag();
+  const { handleDragStart, isDragging, overlappingRoomIds } = useRoomDrag();
 
   const rooms = currentFloorplan?.rooms || [];
 
@@ -94,6 +96,19 @@ export const RoomLayer: React.FC = () => {
     }
   };
 
+  const handleRoomDoubleClick = (e: React.MouseEvent, roomId: string) => {
+    e.stopPropagation();
+
+    // Ensure room is selected
+    if (!selectedRoomIds.includes(roomId)) {
+      selectRoom(roomId);
+    }
+
+    // Open properties panel and focus name
+    setPropertiesPanelOpen(true);
+    setFocusProperty('room-name');
+  };
+
   const handleRoomMouseDown = (e: React.MouseEvent, roomId: string) => {
       handleDragStart(e, roomId);
       // We don't stop propagation here because handleDragStart does it.
@@ -107,7 +122,9 @@ export const RoomLayer: React.FC = () => {
           room={room}
           isSelected={selectedRoomIds.includes(room.id)}
           isHovered={hoveredRoomId === room.id}
+          isOverlapping={overlappingRoomIds?.includes(room.id)}
           onClick={handleRoomClick}
+          onDoubleClick={handleRoomDoubleClick}
           onMouseDown={(e) => handleRoomMouseDown(e, room.id)}
           onMouseEnter={setHoveredRoom}
           onMouseLeave={() => setHoveredRoom(null)}

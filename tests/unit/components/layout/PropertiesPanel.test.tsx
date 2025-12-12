@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { PropertiesPanel } from '../../../../src/components/layout/PropertiesPanel';
 import { useUIStore } from '../../../../src/stores/uiStore';
 import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
@@ -21,6 +21,7 @@ global.ResizeObserver = class ResizeObserver {
 
 describe('PropertiesPanel', () => {
   const mockTogglePropertiesPanel = jest.fn();
+  const mockSetFocusProperty = jest.fn();
   const mockUpdateRoom = jest.fn();
   const mockDeleteRoom = jest.fn();
   const mockUpdateWall = jest.fn();
@@ -33,9 +34,14 @@ describe('PropertiesPanel', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    (useUIStore as unknown as jest.Mock).mockReturnValue({
-      propertiesPanelOpen: true,
-      togglePropertiesPanel: mockTogglePropertiesPanel,
+    (useUIStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        propertiesPanelOpen: true,
+        togglePropertiesPanel: mockTogglePropertiesPanel,
+        focusProperty: null,
+        setFocusProperty: mockSetFocusProperty,
+      };
+      return selector ? selector(state) : state;
     });
 
     (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
@@ -65,9 +71,14 @@ describe('PropertiesPanel', () => {
   });
 
   it('renders nothing when closed', () => {
-    (useUIStore as unknown as jest.Mock).mockReturnValue({
-      propertiesPanelOpen: false,
-      togglePropertiesPanel: mockTogglePropertiesPanel,
+    (useUIStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        propertiesPanelOpen: false,
+        togglePropertiesPanel: mockTogglePropertiesPanel,
+        focusProperty: null,
+        setFocusProperty: mockSetFocusProperty,
+      };
+      return selector ? selector(state) : state;
     });
 
     const { container } = render(<PropertiesPanel />);
@@ -380,5 +391,71 @@ describe('PropertiesPanel', () => {
     expect(screen.getByTestId('window-properties-panel')).toBeInTheDocument();
     expect(screen.getByLabelText(/^Width/)).toHaveValue(1.2);
     expect(screen.getByLabelText(/^Height/)).toHaveValue(1.2);
+  });
+
+  it('focuses room name input when requested', async () => {
+    const mockRoom: Room = {
+      id: 'room-1',
+      name: 'Test Room',
+      type: 'bedroom',
+      length: 4,
+      width: 3,
+      height: 2.5,
+      position: { x: 0, z: 0 },
+      rotation: 0,
+    };
+
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        selectedRoomId: 'room-1',
+        selectedWallId: null,
+        selectedDoorId: null,
+        selectedWindowId: null,
+        currentFloorplan: { units: 'meters' },
+        getRoomCount: () => 1,
+        getTotalArea: () => 12,
+        getSelectedRoom: () => mockRoom,
+        updateRoom: mockUpdateRoom,
+        deleteRoom: mockDeleteRoom,
+      };
+      return selector(state);
+    });
+
+    // 1. Initial render with no focus request
+    (useUIStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        propertiesPanelOpen: true,
+        togglePropertiesPanel: mockTogglePropertiesPanel,
+        focusProperty: null,
+        setFocusProperty: mockSetFocusProperty,
+      };
+      return selector ? selector(state) : state;
+    });
+
+    const { rerender } = render(<PropertiesPanel />);
+
+    const input = screen.getByDisplayValue('Test Room');
+    // Spy on focus
+    const focusSpy = jest.spyOn(input, 'focus');
+    // Ensure document.getElementById finds this input
+    jest.spyOn(document, 'getElementById').mockReturnValue(input);
+
+    // 2. Update mock to request focus
+    (useUIStore as unknown as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        propertiesPanelOpen: true,
+        togglePropertiesPanel: mockTogglePropertiesPanel,
+        focusProperty: 'room-name',
+        setFocusProperty: mockSetFocusProperty,
+      };
+      return selector ? selector(state) : state;
+    });
+
+    // 3. Rerender to trigger effect
+    rerender(<PropertiesPanel />);
+
+    // 4. Verify
+    expect(focusSpy).toHaveBeenCalled();
+    expect(mockSetFocusProperty).toHaveBeenCalledWith(null);
   });
 });
