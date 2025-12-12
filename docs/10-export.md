@@ -25,7 +25,7 @@ The export system allows users to download their floorplans in multiple formats:
 
 ### Subtasks
 
-- [ ] **10.1.1** Create export service interface:
+- [x] **10.1.1** Create export service interface:
   ```typescript
   interface ExportService {
     exportJSON(floorplan: Floorplan): Promise<Blob>
@@ -35,7 +35,7 @@ The export system allows users to download their floorplans in multiple formats:
   }
   ```
 
-- [ ] **10.1.2** Create unified export function:
+- [x] **10.1.2** Create unified export function:
   ```typescript
   async function exportFloorplan(
     floorplan: Floorplan,
@@ -46,7 +46,7 @@ The export system allows users to download their floorplans in multiple formats:
   - Generates file
   - Triggers download
 
-- [ ] **10.1.3** Implement download helper:
+- [x] **10.1.3** Implement download helper:
   ```typescript
   function downloadBlob(blob: Blob, filename: string): void
   ```
@@ -54,7 +54,7 @@ The export system allows users to download their floorplans in multiple formats:
   - Triggers browser download
   - Cleans up URL
 
-- [ ] **10.1.4** Generate default filename:
+- [x] **10.1.4** Generate default filename:
   ```typescript
   function generateFilename(projectName: string, format: string): string
   ```
@@ -63,9 +63,9 @@ The export system allows users to download their floorplans in multiple formats:
 
 ### Unit Tests
 
-- [ ] Download helper triggers download
-- [ ] Filename generation handles special characters
-- [ ] Filename includes date
+- [x] Download helper triggers download
+- [x] Filename generation handles special characters
+- [x] Filename includes date
 
 ---
 
@@ -75,7 +75,7 @@ The export system allows users to download their floorplans in multiple formats:
 
 ### Subtasks
 
-- [ ] **10.2.1** Implement JSON export:
+- [x] **10.2.1** Implement JSON export:
   ```typescript
   async function exportToJSON(floorplan: Floorplan): Promise<Blob>
   ```
@@ -83,7 +83,7 @@ The export system allows users to download their floorplans in multiple formats:
   - Pretty-print with 2-space indentation
   - Return as Blob with MIME type `application/json`
 
-- [ ] **10.2.2** Include export metadata:
+- [x] **10.2.2** Include export metadata:
   ```typescript
   interface ExportedJSON {
     exportedAt: string  // ISO date
@@ -93,20 +93,20 @@ The export system allows users to download their floorplans in multiple formats:
   }
   ```
 
-- [ ] **10.2.3** Validate before export:
+- [x] **10.2.3** Validate before export:
   - Ensure required fields present
   - Log warnings for unusual data
 
-- [ ] **10.2.4** Calculate export size:
+- [x] **10.2.4** Calculate export size:
   - Return file size with export
   - Show in export dialog
 
 ### Unit Tests
 
-- [ ] JSON export produces valid JSON
-- [ ] Metadata included in export
-- [ ] Blob has correct MIME type
-- [ ] Re-import produces identical data
+- [x] JSON export produces valid JSON
+- [x] Metadata included in export
+- [x] Blob has correct MIME type
+- [x] Re-import produces identical data
 
 ---
 
