@@ -16,7 +16,7 @@ export const useRoomDrag = () => {
   const updateRoom = useFloorplanStore((state) => state.updateRoom);
   const selectRoom = useFloorplanStore((state) => state.selectRoom);
   const currentFloorplan = useFloorplanStore((state) => state.currentFloorplan);
-  const { toastWarning } = useToast();
+  const { toast } = useToast();
 
   const zoomLevel = useUIStore((state) => state.zoomLevel);
   const showGrid = useUIStore((state) => state.showGrid);
@@ -83,10 +83,9 @@ export const useRoomDrag = () => {
 
   }, []); // No deps, stable
 
-  // Wrapper to access fresh state/props (like toastWarning) without breaking add/remove listener logic?
-  // Actually, we can just use a ref for toastWarning.
-  const toastRef = useRef(toastWarning);
-  toastRef.current = toastWarning;
+  // Wrapper to access fresh state/props without breaking add/remove listener logic
+  const toastRef = useRef(toast);
+  toastRef.current = toast;
 
   const handleGlobalMouseUpWrapper = useCallback((e: MouseEvent) => {
      setIsDragging(false);
@@ -114,7 +113,11 @@ export const useRoomDrag = () => {
 
      if (anyOverlap) {
          if (typeof toastRef.current === 'function') {
-             toastRef.current("Rooms Overlapping", "Placement causes room overlap.");
+             toastRef.current({
+                title: "Rooms Overlapping",
+                description: "Placement causes room overlap.",
+                variant: "destructive"
+             });
          }
      }
 

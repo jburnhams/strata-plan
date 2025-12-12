@@ -14,7 +14,7 @@ jest.mock('../../../src/services/geometry/room');
 describe('useRoomDrag', () => {
   let mockUpdateRoom: jest.Mock;
   let mockSelectRoom: jest.Mock;
-  let mockToastWarning: jest.Mock;
+  let mockToast: jest.Mock;
   let mockDoRoomsOverlap: jest.Mock;
 
   const mockRoom = {
@@ -40,11 +40,11 @@ describe('useRoomDrag', () => {
 
     mockUpdateRoom = jest.fn();
     mockSelectRoom = jest.fn();
-    mockToastWarning = jest.fn();
+    mockToast = jest.fn();
     mockDoRoomsOverlap = (doRoomsOverlap as jest.Mock);
 
     (useToast as jest.Mock).mockReturnValue({
-      toastWarning: mockToastWarning
+      toast: mockToast
     });
 
     (useUIStore as unknown as jest.Mock).mockImplementation((selector) => {
@@ -99,7 +99,11 @@ describe('useRoomDrag', () => {
     });
 
     expect(mockDoRoomsOverlap).toHaveBeenCalled();
-    expect(mockToastWarning).toHaveBeenCalledWith("Rooms Overlapping", "Placement causes room overlap.");
+    expect(mockToast).toHaveBeenCalledWith({
+      title: "Rooms Overlapping",
+      description: "Placement causes room overlap.",
+      variant: "destructive"
+    });
   });
 
   it('should not show warning if no overlap', () => {
@@ -128,7 +132,7 @@ describe('useRoomDrag', () => {
     });
 
     expect(mockDoRoomsOverlap).toHaveBeenCalled();
-    expect(mockToastWarning).not.toHaveBeenCalled();
+    expect(mockToast).not.toHaveBeenCalled();
   });
 
 });
