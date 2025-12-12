@@ -251,7 +251,7 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Subtasks
 
-- [ ] **7.6.1** Create `DoorPropertiesPanel`:
+- [x] **7.6.1** Create `DoorPropertiesPanel`:
   - Width input with validation
   - Height input with validation
   - Type dropdown (single, double, sliding, etc.)
@@ -260,11 +260,11 @@ This section implements doors and windows as openings in walls. Doors connect ad
   - Preview showing door swing direction
   - Delete button
 
-- [ ] **7.6.2** Create door swing preview:
+- [x] **7.6.2** Create door swing preview:
   - Small SVG showing door swing arc
   - Updates as settings change
 
-- [ ] **7.6.3** Create `WindowPropertiesPanel`:
+- [x] **7.6.3** Create `WindowPropertiesPanel`:
   - Width input
   - Height input
   - Sill height input
@@ -273,19 +273,19 @@ This section implements doors and windows as openings in walls. Doors connect ad
   - Opening type dropdown
   - Delete button
 
-- [ ] **7.6.4** Position adjuster:
+- [x] **7.6.4** Position adjuster:
   - Slider to adjust position along wall
   - Or: drag handle in 2D view
 
-- [ ] **7.6.5** Room/Wall info display:
+- [x] **7.6.5** Room/Wall info display:
   - Show which room and wall the opening is on
   - For doors: show connected room
 
 ### Unit Tests
 
-- [ ] Door properties update store
-- [ ] Swing preview updates correctly
-- [ ] Window properties update store
+- [x] Door properties update store
+- [x] Swing preview updates correctly
+- [x] Window properties update store
 
 ---
 
@@ -448,9 +448,9 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Test Cases
 
-- [ ] **Door placement flow**: Activate tool → click wall → door created at position
-- [ ] **Door properties**: Select door → change type → verify 2D and 3D update
-- [ ] **Window placement**: Place window on wall → verify renders in both views
+- [x] **Door placement flow**: Activate tool → click wall → door created at position
+- [x] **Door properties**: Select door → change type → verify 2D and 3D update
+- [x] **Window placement**: Place window on wall → verify renders in both views
 - [ ] **Drag door**: Drag door along wall → verify position updates
 - [ ] **Connection linking**: Place door on shared wall → verify links to connection
 - [ ] **Delete cascade**: Delete room → verify its doors removed
