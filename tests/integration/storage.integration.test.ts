@@ -92,6 +92,11 @@ describe('Storage Integration', () => {
     expect(list[0].id).toBe('p2');
     expect(list[1].id).toBe('p1');
     expect(list[0].thumbnailDataUrl).toBeDefined();
+
+    // Verify totalArea calculation
+    // mockFloorplan has one room 5x4 = 20
+    expect(list[1].totalArea).toBe(20);
+    expect(list[0].totalArea).toBe(20);
   });
 
   it('updates existing project', async () => {

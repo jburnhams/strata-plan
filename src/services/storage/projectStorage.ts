@@ -119,11 +119,17 @@ export const listProjects = async (): Promise<ProjectMetadata[]> => {
         // Let's assume dynamic access for robustness against data corruption
         const rooms = (data && Array.isArray(data.rooms)) ? data.rooms : [];
 
+        const totalArea = rooms.reduce((sum: number, room: any) => {
+            const length = Number(room.length) || 0;
+            const width = Number(room.width) || 0;
+            return sum + (length * width);
+        }, 0);
+
         return {
             id: p.id,
             name: p.name,
             roomCount: rooms.length,
-            totalArea: 0, // TODO: Calculate area if needed, or store it in metadata
+            totalArea: Number(totalArea.toFixed(2)),
             updatedAt: p.updatedAt,
             thumbnailDataUrl: p.thumbnail
         };
