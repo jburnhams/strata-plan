@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Room, Floorplan, Door, Window } from '../../types';
 import { WallSide } from '../../types/geometry';
 import { createRoomMaterial } from './materials';
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 /**
  * Generate a 3D group representing a room, including floor, ceiling, and walls.
@@ -138,33 +139,29 @@ export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Wi
   group.add(ceilingMesh);
 
   // --- Walls ---
+  const wallGeometries: THREE.BufferGeometry[] = [];
+
   // North (Back): Min Z. Normal -Z.
   const northWallShape = createWallShape(widthX, height, 'north');
   const northWallGeo = new THREE.ShapeGeometry(northWallShape);
   // Face -Z. Rotate Y 180. Translate X by W.
   northWallGeo.rotateY(Math.PI);
   northWallGeo.translate(widthX, 0, 0);
-  const northWall = new THREE.Mesh(northWallGeo, materials.walls);
-  northWall.userData = { type: 'wall', side: 'north', roomId: room.id };
-  group.add(northWall);
+  wallGeometries.push(northWallGeo);
 
   // South (Front): Max Z. Normal +Z.
   const southWallShape = createWallShape(widthX, height, 'south');
   const southWallGeo = new THREE.ShapeGeometry(southWallShape);
   // Face +Z. Translate Z by D.
   southWallGeo.translate(0, 0, depthZ);
-  const southWall = new THREE.Mesh(southWallGeo, materials.walls);
-  southWall.userData = { type: 'wall', side: 'south', roomId: room.id };
-  group.add(southWall);
+  wallGeometries.push(southWallGeo);
 
   // West (Left): Min X. Normal -X.
   const westWallShape = createWallShape(depthZ, height, 'west');
   const westWallGeo = new THREE.ShapeGeometry(westWallShape);
   // Face -X. Rotate Y -90.
   westWallGeo.rotateY(-Math.PI / 2);
-  const westWall = new THREE.Mesh(westWallGeo, materials.walls);
-  westWall.userData = { type: 'wall', side: 'west', roomId: room.id };
-  group.add(westWall);
+  wallGeometries.push(westWallGeo);
 
   // East (Right): Max X. Normal +X.
   const eastWallShape = createWallShape(depthZ, height, 'east');
@@ -172,15 +169,23 @@ export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Wi
   // Face +X. Rotate Y 90. Translate X by W. Translate Z by D.
   eastWallGeo.rotateY(Math.PI / 2);
   eastWallGeo.translate(widthX, 0, depthZ);
-  const eastWall = new THREE.Mesh(eastWallGeo, materials.walls);
-  eastWall.userData = { type: 'wall', side: 'east', roomId: room.id };
-  group.add(eastWall);
+  wallGeometries.push(eastWallGeo);
 
-  // Cast shadows
-  [northWall, southWall, westWall, eastWall].forEach(wall => {
-    wall.castShadow = true;
-    wall.receiveShadow = true;
-  });
+  // Merge wall geometries
+  if (wallGeometries.length > 0) {
+    const mergedWallGeo = BufferGeometryUtils.mergeGeometries(wallGeometries);
+    // Dispose intermediate geometries
+    wallGeometries.forEach(g => g.dispose());
+
+    // Compute bounding sphere for culling
+    mergedWallGeo.computeBoundingSphere();
+
+    const wallsMesh = new THREE.Mesh(mergedWallGeo, materials.walls);
+    wallsMesh.userData = { type: 'wall', roomId: room.id };
+    wallsMesh.castShadow = true;
+    wallsMesh.receiveShadow = true;
+    group.add(wallsMesh);
+  }
 
   return group;
 }
