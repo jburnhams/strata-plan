@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { DoorType, DoorSwing, HandleSide } from '../../types/room';
+import { DoorType, DoorSwing, HandleSide } from '../../types';
 import { Trash2 } from 'lucide-react';
 
 const DOOR_TYPES: DoorType[] = ['single', 'double', 'sliding', 'pocket', 'bifold'];
