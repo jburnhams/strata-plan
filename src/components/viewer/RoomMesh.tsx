@@ -13,7 +13,7 @@ export interface RoomMeshProps {
   wallOpacity?: number; // 0.0 to 1.0
 }
 
-export const RoomMesh: React.FC<RoomMeshProps> = ({
+const RoomMeshComponent: React.FC<RoomMeshProps> = ({
   room,
   isSelected,
   onSelect,
@@ -23,29 +23,54 @@ export const RoomMesh: React.FC<RoomMeshProps> = ({
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
-  // Memoize materials update logic or pass to generator
-  // Ideally generateRoomGeometry should accept options.
-  // For now, to avoid "dead code" in materials factory, we should update the factory integration.
-  // But given constraints, I will keep the opacity logic here but optimized.
-
+  // Memoize geometry generation
   const roomGroup = useMemo(() => {
-    return generateRoomGeometry(room, [], [], wallOpacity);
+    const group = generateRoomGeometry(room);
+
+    // Apply opacity settings immediately after generation
+    if (wallOpacity < 1.0) {
+       group.traverse((child) => {
+         if ((child as THREE.Mesh).isMesh && child.userData.type === 'wall') {
+            const mesh = child as THREE.Mesh;
+            const mat = mesh.material;
+            if (Array.isArray(mat)) {
+                mat.forEach(m => {
+                    m.transparent = true;
+                    m.opacity = wallOpacity;
+                    m.needsUpdate = true;
+                });
+            } else {
+                mat.transparent = true;
+                mat.opacity = wallOpacity;
+                mat.needsUpdate = true;
+            }
+         }
+       });
+    }
+
+    return group;
   }, [room, wallOpacity]);
 
-  // Clean up on unmount
+  // Clean up resources when roomGroup changes or component unmounts
   useEffect(() => {
     return () => {
-        roomGroup.traverse((child) => {
-            if ((child as THREE.Mesh).isMesh) {
-                const mesh = child as THREE.Mesh;
-                mesh.geometry.dispose();
-                if (Array.isArray(mesh.material)) {
-                    mesh.material.forEach(m => m.dispose());
-                } else {
-                    mesh.material.dispose();
+        if (roomGroup) {
+            roomGroup.traverse((child) => {
+                if ((child as THREE.Mesh).isMesh) {
+                    const mesh = child as THREE.Mesh;
+                    if (mesh.geometry) {
+                        mesh.geometry.dispose();
+                    }
+                    if (mesh.material) {
+                        if (Array.isArray(mesh.material)) {
+                            mesh.material.forEach(m => m.dispose());
+                        } else {
+                            mesh.material.dispose();
+                        }
+                    }
                 }
-            }
-        });
+            });
+        }
     };
   }, [roomGroup]);
 
@@ -111,3 +136,6 @@ export const RoomMesh: React.FC<RoomMeshProps> = ({
     </group>
   );
 };
+
+// Optimization: Prevent re-rendering if props are the same
+export const RoomMesh = React.memo(RoomMeshComponent);

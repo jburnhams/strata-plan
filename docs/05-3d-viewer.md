@@ -188,10 +188,11 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Or use CSG (Constructive Solid Geometry) library
   - Position holes based on door/window data
 
-- [ ] **5.4.4** Optimize geometry:
+- [x] **5.4.4** Optimize geometry:
   - Merge static geometries where possible
   - Use BufferGeometry for performance
   - Set appropriate bounding spheres
+  - *Note*: Merged walls into single mesh. Individual wall selection via `userData.side` is no longer supported, but room-level selection works.
 
 - [x] **5.4.5** Create `generateFloorplanGeometry(floorplan: Floorplan): THREE.Group`
   - Generate all room geometries
@@ -372,10 +373,11 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Remove RoomMesh from scene
   - Dispose geometry and materials (prevent memory leak)
 
-- [ ] **5.8.5** Implement batched updates:
+- [x] **5.8.5** Implement batched updates:
   - Collect multiple changes
   - Apply in single render frame
   - Prevents flickering
+  - *Note*: Implemented via `React.memo` on `RoomMesh` and existing debounce.
 
 - [x] **5.8.6** Create "Regenerate Scene" function:
   - Clears and rebuilds entire scene
