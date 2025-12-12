@@ -1,6 +1,5 @@
 import { useRef, useEffect } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
-import { PointerLockControls } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Constants
@@ -10,7 +9,8 @@ const EYE_HEIGHT = 1.6; // m
 const COLLISION_DISTANCE = 0.5; // m
 
 export const useFirstPerson = (isEnabled: boolean) => {
-  const { camera } = useThree();
+  const { camera, scene } = useThree();
+
   const moveForward = useRef(false);
   const moveBackward = useRef(false);
   const moveLeft = useRef(false);
@@ -20,6 +20,9 @@ export const useFirstPerson = (isEnabled: boolean) => {
   // Track movement velocity for smooth transitions
   const velocity = useRef(new THREE.Vector3());
   const direction = useRef(new THREE.Vector3());
+
+  // Collision raycaster
+  const raycaster = useRef(new THREE.Raycaster());
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -101,28 +104,7 @@ export const useFirstPerson = (isEnabled: boolean) => {
     // Calculate speed
     const speed = isRunning.current ? RUN_SPEED : MOVE_SPEED;
 
-    // Apply damping/friction
-    velocity.current.x -= velocity.current.x * 10.0 * delta;
-    velocity.current.z -= velocity.current.z * 10.0 * delta;
-
-    // Determine direction
-    direction.current.z = Number(moveForward.current) - Number(moveBackward.current);
-    direction.current.x = Number(moveRight.current) - Number(moveLeft.current);
-    direction.current.normalize(); // ensure consistent speed in all directions
-
-    if (moveForward.current || moveBackward.current) {
-      velocity.current.z -= direction.current.z * 40.0 * delta * speed;
-    }
-    if (moveLeft.current || moveRight.current) {
-      velocity.current.x -= direction.current.x * 40.0 * delta * speed;
-    }
-
-    // Apply movement
-    // Note: PointerLockControls object is the camera for movement purposes usually,
-    // or we move the camera directly if using standard PointerLockControls logic.
-    // However, THREE.PointerLockControls usually handles the mouse look, but not movement.
-    // We need to move the camera relative to its local orientation.
-
+    // Determine movement direction relative to camera
     const forwardVector = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
     forwardVector.y = 0; // Lock movement to XZ plane
     forwardVector.normalize();
@@ -131,17 +113,51 @@ export const useFirstPerson = (isEnabled: boolean) => {
     rightVector.y = 0;
     rightVector.normalize();
 
-    // Move forward/back
-    if (moveForward.current) camera.position.addScaledVector(forwardVector, speed * delta);
-    if (moveBackward.current) camera.position.addScaledVector(forwardVector, -speed * delta);
+    // Calculate proposed movement vector
+    const moveVector = new THREE.Vector3(0, 0, 0);
 
-    // Move left/right
-    if (moveRight.current) camera.position.addScaledVector(rightVector, speed * delta);
-    if (moveLeft.current) camera.position.addScaledVector(rightVector, -speed * delta);
+    if (moveForward.current) moveVector.add(forwardVector);
+    if (moveBackward.current) moveVector.sub(forwardVector);
+    if (moveRight.current) moveVector.add(rightVector);
+    if (moveLeft.current) moveVector.sub(rightVector);
+
+    if (moveVector.lengthSq() > 0) {
+      moveVector.normalize().multiplyScalar(speed * delta);
+
+      // --- Collision Detection ---
+      // Raycast in the direction of movement
+      const rayDir = moveVector.clone().normalize();
+      raycaster.current.set(camera.position, rayDir);
+      raycaster.current.far = COLLISION_DISTANCE;
+
+      // Filter objects to intersect: we only care about meshes (walls)
+      // We explicitly exclude objects that are not walls to avoid floor sticking
+      // This is a naive heuristic: assume "Scene" contains "Group" (Rooms) which contain "Mesh" (Walls)
+      // We can also check if the object is visible
+
+      const intersects = raycaster.current.intersectObjects(scene.children, true);
+
+      const hitWall = intersects.some(hit => {
+         // Ignore helpers, lines, points
+         if (!(hit.object instanceof THREE.Mesh)) return false;
+
+         // Ignore invisible objects
+         if (!hit.object.visible) return false;
+
+         // Ignore the floor (usually a large plane at y=0, rotated -90deg x-axis)
+         // Or simple heuristic: if normal is pointing UP, it's floor/ceiling.
+         // Walls have normals mostly horizontal.
+         if (hit.face && Math.abs(hit.face.normal.y) > 0.9) return false;
+
+         return hit.distance < COLLISION_DISTANCE;
+      });
+
+      if (!hitWall) {
+         camera.position.add(moveVector);
+      }
+    }
 
     // Keep height constant (simple version, no gravity/stairs yet)
     camera.position.y = EYE_HEIGHT;
-
-    // TODO: Collision detection would go here
   });
 };

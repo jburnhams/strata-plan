@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFloorplanStore } from '../../stores/floorplanStore';
 import { RoomMesh } from './RoomMesh';
 import { useSceneSync } from '../../hooks/useSceneSync';
@@ -13,11 +13,14 @@ export const SceneManager: React.FC<SceneManagerProps> = ({
   showLabels = true
 }) => {
   // Use the sync hook to get debounced floorplan data
-  const { rooms } = useSceneSync(100);
+  const { rooms, sceneVersion } = useSceneSync(100);
 
   const selectedRoomId = useFloorplanStore(state => state.selectedRoomId);
   const selectedRoomIds = useFloorplanStore(state => state.selectedRoomIds);
   const selectRoom = useFloorplanStore(state => state.selectRoom);
+
+  // Force re-render of all meshes when sceneVersion changes
+  // We use the key prop on the group to force React to unmount and remount the children
 
   if (!rooms || rooms.length === 0) return null;
 
@@ -27,7 +30,7 @@ export const SceneManager: React.FC<SceneManagerProps> = ({
   };
 
   return (
-    <group>
+    <group key={`scene-${sceneVersion}`}>
       {rooms.map(room => (
         <RoomMesh
           key={room.id}
