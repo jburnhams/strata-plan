@@ -184,7 +184,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - 4 edge handles for single-axis resize
   - 1 rotation handle (circle above top edge)
 
-- [ ] **4.4.4** Implement keyboard selection:
+- [x] **4.4.4** Implement keyboard selection:
   - Arrow keys: move selection (when room selected)
   - Delete: delete selected rooms
   - Escape: deselect all
@@ -225,7 +225,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Snap to grid size from uiStore
   - Show snap feedback (line to snap point)
 
-- [ ] **4.5.3** Implement collision detection:
+- [x] **4.5.3** Implement collision detection:
   - Check for overlaps while dragging
   - Show warning indicator if overlapping
   - Allow placement but show warning toast

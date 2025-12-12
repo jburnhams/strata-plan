@@ -15,7 +15,7 @@ export const RoomLayer: React.FC = () => {
   const setPropertiesPanelOpen = useUIStore((state) => state.setPropertiesPanelOpen);
   const setFocusProperty = useUIStore((state) => state.setFocusProperty);
 
-  const { handleDragStart, isDragging } = useRoomDrag();
+  const { handleDragStart, isDragging, overlappingRoomIds } = useRoomDrag();
 
   const rooms = currentFloorplan?.rooms || [];
 
@@ -122,6 +122,7 @@ export const RoomLayer: React.FC = () => {
           room={room}
           isSelected={selectedRoomIds.includes(room.id)}
           isHovered={hoveredRoomId === room.id}
+          isOverlapping={overlappingRoomIds?.includes(room.id)}
           onClick={handleRoomClick}
           onDoubleClick={handleRoomDoubleClick}
           onMouseDown={(e) => handleRoomMouseDown(e, room.id)}

@@ -7,9 +7,13 @@ import { SelectionOverlay } from './SelectionOverlay';
 import { SnapIndicator } from './SnapIndicator';
 import { EditorToolbar } from './EditorToolbar';
 import { Position2D } from '../../types';
+import { useKeyboardSelection } from '../../hooks/useKeyboardSelection';
 
 export function Canvas2D() {
   const [cursorPosition, setCursorPosition] = useState<Position2D | null>(null);
+
+  // Enable keyboard selection/movement
+  useKeyboardSelection();
 
   return (
     <div className="flex-1 h-full flex flex-col relative" data-testid="canvas-2d">
