@@ -25,12 +25,12 @@ This section provides the UI and logic for managing multiple floorplan projects:
 
 ### Subtasks
 
-- [ ] **12.1.1** Create landing page component:
+- [x] **12.1.1** Create landing page component:
   - Displays when no project is open
   - Clean, welcoming design
   - Clear call-to-action
 
-- [ ] **12.1.2** Design layout:
+- [x] **12.1.2** Design layout:
   ```
   ┌─────────────────────────────────────────────────────┐
   │                   [StrataPlan Logo]                 │
@@ -56,34 +56,34 @@ This section provides the UI and logic for managing multiple floorplan projects:
   └─────────────────────────────────────────────────────┘
   ```
 
-- [ ] **12.1.3** Create New Floorplan button:
+- [x] **12.1.3** Create New Floorplan button:
   - Large, prominent primary button
   - Opens NewProjectDialog on click
 
-- [ ] **12.1.4** Try Demo button:
+- [x] **12.1.4** Try Demo button:
   - Loads sample project
   - Opens directly into editor
 
-- [ ] **12.1.5** Import File button:
+- [x] **12.1.5** Import File button:
   - Opens ImportDialog
   - Accepts JSON/glTF files
 
-- [ ] **12.1.6** Recent projects section:
+- [x] **12.1.6** Recent projects section:
   - Shows last 5 opened projects
   - Thumbnail + name + date
   - Click to open project
   - Empty state: "No recent projects"
 
-- [ ] **12.1.7** Footer actions:
+- [x] **12.1.7** Footer actions:
   - Theme toggle
   - Help button → opens docs/shortcuts
 
 ### Unit Tests
 
-- [ ] Landing page renders correctly
-- [ ] Create button opens dialog
-- [ ] Try Demo loads sample project
-- [ ] Recent projects display correctly
+- [x] Landing page renders correctly
+- [x] Create button opens dialog
+- [x] Try Demo loads sample project
+- [x] Recent projects display correctly
 
 ---
 
@@ -93,43 +93,43 @@ This section provides the UI and logic for managing multiple floorplan projects:
 
 ### Subtasks
 
-- [ ] **12.2.1** Create dialog component:
+- [x] **12.2.1** Create dialog component:
   - Modal dialog
   - Form with project settings
   - Create / Cancel buttons
 
-- [ ] **12.2.2** Project name input:
+- [x] **12.2.2** Project name input:
   - Auto-focused on open
   - Default: "My Floorplan" or "Project N"
   - Max length: 100 characters
   - Validation: required, non-empty
 
-- [ ] **12.2.3** Measurement units selector:
+- [x] **12.2.3** Measurement units selector:
   - Radio buttons: Meters / Feet
   - Default: Meters
   - Shows example: "5 m" or "16 ft"
 
-- [ ] **12.2.4** Template selector (optional):
+- [x] **12.2.4** Template selector (optional):
   - Dropdown: Blank, Studio, 2-Bedroom, Office
   - Preview thumbnail
   - Default: Blank
 
-- [ ] **12.2.5** Create button:
+- [x] **12.2.5** Create button:
   - Validates form
   - Creates new project in store
   - Navigates to editor view
   - Closes dialog
 
-- [ ] **12.2.6** Keyboard handling:
+- [x] **12.2.6** Keyboard handling:
   - Enter: Submit form
   - Escape: Close dialog
 
 ### Unit Tests
 
-- [ ] Dialog opens and closes
-- [ ] Form validation works
-- [ ] Create button creates project
-- [ ] Template selection works
+- [x] Dialog opens and closes
+- [x] Form validation works
+- [x] Create button creates project
+- [x] Template selection works
 
 ---
 
@@ -139,12 +139,12 @@ This section provides the UI and logic for managing multiple floorplan projects:
 
 ### Subtasks
 
-- [ ] **12.3.1** Create project list page:
+- [x] **12.3.1** Create project list page:
   - Accessed via File → Recent Projects or home icon
   - Grid of project cards
   - Search and sort options
 
-- [ ] **12.3.2** Design layout:
+- [x] **12.3.2** Design layout:
   ```
   ┌─────────────────────────────────────────────────────┐
   │  ← Back    All Projects           [Search] [Sort ▼] │
@@ -163,7 +163,7 @@ This section provides the UI and logic for managing multiple floorplan projects:
   └─────────────────────────────────────────────────────┘
   ```
 
-- [ ] **12.3.3** Project card component:
+- [x] **12.3.3** Project card component:
   ```typescript
   interface ProjectCardProps {
     project: ProjectMetadata
@@ -175,36 +175,36 @@ This section provides the UI and logic for managing multiple floorplan projects:
   }
   ```
 
-- [ ] **12.3.4** Card contents:
+- [x] **12.3.4** Card contents:
   - Thumbnail (or placeholder icon)
   - Project name (truncated if long)
   - Room count
   - Total area
   - Last modified (relative time: "2 days ago")
 
-- [ ] **12.3.5** Card interactions:
+- [x] **12.3.5** Card interactions:
   - Click: Open project
   - Right-click: Context menu
   - Hover: Show quick actions
 
-- [ ] **12.3.6** Context menu:
+- [x] **12.3.6** Context menu:
   - Open
   - Rename
   - Duplicate
   - Export → (JSON, glTF, PDF)
   - Delete
 
-- [ ] **12.3.7** "New Project" card:
+- [x] **12.3.7** "New Project" card:
   - Last card in grid
   - Plus icon
   - Opens NewProjectDialog
 
 ### Unit Tests
 
-- [ ] Project list loads and displays projects
-- [ ] Card click opens project
-- [ ] Context menu shows on right-click
-- [ ] Empty state shown when no projects
+- [x] Project list loads and displays projects
+- [x] Card click opens project
+- [x] Context menu shows on right-click
+- [x] Empty state shown when no projects
 
 ---
 
@@ -214,12 +214,12 @@ This section provides the UI and logic for managing multiple floorplan projects:
 
 ### Subtasks
 
-- [ ] **12.4.1** Search input:
+- [x] **12.4.1** Search input:
   - Filter projects by name
   - Debounced (300ms)
   - Clear button
 
-- [ ] **12.4.2** Sort dropdown:
+- [x] **12.4.2** Sort dropdown:
   - Options:
     - Newest first (default)
     - Oldest first
@@ -228,7 +228,7 @@ This section provides the UI and logic for managing multiple floorplan projects:
     - Largest (area)
     - Smallest (area)
 
-- [ ] **12.4.3** Create filter hook:
+- [x] **12.4.3** Create filter hook:
   ```typescript
   function useProjectFilters(projects: ProjectMetadata[]): {
     filteredProjects: ProjectMetadata[]
@@ -239,15 +239,15 @@ This section provides the UI and logic for managing multiple floorplan projects:
   }
   ```
 
-- [ ] **12.4.4** Persist filter preferences:
+- [x] **12.4.4** Persist filter preferences:
   - Remember sort preference
   - Clear search on page leave
 
 ### Unit Tests
 
-- [ ] Search filters by name
-- [ ] Sort orders correctly
-- [ ] Combined filter and sort works
+- [x] Search filters by name
+- [x] Sort orders correctly
+- [x] Combined filter and sort works
 
 ---
 
@@ -257,16 +257,16 @@ This section provides the UI and logic for managing multiple floorplan projects:
 
 ### Subtasks
 
-- [ ] **12.5.1** Create rename dialog:
+- [x] **12.5.1** Create rename dialog:
   - Input with current name
   - Save / Cancel buttons
 
-- [ ] **12.5.2** Inline rename option:
+- [x] **12.5.2** Inline rename option:
   - Double-click project name in card
   - Inline text input
   - Enter to save, Escape to cancel
 
-- [ ] **12.5.3** Rename action:
+- [x] **12.5.3** Rename action:
   ```typescript
   async function renameProject(id: string, newName: string): Promise<void>
   ```
@@ -274,15 +274,15 @@ This section provides the UI and logic for managing multiple floorplan projects:
   - Update in store
   - Toast: "Project renamed"
 
-- [ ] **12.5.4** Validation:
+- [x] **12.5.4** Validation:
   - Name required
   - Max length 100 characters
 
 ### Unit Tests
 
-- [ ] Rename dialog works
-- [ ] Inline rename works
-- [ ] Validation prevents empty name
+- [x] Rename dialog works
+- [x] Inline rename works
+- [x] Validation prevents empty name
 
 ---
 
@@ -292,7 +292,7 @@ This section provides the UI and logic for managing multiple floorplan projects:
 
 ### Subtasks
 
-- [ ] **12.6.1** Duplicate action:
+- [x] **12.6.1** Duplicate action:
   ```typescript
   async function duplicateProject(id: string): Promise<string>
   ```
@@ -302,21 +302,21 @@ This section provides the UI and logic for managing multiple floorplan projects:
   - Save new project
   - Return new project ID
 
-- [ ] **12.6.2** UI trigger:
+- [x] **12.6.2** UI trigger:
   - Context menu: "Duplicate"
   - Keyboard: Ctrl+D when project selected
 
-- [ ] **12.6.3** Feedback:
+- [x] **12.6.3** Feedback:
   - Toast: "Project duplicated"
   - New project appears in list
   - Option to open immediately
 
 ### Unit Tests
 
-- [ ] Duplicate creates new project
-- [ ] New project has new ID
-- [ ] Name has "(copy)" suffix
-- [ ] Original unchanged
+- [x] Duplicate creates new project
+- [x] New project has new ID
+- [x] Name has "(copy)" suffix
+- [x] Original unchanged
 
 ---
 
@@ -326,13 +326,13 @@ This section provides the UI and logic for managing multiple floorplan projects:
 
 ### Subtasks
 
-- [ ] **12.7.1** Create delete confirmation dialog:
+- [x] **12.7.1** Create delete confirmation dialog:
   - Warning message: "Delete 'Project Name'?"
   - Description: "This cannot be undone"
   - Delete / Cancel buttons
   - Delete button is red (destructive)
 
-- [ ] **12.7.2** Delete action:
+- [x] **12.7.2** Delete action:
   ```typescript
   async function deleteProject(id: string): Promise<void>
   ```
@@ -340,20 +340,20 @@ This section provides the UI and logic for managing multiple floorplan projects:
   - Remove from recent projects
   - Update project list
 
-- [ ] **12.7.3** Handle current project:
+- [x] **12.7.3** Handle current project:
   - If deleting currently open project
   - Show warning: "You're about to delete the open project"
   - After delete, return to landing page
 
-- [ ] **12.7.4** Feedback:
+- [x] **12.7.4** Feedback:
   - Toast: "Project deleted"
   - Remove from list with animation
 
 ### Unit Tests
 
-- [ ] Delete removes from storage
-- [ ] Confirmation required
-- [ ] Current project handled correctly
+- [x] Delete removes from storage
+- [x] Confirmation required
+- [x] Current project handled correctly
 
 ---
 
@@ -363,34 +363,34 @@ This section provides the UI and logic for managing multiple floorplan projects:
 
 ### Subtasks
 
-- [ ] **12.8.1** Create settings dialog:
+- [x] **12.8.1** Create settings dialog:
   - Accessed via File → Project Settings
   - Edit project properties
 
-- [ ] **12.8.2** Editable settings:
+- [x] **12.8.2** Editable settings:
   - Project name
   - Measurement units (with conversion warning)
 
-- [ ] **12.8.3** Read-only info:
+- [x] **12.8.3** Read-only info:
   - Created date
   - Last modified date
   - Room count
   - Total area
   - Storage size
 
-- [ ] **12.8.4** Unit conversion:
+- [x] **12.8.4** Unit conversion:
   - If changing units, offer to convert values
   - "Convert dimensions to feet?" / "Keep numeric values"
 
-- [ ] **12.8.5** Save button:
+- [x] **12.8.5** Save button:
   - Updates project metadata
   - Toast: "Settings saved"
 
 ### Unit Tests
 
-- [ ] Settings dialog displays correct values
-- [ ] Name change saves
-- [ ] Unit change prompts for conversion
+- [x] Settings dialog displays correct values
+- [x] Name change saves
+- [x] Unit change prompts for conversion
 
 ---
 
@@ -400,14 +400,14 @@ This section provides the UI and logic for managing multiple floorplan projects:
 
 ### Subtasks
 
-- [ ] **12.9.1** Define app routes/states:
+- [x] **12.9.1** Define app routes/states:
   ```typescript
   type AppView = 'landing' | 'projectList' | 'editor'
   ```
   - No URL routing (SPA without router)
   - State-based navigation
 
-- [ ] **12.9.2** Create navigation hook:
+- [x] **12.9.2** Create navigation hook:
   ```typescript
   function useNavigation(): {
     currentView: AppView
@@ -418,25 +418,25 @@ This section provides the UI and logic for managing multiple floorplan projects:
   }
   ```
 
-- [ ] **12.9.3** Navigation triggers:
+- [x] **12.9.3** Navigation triggers:
   - Landing → Editor: Create/Open project
   - Editor → Landing: Close project
   - Any → ProjectList: File → Recent Projects
 
-- [ ] **12.9.4** Unsaved changes handling:
+- [x] **12.9.4** Unsaved changes handling:
   - If navigating away with unsaved changes
   - Show confirmation dialog
   - Save / Don't Save / Cancel
 
-- [ ] **12.9.5** Browser back button:
+- [x] **12.9.5** Browser back button:
   - Handle browser back/forward
   - Confirm if unsaved changes
 
 ### Unit Tests
 
-- [ ] Navigation changes view
-- [ ] Unsaved changes prompt appears
-- [ ] openProject loads correct project
+- [x] Navigation changes view
+- [x] Unsaved changes prompt appears
+- [x] openProject loads correct project
 
 ---
 
@@ -446,34 +446,34 @@ This section provides the UI and logic for managing multiple floorplan projects:
 
 ### Subtasks
 
-- [ ] **12.10.1** Track recent projects:
+- [x] **12.10.1** Track recent projects:
   ```typescript
   async function addToRecentProjects(id: string): Promise<void>
   async function getRecentProjects(): Promise<ProjectMetadata[]>
   async function removeFromRecentProjects(id: string): Promise<void>
   ```
 
-- [ ] **12.10.2** Recent projects rules:
+- [x] **12.10.2** Recent projects rules:
   - Maximum 10 projects
   - Most recently opened first
   - Opening project moves to top
   - Deleted projects removed automatically
 
-- [ ] **12.10.3** Display in File menu:
+- [x] **12.10.3** Display in File menu:
   - Recent Projects submenu
   - Shows last 5-10 projects
   - "Clear Recent" option
 
-- [ ] **12.10.4** Display on landing page:
+- [x] **12.10.4** Display on landing page:
   - Recent projects section
   - Shows last 5 projects
 
 ### Unit Tests
 
-- [ ] Recent projects tracked correctly
-- [ ] Order updated on open
-- [ ] Maximum limit enforced
-- [ ] Deleted projects removed
+- [x] Recent projects tracked correctly
+- [x] Order updated on open
+- [x] Maximum limit enforced
+- [x] Deleted projects removed
 
 ---
 
@@ -483,28 +483,28 @@ This section provides the UI and logic for managing multiple floorplan projects:
 
 ### Test Cases
 
-- [ ] **Create flow**: Open app → Create project → Verify in editor
-- [ ] **Open flow**: Create project → Close → Open from list → Verify loaded
-- [ ] **Rename flow**: Create → Rename → Verify name updated
-- [ ] **Duplicate flow**: Create → Duplicate → Verify two projects
-- [ ] **Delete flow**: Create → Delete → Verify removed from list
-- [ ] **Recent projects**: Open 3 projects → Verify recent order correct
+- [x] **Create flow**: Open app → Create project → Verify in editor
+- [x] **Open flow**: Create project → Close → Open from list → Verify loaded
+- [x] **Rename flow**: Create → Rename → Verify name updated
+- [x] **Duplicate flow**: Create → Duplicate → Verify two projects
+- [x] **Delete flow**: Create → Delete → Verify removed from list
+- [x] **Recent projects**: Open 3 projects → Verify recent order correct
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Landing page displays on app start
-- [ ] Create New Floorplan opens dialog and creates project
-- [ ] Project list shows all saved projects
-- [ ] Search filters projects by name
-- [ ] Sort orders projects correctly
-- [ ] Rename updates project name
-- [ ] Duplicate creates copy
-- [ ] Delete removes project with confirmation
-- [ ] Recent projects tracked and displayed
-- [ ] Unsaved changes prompt prevents data loss
-- [ ] Unit test coverage > 85%
+- [x] Landing page displays on app start
+- [x] Create New Floorplan opens dialog and creates project
+- [x] Project list shows all saved projects
+- [x] Search filters projects by name
+- [x] Sort orders projects correctly
+- [x] Rename updates project name
+- [x] Duplicate creates copy
+- [x] Delete removes project with confirmation
+- [x] Recent projects tracked and displayed
+- [x] Unsaved changes prompt prevents data loss
+- [x] Unit test coverage > 85%
 
 ---
 

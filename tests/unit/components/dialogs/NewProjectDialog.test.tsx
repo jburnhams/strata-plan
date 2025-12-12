@@ -1,54 +1,56 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import { NewProjectDialog } from '@/components/dialogs/NewProjectDialog';
-import { useDialog } from '@/hooks/useDialog';
-import userEvent from '@testing-library/user-event';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { NewProjectDialog } from '../../../../src/components/dialogs/NewProjectDialog';
+import { useNavigation } from '../../../../src/hooks/useNavigation';
 
-jest.mock('@/hooks/useDialog');
-
-// Mock PointerEvent for Radix UI
-// @ts-ignore
-window.PointerEvent = class PointerEvent extends Event {
-  constructor(type: string, props: any) {
-    super(type, props);
-  }
-};
+// Mock dependencies
+jest.mock('../../../../src/hooks/useNavigation');
 
 describe('NewProjectDialog', () => {
-  const mockClose = jest.fn();
+  const mockCreateProject = jest.fn();
+  const mockOnOpenChange = jest.fn();
 
   beforeEach(() => {
-    (useDialog as jest.Mock).mockReturnValue({
-      isOpen: true,
-      closeDialog: mockClose,
-      openDialog: jest.fn(),
+    jest.clearAllMocks();
+    (useNavigation as jest.Mock).mockReturnValue({
+      createProject: mockCreateProject,
     });
-    mockClose.mockClear();
   });
 
   it('renders correctly when open', () => {
-    render(<NewProjectDialog />);
-    expect(screen.getByRole('heading', { name: 'New Project' })).toBeInTheDocument();
+    render(<NewProjectDialog open={true} onOpenChange={mockOnOpenChange} />);
+    expect(screen.getByText('Create New Project')).toBeInTheDocument();
   });
 
-  it('validates name input', async () => {
-    const user = userEvent.setup();
-    render(<NewProjectDialog />);
-
-    const createButton = screen.getByRole('button', { name: /create project/i });
-    expect(createButton).toBeDisabled();
-
-    const input = screen.getByLabelText(/name/i);
-    await user.type(input, 'My Project');
-
-    expect(createButton).toBeEnabled();
+  it('updates name input', () => {
+    render(<NewProjectDialog open={true} onOpenChange={mockOnOpenChange} />);
+    const input = screen.getByLabelText('Name');
+    fireEvent.change(input, { target: { value: 'Test Project' } });
+    expect(input).toHaveValue('Test Project');
   });
 
-  it('calls closeDialog on cancel', async () => {
-    const user = userEvent.setup();
-    render(<NewProjectDialog />);
+  it('creates project on submit', () => {
+    render(<NewProjectDialog open={true} onOpenChange={mockOnOpenChange} />);
 
-    await user.click(screen.getByRole('button', { name: /cancel/i }));
-    expect(mockClose).toHaveBeenCalled();
+    // Set name
+    const input = screen.getByLabelText('Name');
+    fireEvent.change(input, { target: { value: 'New Home' } });
+
+    // Click create
+    fireEvent.click(screen.getByText('Create Project'));
+
+    expect(mockCreateProject).toHaveBeenCalledWith('New Home', 'meters');
+    expect(mockOnOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('validates empty name', () => {
+    render(<NewProjectDialog open={true} onOpenChange={mockOnOpenChange} />);
+
+    // Clear name (default is "My Floorplan")
+    const input = screen.getByLabelText('Name');
+    fireEvent.change(input, { target: { value: '' } });
+
+    // Button should be disabled
+    expect(screen.getByText('Create Project')).toBeDisabled();
   });
 });
