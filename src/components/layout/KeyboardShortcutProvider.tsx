@@ -2,6 +2,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useUIStore } from '@/stores/uiStore';
 import { useDialogStore } from '@/stores/dialogStore';
 import { useRoomRotation } from '@/hooks/useRoomRotation';
+import { useHistoryStore } from '@/stores/historyStore';
 
 export function KeyboardShortcutProvider() {
   const toggleSidebar = useUIStore((state) => state.toggleSidebar);
@@ -11,6 +12,8 @@ export function KeyboardShortcutProvider() {
   const zoomOut = useUIStore((state) => state.zoomOut);
 
   const openDialog = useDialogStore((state) => state.openDialog);
+  const undo = useHistoryStore((state) => state.undo);
+  const redo = useHistoryStore((state) => state.redo);
 
   const { rotateSelectedRoom } = useRoomRotation();
 
@@ -19,8 +22,8 @@ export function KeyboardShortcutProvider() {
       NEW_PROJECT: () => openDialog('newProject'),
       OPEN_PROJECT: () => console.log('Open Project triggered'),
       SAVE: () => console.log('Save triggered'),
-      UNDO: () => console.log('Undo triggered'),
-      REDO: () => console.log('Redo triggered'),
+      UNDO: undo,
+      REDO: redo,
       DELETE: () => console.log('Delete triggered'),
       VIEW_TABLE: () => console.log('View Table triggered'),
       VIEW_2D: () => console.log('View 2D triggered'),

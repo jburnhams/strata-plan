@@ -240,7 +240,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Dragging one room in multi-selection moves all
   - Maintain relative positions
 
-- [ ] **4.5.6** Implement undo for move:
+- [x] **4.5.6** Implement undo for move:
   - Store previous position before drag
   - On undo: restore previous position
 
