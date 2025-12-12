@@ -1,12 +1,14 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useFrame, ThreeEvent } from '@react-three/fiber';
-import { Text, Billboard } from '@react-three/drei';
+import { Text, Billboard, Detailed } from '@react-three/drei';
 import * as THREE from 'three';
-import { Room } from '../../types';
+import { Room, Door, Window } from '../../types';
 import { generateRoomGeometry } from '../../services/geometry3d/roomGeometry';
 
 export interface RoomMeshProps {
   room: Room;
+  doors?: Door[];
+  windows?: Window[];
   isSelected: boolean;
   onSelect: (roomId: string) => void;
   showLabels?: boolean;
@@ -15,6 +17,8 @@ export interface RoomMeshProps {
 
 const RoomMeshComponent: React.FC<RoomMeshProps> = ({
   room,
+  doors = [],
+  windows = [],
   isSelected,
   onSelect,
   showLabels = true,
@@ -23,12 +27,22 @@ const RoomMeshComponent: React.FC<RoomMeshProps> = ({
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
-  // Memoize geometry generation
-  const roomGroup = useMemo(() => {
-    const group = generateRoomGeometry(room);
+  // Memoize geometry generation - High Detail
+  const highDetailGroup = useMemo(() => {
+    const group = generateRoomGeometry(room, doors, windows, { wallOpacity, detailLevel: 'high' });
+    applyOpacity(group, wallOpacity);
+    return group;
+  }, [room, doors, windows, wallOpacity]);
 
-    // Apply opacity settings immediately after generation
-    if (wallOpacity < 1.0) {
+  // Memoize geometry generation - Low Detail
+  const lowDetailGroup = useMemo(() => {
+    const group = generateRoomGeometry(room, doors, windows, { wallOpacity, detailLevel: 'low' });
+    applyOpacity(group, wallOpacity);
+    return group;
+  }, [room, doors, windows, wallOpacity]);
+
+  function applyOpacity(group: THREE.Group, opacity: number) {
+     if (opacity < 1.0) {
        group.traverse((child) => {
          if ((child as THREE.Mesh).isMesh && child.userData.type === 'wall') {
             const mesh = child as THREE.Mesh;
@@ -36,43 +50,43 @@ const RoomMeshComponent: React.FC<RoomMeshProps> = ({
             if (Array.isArray(mat)) {
                 mat.forEach(m => {
                     m.transparent = true;
-                    m.opacity = wallOpacity;
+                    m.opacity = opacity;
                     m.needsUpdate = true;
                 });
             } else {
                 mat.transparent = true;
-                mat.opacity = wallOpacity;
+                mat.opacity = opacity;
                 mat.needsUpdate = true;
             }
          }
        });
     }
-
-    return group;
-  }, [room, wallOpacity]);
+  }
 
   // Clean up resources when roomGroup changes or component unmounts
   useEffect(() => {
     return () => {
-        if (roomGroup) {
-            roomGroup.traverse((child) => {
-                if ((child as THREE.Mesh).isMesh) {
-                    const mesh = child as THREE.Mesh;
-                    if (mesh.geometry) {
-                        mesh.geometry.dispose();
-                    }
-                    if (mesh.material) {
-                        if (Array.isArray(mesh.material)) {
-                            mesh.material.forEach(m => m.dispose());
-                        } else {
-                            mesh.material.dispose();
+        [highDetailGroup, lowDetailGroup].forEach(group => {
+            if (group) {
+                group.traverse((child) => {
+                    if ((child as THREE.Mesh).isMesh) {
+                        const mesh = child as THREE.Mesh;
+                        if (mesh.geometry) {
+                            mesh.geometry.dispose();
+                        }
+                        if (mesh.material) {
+                            if (Array.isArray(mesh.material)) {
+                                mesh.material.forEach(m => m.dispose());
+                            } else {
+                                mesh.material.dispose();
+                            }
                         }
                     }
-                }
-            });
-        }
+                });
+            }
+        });
     };
-  }, [roomGroup]);
+  }, [highDetailGroup, lowDetailGroup]);
 
   // Pre-allocate color objects to avoid GC in useFrame
   const highlightColor = useMemo(() => new THREE.Color('#4488ff'), []);
@@ -93,8 +107,6 @@ const RoomMeshComponent: React.FC<RoomMeshProps> = ({
             const mat = mesh.material;
             // Check if it supports emissive (Standard/Physical)
             if (mat instanceof THREE.MeshStandardMaterial) {
-                 // Avoid copying if already set?
-                 // copy() is fast.
                  mat.emissive.copy(targetColor);
                  mat.emissiveIntensity = intensity;
             }
@@ -109,13 +121,10 @@ const RoomMeshComponent: React.FC<RoomMeshProps> = ({
 
   return (
     <group>
-      <primitive
-        object={roomGroup}
-        ref={groupRef}
-        onClick={handleClick}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
-      />
+      <Detailed distances={[0, 20]} ref={groupRef as any} onClick={handleClick} onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}>
+        <primitive object={highDetailGroup} />
+        <primitive object={lowDetailGroup} />
+      </Detailed>
 
       {showLabels && (
         <Billboard

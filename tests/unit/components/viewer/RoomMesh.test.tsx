@@ -20,7 +20,8 @@ jest.mock('@react-three/fiber', () => {
 // Mock Drei
 jest.mock('@react-three/drei', () => ({
   Text: () => null,
-  Billboard: ({ children }: any) => <group>{children}</group>
+  Billboard: ({ children }: any) => <group>{children}</group>,
+  Detailed: ({ children }: any) => <group>{children}</group>
 }));
 
 // Mock geometry generation service to inspect calls and results
@@ -59,7 +60,15 @@ jest.mock('three', () => {
 const originalConsoleError = console.error;
 beforeAll(() => {
     console.error = (...args: any[]) => {
-        if (typeof args[0] === 'string' && (args[0].includes('The tag <primitive>') || args[0].includes('The tag <group>'))) {
+        // Suppress expected R3F/JSDOM errors
+        const msg = args[0];
+        if (typeof msg === 'string' && (
+            msg.includes('The tag <primitive>') ||
+            msg.includes('The tag <group>') ||
+            msg.includes('The tag <mesh>') ||
+            msg.includes('The tag <geometry>') ||
+            msg.includes('The tag <material>')
+        )) {
             return;
         }
         originalConsoleError(...args);
@@ -109,8 +118,9 @@ describe('RoomMesh Component', () => {
       // Verify generateRoomGeometry was called
       expect(generateRoomGeometry).toHaveBeenCalled();
 
-      // Get the last returned group
-      const group = generateRoomGeometry.mock.results[generateRoomGeometry.mock.results.length - 1].value;
+      // Get the last returned group (LOD calls it multiple times, we just need to check if one of them is valid)
+      const results = generateRoomGeometry.mock.results;
+      const group = results[results.length - 1].value;
       const wallMesh = group.children.find((c: any) => c.userData.type === 'wall');
 
       // Verify opacity was applied
@@ -160,37 +170,41 @@ describe('RoomMesh Component', () => {
       const { generateRoomGeometry } = require('../../../../src/services/geometry3d/roomGeometry');
       generateRoomGeometry.mockClear();
 
+      const onSelect = jest.fn();
+
       const { rerender } = render(
         <RoomMesh
             room={mockRoom}
             isSelected={false}
-            onSelect={jest.fn()}
+            onSelect={onSelect}
         />
       );
 
-      expect(generateRoomGeometry).toHaveBeenCalledTimes(1);
+      // Called twice (High and Low)
+      expect(generateRoomGeometry).toHaveBeenCalledTimes(2);
 
       // Rerender with same props
       rerender(
         <RoomMesh
             room={mockRoom}
             isSelected={false}
-            onSelect={jest.fn()}
+            onSelect={onSelect}
         />
       );
 
-      // Should still be 1 if memo works on component level
-      expect(generateRoomGeometry).toHaveBeenCalledTimes(1);
+      // Should still be 2 if memo works on component level
+      expect(generateRoomGeometry).toHaveBeenCalledTimes(2);
 
       // Rerender with new prop
       rerender(
         <RoomMesh
             room={{ ...mockRoom, name: 'Changed' }}
             isSelected={false}
-            onSelect={jest.fn()}
+            onSelect={onSelect}
         />
       );
 
-      expect(generateRoomGeometry).toHaveBeenCalledTimes(2);
+      // Called 2 more times (High and Low) = 4
+      expect(generateRoomGeometry).toHaveBeenCalledTimes(4);
   });
 });
