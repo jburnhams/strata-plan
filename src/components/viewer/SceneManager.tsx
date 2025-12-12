@@ -6,11 +6,13 @@ import { useSceneSync } from '../../hooks/useSceneSync';
 export interface SceneManagerProps {
   wallOpacity?: number;
   showLabels?: boolean;
+  quality?: 'low' | 'medium' | 'high';
 }
 
 export const SceneManager: React.FC<SceneManagerProps> = ({
   wallOpacity = 1.0,
-  showLabels = true
+  showLabels = true,
+  quality = 'medium'
 }) => {
   // Use the sync hook to get debounced floorplan data
   const { rooms, floorplan, sceneVersion } = useSceneSync(100);
@@ -41,6 +43,7 @@ export const SceneManager: React.FC<SceneManagerProps> = ({
           onSelect={handleSelect}
           showLabels={showLabels}
           wallOpacity={wallOpacity}
+          quality={quality}
         />
       ))}
     </group>

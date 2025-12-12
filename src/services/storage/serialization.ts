@@ -1,5 +1,7 @@
 import { Floorplan } from '@/types/floorplan';
-import { Room, Wall, Door, Window } from '@/types/room';
+import { Room, Wall } from '@/types/room';
+import { Door } from '@/types/door';
+import { Window } from '@/types/window';
 
 // Current schema version
 export const CURRENT_VERSION = '1.0.0';

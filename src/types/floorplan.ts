@@ -2,7 +2,9 @@
  * Floorplan and project-level types
  */
 
-import { Room, Wall, Door, Window } from './room';
+import { Room, Wall } from './room';
+import { Door } from './door';
+import { Window } from './window';
 import { WallSide } from './geometry';
 
 /**

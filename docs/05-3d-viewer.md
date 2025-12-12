@@ -493,9 +493,9 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Simplified geometry at distance
   - Full detail when close
 
-- [ ] **5.11.2** Implement frustum culling:
+- [x] **5.11.2** Implement frustum culling:
   - Three.js handles automatically
-  - Ensure bounding spheres are set
+  - Bounding spheres are computed in geometry generation
 
 - [ ] **5.11.3** Geometry instancing for repeated elements:
   - Use InstancedMesh for doors/windows if many
@@ -510,13 +510,13 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Triangle count
   - Memory usage
 
-- [ ] **5.11.6** Implement quality presets:
-  - Low: no shadows, basic materials, no AA
-  - Medium: soft shadows, standard materials
-  - High: full shadows, detailed materials, SSAO (future)
+- [x] **5.11.6** Implement quality presets:
+  - Low: no shadows, basic materials (no LOD, always low)
+  - Medium: soft shadows, standard materials (LOD enabled)
+  - High: full shadows, detailed materials
 
-- [ ] **5.11.7** Add performance warning:
-  - If FPS drops below 30, show notification
+- [x] **5.11.7** Add performance warning:
+  - If FPS drops below 30 for 3 consecutive seconds, show notification
   - Suggest reducing quality
 
 ### Unit Tests

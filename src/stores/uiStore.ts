@@ -37,7 +37,7 @@ export interface UIState {
   showMeasurements: boolean;
   showConnections: boolean;
   viewerBrightness: number;
-  viewerShadowQuality: 'off' | 'low' | 'medium' | 'high';
+  viewerQuality: 'low' | 'medium' | 'high';
   viewerWallOpacity: number;
   zoomLevel: number;
   panOffset: Position2D;
@@ -66,7 +66,7 @@ export interface UIActions {
   toggleMeasurements: () => void;
   toggleConnections: () => void;
   setViewerBrightness: (brightness: number) => void;
-  setViewerShadowQuality: (quality: 'off' | 'low' | 'medium' | 'high') => void;
+  setViewerQuality: (quality: 'low' | 'medium' | 'high') => void;
   setViewerWallOpacity: (opacity: number) => void;
   setZoom: (level: number) => void;
   zoomIn: () => void;
@@ -96,7 +96,7 @@ const initialState: UIState = {
   showMeasurements: true,
   showConnections: false,
   viewerBrightness: 1.0,
-  viewerShadowQuality: 'medium',
+  viewerQuality: 'medium',
   viewerWallOpacity: 1.0,
   zoomLevel: DEFAULT_ZOOM_LEVEL,
   panOffset: { x: 0, z: 0 },
@@ -171,8 +171,8 @@ export const useUIStore = create<UIStore>()(
         set({ viewerBrightness: brightness });
       },
 
-      setViewerShadowQuality: (quality: 'off' | 'low' | 'medium' | 'high') => {
-        set({ viewerShadowQuality: quality });
+      setViewerQuality: (quality: 'low' | 'medium' | 'high') => {
+        set({ viewerQuality: quality });
       },
 
       setViewerWallOpacity: (opacity: number) => {
@@ -229,7 +229,7 @@ export const useUIStore = create<UIStore>()(
         showMeasurements: state.showMeasurements,
         showConnections: state.showConnections,
         viewerBrightness: state.viewerBrightness,
-        viewerShadowQuality: state.viewerShadowQuality,
+        viewerQuality: state.viewerQuality,
         viewerWallOpacity: state.viewerWallOpacity,
       }),
     }

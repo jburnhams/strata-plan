@@ -167,4 +167,29 @@ describe('Canvas Editor Integration', () => {
 
     fireEvent.mouseUp(document);
   });
+
+  it('Measurement Overlay: Shows dimensions when room selected', async () => {
+    render(<Canvas2D />);
+
+    const room = useFloorplanStore.getState().addRoom({
+        name: 'Measure Room',
+        length: 5,
+        width: 4,
+        type: 'living',
+        height: 2.4,
+        position: { x: 0, z: 0 }
+    });
+
+    const roomElement = await screen.findByTestId(`room-shape-${room.id}`);
+
+    // Measurements should not be visible initially (no selection)
+    expect(screen.queryByText('5.00 m')).not.toBeInTheDocument();
+
+    // Select room
+    fireEvent.click(roomElement);
+
+    // Measurements should be visible
+    expect(screen.getByText('5.00 m')).toBeInTheDocument();
+    expect(screen.getByText('4.00 m')).toBeInTheDocument();
+  });
 });

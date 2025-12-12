@@ -3,7 +3,9 @@
  */
 
 import { create } from 'zustand';
-import type { Floorplan, Room, Wall, Door, Window, MeasurementUnit, EditorMode, RoomConnection } from '../types';
+import type { Floorplan, Room, Wall, MeasurementUnit, EditorMode, RoomConnection } from '../types';
+import type { Door } from '../types/door';
+import type { Window } from '../types/window';
 import { generateUUID } from '../services/geometry';
 import { calculateArea, calculateVolume, getRoomBounds } from '../services/geometry/room';
 import { calculateAllConnections } from '../services/adjacency/graph';
@@ -40,16 +42,22 @@ export interface FloorplanActions {
   deleteRoom: (id: string) => void;
 
   // Wall operations
+  addWall: (wall: Omit<Wall, 'id'>) => Wall;
   updateWall: (id: string, updates: Partial<Wall>) => void;
   deleteWall: (id: string) => void;
 
   // Door operations
+  addDoor: (door: Omit<Door, 'id'>) => Door;
   updateDoor: (id: string, updates: Partial<Door>) => void;
   deleteDoor: (id: string) => void;
+  getDoorsByRoom: (roomId: string) => Door[];
+  getDoorsByConnection: (connectionId: string) => Door[];
 
   // Window operations
+  addWindow: (window: Omit<Window, 'id'>) => Window;
   updateWindow: (id: string, updates: Partial<Window>) => void;
   deleteWindow: (id: string) => void;
+  getWindowsByRoom: (roomId: string) => Window[];
 
   // Connection operations
   recalculateConnections: () => void;
@@ -265,6 +273,33 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
   },
 
   // Wall operations
+  addWall: (wallData: Omit<Wall, 'id'>) => {
+    const state = get();
+    if (!state.currentFloorplan) {
+      throw new Error('No floorplan loaded');
+    }
+
+    const wall: Wall = {
+      ...wallData,
+      id: generateUUID(),
+    };
+
+    const updatedWalls = [...(state.currentFloorplan.walls || []), wall];
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      walls: updatedWalls,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      isDirty: true,
+    });
+
+    return wall;
+  },
+
   updateWall: (id: string, updates: Partial<Wall>) => {
     const state = get();
     if (!state.currentFloorplan) return;
@@ -310,6 +345,29 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
   },
 
   // Door operations
+  addDoor: (doorData: Omit<Door, 'id'>) => {
+    const state = get();
+    if (!state.currentFloorplan) throw new Error('No floorplan loaded');
+
+    const door: Door = {
+      ...doorData,
+      id: generateUUID(),
+    };
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      doors: [...state.currentFloorplan.doors, door],
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      isDirty: true,
+    });
+
+    return door;
+  },
+
   updateDoor: (id: string, updates: Partial<Door>) => {
     const state = get();
     if (!state.currentFloorplan) return;
@@ -354,7 +412,42 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
     });
   },
 
+  getDoorsByRoom: (roomId: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return [];
+    return state.currentFloorplan.doors.filter((d) => d.roomId === roomId);
+  },
+
+  getDoorsByConnection: (connectionId: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return [];
+    return state.currentFloorplan.doors.filter((d) => d.connectionId === connectionId);
+  },
+
   // Window operations
+  addWindow: (windowData: Omit<Window, 'id'>) => {
+    const state = get();
+    if (!state.currentFloorplan) throw new Error('No floorplan loaded');
+
+    const window: Window = {
+      ...windowData,
+      id: generateUUID(),
+    };
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      windows: [...state.currentFloorplan.windows, window],
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      isDirty: true,
+    });
+
+    return window;
+  },
+
   updateWindow: (id: string, updates: Partial<Window>) => {
     const state = get();
     if (!state.currentFloorplan) return;
@@ -378,6 +471,12 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
       currentFloorplan: updatedFloorplan,
       isDirty: true,
     });
+  },
+
+  getWindowsByRoom: (roomId: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return [];
+    return state.currentFloorplan.windows.filter((w) => w.roomId === roomId);
   },
 
   deleteWindow: (id: string) => {
@@ -480,9 +579,13 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
 
     const updatedConnections = state.currentFloorplan.connections.filter(c => c.id !== connectionId);
 
+    // Remove doors associated with this connection
+    const updatedDoors = state.currentFloorplan.doors.filter(d => d.connectionId !== connectionId);
+
     const updatedFloorplan = {
       ...state.currentFloorplan,
       connections: updatedConnections,
+      doors: updatedDoors,
       updatedAt: new Date(),
     };
 

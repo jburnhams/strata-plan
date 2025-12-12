@@ -57,7 +57,11 @@ interface ViewerActions {
 // Performance monitoring component
 const PerformanceTracker = () => {
     const { gl } = useThree();
+    const { toast } = useToast();
     const monitorRef = useRef<PerformanceMonitor | null>(null);
+    const lastFpsRef = useRef(0);
+    const badSecondsRef = useRef(0);
+    const hasWarnedRef = useRef(false);
 
     useEffect(() => {
         monitorRef.current = new PerformanceMonitor(gl);
@@ -66,9 +70,29 @@ const PerformanceTracker = () => {
     useFrame(() => {
         if (monitorRef.current) {
             monitorRef.current.update();
-            // In a real app we might expose these metrics to a store or UI overlay
-            // const metrics = monitorRef.current.getMetrics();
-            // console.log(metrics.fps);
+            const metrics = monitorRef.current.getMetrics();
+
+            // Check if FPS value has updated (updates once per second)
+            if (metrics.fps !== lastFpsRef.current) {
+                lastFpsRef.current = metrics.fps;
+
+                // If FPS is low (but not initial 0), increment counter
+                if (metrics.fps > 0 && metrics.fps < 30) {
+                    badSecondsRef.current++;
+                } else {
+                    badSecondsRef.current = 0;
+                }
+
+                // If low FPS persists for 3 consecutive seconds, warn user
+                if (badSecondsRef.current >= 3 && !hasWarnedRef.current) {
+                    hasWarnedRef.current = true;
+                    toast({
+                        variant: "destructive",
+                        title: "Performance Warning",
+                        description: "Low frame rate detected. Try lowering the Quality Preset.",
+                    });
+                }
+            }
         }
     });
 

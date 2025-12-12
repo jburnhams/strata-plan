@@ -10,13 +10,14 @@ interface CanvasViewportProps {
   children?: ReactNode;
   showRulers?: boolean;
   onCursorMove?: (position: { x: number; z: number } | null) => void;
+  onMouseDown?: (e: React.MouseEvent) => void;
 }
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-export function CanvasViewport({ children, showRulers = true, onCursorMove }: CanvasViewportProps) {
+export function CanvasViewport({ children, showRulers = true, onCursorMove, onMouseDown }: CanvasViewportProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -51,7 +52,16 @@ export function CanvasViewport({ children, showRulers = true, onCursorMove }: Ca
   }, []);
 
   // Pan Handler
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDownInternal = (e: React.MouseEvent) => {
+    // If an external handler is provided (e.g. Wall Drawing), call it first.
+    if (onMouseDown) {
+        onMouseDown(e);
+        // If the external handler prevents default, we might skip panning?
+        // But e.defaultPrevented is for browser events.
+        // Wall Drawing calls preventDefault().
+        if (e.defaultPrevented) return;
+    }
+
     // Check if right click or middle click or alt for pan
     if (e.button === 1 || e.button === 2 || (e.button === 0 && e.altKey)) {
       e.preventDefault();
@@ -188,7 +198,7 @@ export function CanvasViewport({ children, showRulers = true, onCursorMove }: Ca
     <div
       ref={containerRef}
       className="w-full h-full bg-slate-100 overflow-hidden relative"
-      onMouseDown={handleMouseDown}
+      onMouseDown={handleMouseDownInternal}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onClick={handleClick}

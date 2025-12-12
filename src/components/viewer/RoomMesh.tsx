@@ -13,6 +13,7 @@ export interface RoomMeshProps {
   onSelect: (roomId: string) => void;
   showLabels?: boolean;
   wallOpacity?: number; // 0.0 to 1.0
+  quality?: 'low' | 'medium' | 'high';
 }
 
 const RoomMeshComponent: React.FC<RoomMeshProps> = ({
@@ -22,17 +23,19 @@ const RoomMeshComponent: React.FC<RoomMeshProps> = ({
   isSelected,
   onSelect,
   showLabels = true,
-  wallOpacity = 1.0
+  wallOpacity = 1.0,
+  quality = 'medium'
 }) => {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
   // Memoize geometry generation - High Detail
   const highDetailGroup = useMemo(() => {
+    if (quality === 'low') return null;
     const group = generateRoomGeometry(room, doors, windows, { wallOpacity, detailLevel: 'high' });
     applyOpacity(group, wallOpacity);
     return group;
-  }, [room, doors, windows, wallOpacity]);
+  }, [room, doors, windows, wallOpacity, quality]);
 
   // Memoize geometry generation - Low Detail
   const lowDetailGroup = useMemo(() => {
@@ -119,12 +122,30 @@ const RoomMeshComponent: React.FC<RoomMeshProps> = ({
     onSelect(room.id);
   };
 
-  return (
-    <group>
+  const renderGeometry = () => {
+    if (quality === 'low') {
+      return (
+        <primitive
+          object={lowDetailGroup}
+          ref={groupRef}
+          onClick={handleClick}
+          onPointerOver={() => setHovered(true)}
+          onPointerOut={() => setHovered(false)}
+        />
+      );
+    }
+
+    return (
       <Detailed distances={[0, 20]} ref={groupRef as any} onClick={handleClick} onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}>
-        <primitive object={highDetailGroup} />
+        <primitive object={highDetailGroup!} />
         <primitive object={lowDetailGroup} />
       </Detailed>
+    );
+  };
+
+  return (
+    <group>
+      {renderGeometry()}
 
       {showLabels && (
         <Billboard

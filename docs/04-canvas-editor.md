@@ -281,11 +281,11 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Hold Alt during resize to resize from center
   - Both sides move equally
 
-- [ ] **4.6.6** Live feedback:
+- [x] **4.6.6** Live feedback:
   - Show dimension labels during resize
   - Show area calculation updating
 
-- [ ] **4.6.7** Validate on completion:
+- [x] **4.6.7** Validate on completion:
   - Show warning if dimension is unusual
   - Show error if dimension is invalid (but still allow)
 
@@ -295,7 +295,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 - [x] Edge resize changes single dimension
 - [x] Minimum dimension enforced
 - [x] Shift constrains aspect ratio
-- [ ] Dimension labels update during resize
+- [x] Dimension labels update during resize
 
 ---
 
@@ -341,23 +341,23 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Subtasks
 
-- [ ] **4.8.1** Create wall drawing tool:
+- [x] **4.8.1** Create wall drawing tool:
   - Toolbar button to activate
   - Cursor changes to crosshair
   - Click to start wall, click to end wall
 
-- [ ] **4.8.2** Implement wall preview:
+- [x] **4.8.2** Implement wall preview:
   - Show wall line from start point to cursor
   - Show wall length as label
   - Show angle relative to horizontal
 
 - [ ] **4.8.3** Implement wall snapping:
-  - Snap to grid points
-  - Snap to existing wall endpoints
-  - Snap to perpendicular angles (0°, 90°)
-  - Snap to 45° angles (optional)
+  - [x] Snap to grid points
+  - [ ] Snap to existing wall endpoints
+  - [ ] Snap to perpendicular angles (0°, 90°)
+  - [ ] Snap to 45° angles (optional)
 
-- [ ] **4.8.4** Implement continuous wall drawing:
+- [x] **4.8.4** Implement continuous wall drawing:
   - After placing wall, start next wall from endpoint
   - Press Escape or double-click to finish
   - Connect back to start to close shape
@@ -366,17 +366,17 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Option to convert room rectangle to walls
   - Creates 4 walls matching room dimensions
 
-- [ ] **4.8.6** Implement wall deletion:
+- [x] **4.8.6** Implement wall deletion:
   - Select wall → Delete key
   - Or click delete tool then click wall
 
 ### Unit Tests
 
-- [ ] Wall tool activates on button click
-- [ ] Wall preview shows correct length
-- [ ] Grid snapping works for wall endpoints
+- [x] Wall tool activates on button click
+- [x] Wall preview shows correct length
+- [x] Grid snapping works for wall endpoints
 - [ ] Wall-to-wall snapping works
-- [ ] Escape cancels current wall
+- [x] Escape cancels current wall
 
 ---
 
@@ -420,7 +420,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Subtasks
 
-- [ ] **4.10.1** Create measurement display:
+- [x] **4.10.1** Create measurement display:
   - Show dimensions on selected room edges
   - Format: "5.0 m" with unit from project settings
 

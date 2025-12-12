@@ -3,165 +3,201 @@ import { useKeyboardSelection } from '../../../src/hooks/useKeyboardSelection';
 import { useFloorplanStore } from '../../../src/stores/floorplanStore';
 import { useToolStore } from '../../../src/stores/toolStore';
 import { useUIStore } from '../../../src/stores/uiStore';
-
-// Mock dependencies
-jest.mock('../../../src/stores/floorplanStore');
-jest.mock('../../../src/stores/toolStore');
-jest.mock('../../../src/stores/uiStore');
+import { Room } from '../../../src/types';
 
 describe('useKeyboardSelection', () => {
-  let mockDeleteRoom: jest.Mock;
-  let mockClearSelection: jest.Mock;
-  let mockUpdateRoom: jest.Mock;
-  let mockGetSelectedRooms: jest.Mock;
-  let mockRoom: any;
+  const mockDeleteRoom = jest.fn();
+  const mockUpdateRoom = jest.fn();
+  const mockClearSelection = jest.fn();
+  const mockDeleteWall = jest.fn();
+
+  const room: Room = {
+    id: 'room-1',
+    name: 'Room 1',
+    length: 5,
+    width: 4,
+    height: 3,
+    type: 'living',
+    position: { x: 0, z: 0 },
+    doors: [],
+    windows: []
+  };
 
   beforeEach(() => {
+    useFloorplanStore.setState({
+      currentFloorplan: {
+        id: 'fp-1',
+        name: 'Test',
+        units: 'meters',
+        rooms: [room],
+        connections: [],
+        walls: [], // Will set if needed
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      selectedRoomIds: [],
+      selectedWallId: null,
+      deleteRoom: mockDeleteRoom,
+      updateRoom: mockUpdateRoom,
+      clearSelection: mockClearSelection,
+      deleteWall: mockDeleteWall
+    });
+
+    useToolStore.setState({ activeTool: 'select' });
+    useUIStore.setState({ gridSize: 0.5, snapToGrid: true });
+
     jest.clearAllMocks();
-
-    mockDeleteRoom = jest.fn();
-    mockClearSelection = jest.fn();
-    mockUpdateRoom = jest.fn();
-    mockRoom = { id: 'room1', position: { x: 0, z: 0 } };
-    mockGetSelectedRooms = jest.fn().mockReturnValue([mockRoom]);
-
-    // Setup Store Mocks
-    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
-      const state = {
-        selectedRoomIds: ['room1'],
-        getSelectedRooms: mockGetSelectedRooms,
-        deleteRoom: mockDeleteRoom,
-        clearSelection: mockClearSelection,
-        updateRoom: mockUpdateRoom,
-      };
-      return selector(state);
-    });
-
-    (useToolStore as unknown as jest.Mock).mockImplementation((selector) => {
-        return selector({ activeTool: 'select' });
-    });
-
-    (useUIStore as unknown as jest.Mock).mockImplementation((selector) => {
-        return selector({ gridSize: 0.5, snapToGrid: true });
-    });
   });
-
-  const fireKeyDown = (key: string, options: KeyboardEventInit = {}) => {
-    const event = new KeyboardEvent('keydown', { key, bubbles: true, ...options });
-    window.dispatchEvent(event);
-  };
 
   it('should clear selection on Escape', () => {
     renderHook(() => useKeyboardSelection());
-    fireKeyDown('Escape');
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    });
+
     expect(mockClearSelection).toHaveBeenCalled();
   });
 
   it('should delete selected rooms on Delete', () => {
+    useFloorplanStore.setState({ selectedRoomIds: ['room-1'] });
     renderHook(() => useKeyboardSelection());
-    fireKeyDown('Delete');
-    expect(mockDeleteRoom).toHaveBeenCalledWith('room1');
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete' }));
+    });
+
+    expect(mockDeleteRoom).toHaveBeenCalledWith('room-1');
   });
 
   it('should delete selected rooms on Backspace', () => {
+    useFloorplanStore.setState({ selectedRoomIds: ['room-1'] });
     renderHook(() => useKeyboardSelection());
-    fireKeyDown('Backspace');
-    expect(mockDeleteRoom).toHaveBeenCalledWith('room1');
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace' }));
+    });
+
+    expect(mockDeleteRoom).toHaveBeenCalledWith('room-1');
+  });
+
+  it('should delete selected wall on Delete', () => {
+    useFloorplanStore.setState({ selectedWallId: 'w1' });
+    renderHook(() => useKeyboardSelection());
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete' }));
+    });
+
+    expect(mockDeleteWall).toHaveBeenCalledWith('w1');
   });
 
   it('should move room with Arrow keys when snap is enabled', () => {
+    useFloorplanStore.setState({ selectedRoomIds: ['room-1'] });
     renderHook(() => useKeyboardSelection());
-    fireKeyDown('ArrowRight');
-    // Default grid size is 0.5, snap enabled
-    expect(mockUpdateRoom).toHaveBeenCalledWith('room1', { position: { x: 0.5, z: 0 } });
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+    });
+
+    // Grid size is 0.5
+    expect(mockUpdateRoom).toHaveBeenCalledWith('room-1', {
+      position: { x: 0.5, z: 0 }
+    });
   });
 
   it('should move room with Arrow keys when snap is disabled', () => {
-     (useUIStore as unknown as jest.Mock).mockImplementation((selector) => {
-        return selector({ gridSize: 0.5, snapToGrid: false });
+    useFloorplanStore.setState({ selectedRoomIds: ['room-1'] });
+    useUIStore.setState({ snapToGrid: false });
+    renderHook(() => useKeyboardSelection());
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
     });
 
-    renderHook(() => useKeyboardSelection());
-    fireKeyDown('ArrowRight');
-    // Default step 0.1
-    expect(mockUpdateRoom).toHaveBeenCalledWith('room1', { position: { x: 0.1, z: 0 } });
+    // Step is 0.1
+    expect(mockUpdateRoom).toHaveBeenCalledWith('room-1', {
+      position: { x: 0.1, z: 0 }
+    });
   });
 
   it('should move room faster with Shift key', () => {
+    useFloorplanStore.setState({ selectedRoomIds: ['room-1'] });
+    useUIStore.setState({ snapToGrid: false });
     renderHook(() => useKeyboardSelection());
-    fireKeyDown('ArrowRight', { shiftKey: true });
-    // Grid size 0.5 * 5 = 2.5
-    expect(mockUpdateRoom).toHaveBeenCalledWith('room1', { position: { x: 2.5, z: 0 } });
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', shiftKey: true }));
+    });
+
+    // Step 0.1 * 5 = 0.5
+    expect(mockUpdateRoom).toHaveBeenCalledWith('room-1', {
+      position: { x: 0.5, z: 0 }
+    });
   });
 
   it('should not move room if not in select tool', () => {
-    (useToolStore as unknown as jest.Mock).mockImplementation((selector) => {
-        return selector({ activeTool: 'wall' });
+    useFloorplanStore.setState({ selectedRoomIds: ['room-1'] });
+    useToolStore.setState({ activeTool: 'pan' });
+    renderHook(() => useKeyboardSelection());
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
     });
 
-    renderHook(() => useKeyboardSelection());
-    fireKeyDown('ArrowRight');
     expect(mockUpdateRoom).not.toHaveBeenCalled();
   });
 
   it('should not respond if input is focused', () => {
+    useFloorplanStore.setState({ selectedRoomIds: ['room-1'] });
     renderHook(() => useKeyboardSelection());
 
     const input = document.createElement('input');
     document.body.appendChild(input);
     input.focus();
 
-    // We need to dispatch the event to the input, but our listener is on window.
-    // The hook checks e.target.
-    // In JSDOM, dispatching to window sets target to window.
-    // We need to dispatch to the input so it bubbles to window.
+    // We need to dispatch event to the input or handle the target check in test
+    // JSDOM events bubble, so dispatching to window works, BUT the `e.target` will be window if not specified?
+    // Actually we can dispatch to input directly.
+    act(() => {
+      const event = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true });
+      input.dispatchEvent(event);
+    });
 
-    const event = new KeyboardEvent('keydown', { key: 'Delete', bubbles: true });
-    input.dispatchEvent(event);
-
-    expect(mockDeleteRoom).not.toHaveBeenCalled();
+    expect(mockUpdateRoom).not.toHaveBeenCalled();
     document.body.removeChild(input);
   });
 
   it('should handle multi-selection deletion', () => {
-      (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
-      const state = {
-        selectedRoomIds: ['room1', 'room2'],
-        getSelectedRooms: mockGetSelectedRooms,
-        deleteRoom: mockDeleteRoom,
-        clearSelection: mockClearSelection,
-        updateRoom: mockUpdateRoom,
-      };
-      return selector(state);
+    useFloorplanStore.setState({ selectedRoomIds: ['room-1', 'room-2'] });
+    renderHook(() => useKeyboardSelection());
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete' }));
     });
 
-    renderHook(() => useKeyboardSelection());
-    fireKeyDown('Delete');
     expect(mockDeleteRoom).toHaveBeenCalledTimes(2);
-    expect(mockDeleteRoom).toHaveBeenCalledWith('room1');
-    expect(mockDeleteRoom).toHaveBeenCalledWith('room2');
+    expect(mockDeleteRoom).toHaveBeenCalledWith('room-1');
+    expect(mockDeleteRoom).toHaveBeenCalledWith('room-2');
   });
 
   it('should handle multi-selection movement', () => {
-      const room2 = { id: 'room2', position: { x: 10, z: 10 } };
-      mockGetSelectedRooms.mockReturnValue([mockRoom, room2]);
+      const room2 = { ...room, id: 'room-2', position: { x: 10, z: 10 } };
+      useFloorplanStore.setState({
+          currentFloorplan: {
+             ...useFloorplanStore.getState().currentFloorplan!,
+             rooms: [room, room2]
+          },
+          selectedRoomIds: ['room-1', 'room-2']
+      });
+      renderHook(() => useKeyboardSelection());
 
-      (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
-      const state = {
-        selectedRoomIds: ['room1', 'room2'],
-        getSelectedRooms: mockGetSelectedRooms,
-        deleteRoom: mockDeleteRoom,
-        clearSelection: mockClearSelection,
-        updateRoom: mockUpdateRoom,
-      };
-      return selector(state);
-    });
+      act(() => {
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+      });
 
-    renderHook(() => useKeyboardSelection());
-    fireKeyDown('ArrowDown');
-    // Grid size 0.5
-    expect(mockUpdateRoom).toHaveBeenCalledWith('room1', { position: { x: 0, z: 0.5 } });
-    expect(mockUpdateRoom).toHaveBeenCalledWith('room2', { position: { x: 10, z: 10.5 } });
+      // Grid 0.5
+      expect(mockUpdateRoom).toHaveBeenCalledWith('room-1', { position: { x: 0, z: 0.5 } });
+      expect(mockUpdateRoom).toHaveBeenCalledWith('room-2', { position: { x: 10, z: 10.5 } });
   });
-
 });

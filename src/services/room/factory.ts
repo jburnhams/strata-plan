@@ -124,6 +124,7 @@ export function createDoor(params: CreateDoorParams): Door {
     swing: params.swing ?? 'inward',
     handleSide: params.handleSide ?? 'right',
     connectionId: params.connectionId,
+    isExterior: !params.connectionId,
   };
 }
 
@@ -153,6 +154,7 @@ export function createWindow(params: CreateWindowParams): Window {
     height: params.height ?? DEFAULT_WINDOW_HEIGHT,
     sillHeight: params.sillHeight ?? DEFAULT_WINDOW_SILL,
     frameType: params.frameType ?? 'double',
-    material: undefined,
+    material: 'pvc',
+    openingType: 'casement',
   };
 }
