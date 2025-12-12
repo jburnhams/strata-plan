@@ -38,6 +38,18 @@ jest.mock('../../../../src/components/editor/WallOverlay', () => ({
   WallOverlay: () => <div data-testid="mock-wall-overlay" />,
   WallPreview: () => <div data-testid="mock-wall-preview" />,
 }));
+jest.mock('../../../../src/components/editor/RoomCreationOverlay', () => ({
+  RoomCreationOverlay: () => <div data-testid="mock-room-creation" />,
+}));
+jest.mock('../../../../src/components/editor/DoorTool', () => ({
+  DoorTool: () => <div data-testid="mock-door-tool" />,
+}));
+jest.mock('../../../../src/components/editor/WindowTool', () => ({
+  WindowTool: () => <div data-testid="mock-window-tool" />,
+}));
+jest.mock('../../../../src/components/editor/MeasurementOverlay', () => ({
+  MeasurementOverlay: () => <div data-testid="mock-measurement" />,
+}));
 
 // Mock hook
 jest.mock('../../../../src/hooks/useKeyboardSelection', () => ({
@@ -70,6 +82,10 @@ describe('Canvas2D', () => {
     expect(screen.getByTestId('mock-snap-indicator')).toBeInTheDocument();
     expect(screen.getByTestId('mock-wall-overlay')).toBeInTheDocument();
     expect(screen.getByTestId('mock-wall-preview')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-room-creation')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-door-tool')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-window-tool')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-measurement')).toBeInTheDocument();
   });
 
   it('passes cursor position from Viewport to SnapIndicator', () => {

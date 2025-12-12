@@ -7,7 +7,7 @@ import type { Floorplan, Room, Wall, MeasurementUnit, EditorMode, RoomConnection
 import type { Door } from '../types/door';
 import type { Window } from '../types/window';
 import { generateUUID } from '../services/geometry';
-import { calculateArea, calculateVolume, getRoomBounds } from '../services/geometry/room';
+import { calculateArea, calculateVolume, getRoomBounds, getRoomCorners } from '../services/geometry/room';
 import { calculateAllConnections } from '../services/adjacency/graph';
 import { createManualConnection } from '../services/adjacency/manualConnections';
 import { DEFAULT_ROOM_GAP, ROOM_TYPE_MATERIALS } from '../constants/defaults';
@@ -40,6 +40,7 @@ export interface FloorplanActions {
   addRoom: (room: Omit<Room, 'id'>) => Room;
   updateRoom: (id: string, updates: Partial<Room>) => void;
   deleteRoom: (id: string) => void;
+  convertRoomToWalls: (roomId: string) => void;
 
   // Wall operations
   addWall: (wall: Omit<Wall, 'id'>) => Wall;
@@ -269,6 +270,58 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
       selectedRoomId: newSelectedRoomId,
       selectedRoomIds: newSelectedRoomIds,
       isDirty: true,
+    });
+  },
+
+  convertRoomToWalls: (roomId: string) => {
+    const state = get();
+    const room = state.getRoomById(roomId);
+    if (!room || !state.currentFloorplan) return;
+
+    const corners = getRoomCorners(room);
+    // corners are [TL, TR, BR, BL]
+
+    // Create 4 walls
+    const newWallsList: Wall[] = [];
+    for (let i = 0; i < 4; i++) {
+        const from = corners[i];
+        const to = corners[(i + 1) % 4];
+        newWallsList.push({
+            id: generateUUID(),
+            from,
+            to,
+            thickness: 0.2, // Default thickness
+        });
+    }
+
+    // Merge with existing walls
+    const updatedWalls = [...(state.currentFloorplan.walls || []), ...newWallsList];
+
+    // Remove room
+    const updatedRooms = state.currentFloorplan.rooms.filter((r) => r.id !== roomId);
+
+    // Remove associated doors and windows
+    const updatedDoors = state.currentFloorplan.doors.filter((d) => d.roomId !== roomId);
+    const updatedWindows = state.currentFloorplan.windows.filter((w) => w.roomId !== roomId);
+
+    // Recalculate connections
+    const updatedConnections = calculateAllConnections(updatedRooms, state.currentFloorplan.connections);
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      rooms: updatedRooms,
+      walls: updatedWalls,
+      doors: updatedDoors,
+      windows: updatedWindows,
+      connections: updatedConnections,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      selectedRoomId: null,
+      selectedRoomIds: [],
+      isDirty: true
     });
   },
 
