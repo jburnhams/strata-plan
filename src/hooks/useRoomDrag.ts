@@ -5,12 +5,16 @@ import { Position2D } from '../types';
 import { PIXELS_PER_METER } from '../constants/defaults';
 import { useToast } from './use-toast';
 import { doRoomsOverlap } from '../services/geometry/room';
+import { getSnapGuides, SnapGuide } from '../services/geometry/snapping';
 
 export const useRoomDrag = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [overlappingRoomIds, setOverlappingRoomIds] = useState<string[]>([]);
+  const [activeGuides, setActiveGuides] = useState<SnapGuide[]>([]);
+
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const initialPositionsRef = useRef<Map<string, Position2D>>(new Map());
+  const draggedRoomIdRef = useRef<string | null>(null);
 
   const selectedRoomIds = useFloorplanStore((state) => state.selectedRoomIds);
   const updateRoom = useFloorplanStore((state) => state.updateRoom);
@@ -20,7 +24,6 @@ export const useRoomDrag = () => {
 
   const zoomLevel = useUIStore((state) => state.zoomLevel);
   const showGrid = useUIStore((state) => state.showGrid);
-  // Default grid size is 0.5m (from defaults), but we might want to get it from store if configurable
   const gridSize = 0.5;
 
   // Stable ref for state used in event handlers
@@ -28,7 +31,7 @@ export const useRoomDrag = () => {
   stateRef.current = { zoomLevel, showGrid, updateRoom };
 
   const handleGlobalMouseMoveStable = useCallback((e: MouseEvent) => {
-      if (!dragStartRef.current) return;
+      if (!dragStartRef.current || !draggedRoomIdRef.current) return;
       const { zoomLevel, showGrid, updateRoom } = stateRef.current;
 
       const dxPixels = e.clientX - dragStartRef.current.x;
@@ -38,35 +41,67 @@ export const useRoomDrag = () => {
       const dxMeters = dxPixels / scale;
       const dyMeters = dyPixels / scale;
 
-      // Update positions
-      initialPositionsRef.current.forEach((initialPos, roomId) => {
-        let newX = initialPos.x + dxMeters;
-        let newZ = initialPos.z + dyMeters;
-
-        if (showGrid) {
-            newX = Math.round(newX / gridSize) * gridSize;
-            newZ = Math.round(newZ / gridSize) * gridSize;
-        }
-
-        updateRoom(roomId, {
-            position: { x: newX, z: newZ }
-        });
-      });
-
-      // Collision Detection in real-time
       const store = useFloorplanStore.getState();
       const rooms = store.currentFloorplan?.rooms || [];
       const selectedIds = store.selectedRoomIds;
 
-      const newOverlappingIds: string[] = [];
+      // Determine primary room (the one being dragged)
+      const primaryRoomId = draggedRoomIdRef.current;
+      const primaryInitialPos = initialPositionsRef.current.get(primaryRoomId);
+      const primaryRoom = rooms.find(r => r.id === primaryRoomId);
 
-      // Check if any selected room overlaps with any non-selected room
+      if (!primaryRoom || !primaryInitialPos) return;
+
+      // Calculate proposed position for primary room
+      let proposedX = primaryInitialPos.x + dxMeters;
+      let proposedZ = primaryInitialPos.z + dyMeters;
+
+      // Apply Grid Snapping
+      if (showGrid) {
+          proposedX = Math.round(proposedX / gridSize) * gridSize;
+          proposedZ = Math.round(proposedZ / gridSize) * gridSize;
+      }
+
+      // Identify static rooms (not being dragged)
+      const staticRooms = rooms.filter(r => !selectedIds.includes(r.id));
+
+      // Calculate Smart Guides
+      const snapResult = getSnapGuides(
+          primaryRoom,
+          staticRooms,
+          { x: proposedX, z: proposedZ },
+          0.2 // Tolerance
+      );
+
+      // Update guides
+      setActiveGuides(snapResult.guides);
+
+      // Calculate actual delta based on snapped position
+      const finalX = snapResult.position.x;
+      const finalZ = snapResult.position.z;
+
+      const actualDx = finalX - primaryInitialPos.x;
+      const actualDy = finalZ - primaryInitialPos.z;
+
+      // Update positions for ALL selected rooms
+      initialPositionsRef.current.forEach((initialPos, roomId) => {
+        updateRoom(roomId, {
+            position: { x: initialPos.x + actualDx, z: initialPos.z + actualDy }
+        });
+      });
+
+      // Fetch fresh state for collision detection to ensure we check updated positions
+      const updatedStore = useFloorplanStore.getState();
+      const updatedRooms = updatedStore.currentFloorplan?.rooms || [];
+
+      // Collision Detection
+      const newOverlappingIds: string[] = [];
       for (const id of selectedIds) {
-          const room = rooms.find(r => r.id === id);
+          const room = updatedRooms.find(r => r.id === id);
           if (!room) continue;
 
           let roomOverlaps = false;
-          for (const other of rooms) {
+          for (const other of updatedRooms) {
               if (other.id === id) continue; // Don't check against self
 
               if (doRoomsOverlap(room, other)) {
@@ -81,7 +116,7 @@ export const useRoomDrag = () => {
 
       setOverlappingRoomIds(newOverlappingIds);
 
-  }, []); // No deps, stable
+  }, []);
 
   // Wrapper to access fresh state/props without breaking add/remove listener logic
   const toastRef = useRef(toast);
@@ -90,7 +125,9 @@ export const useRoomDrag = () => {
   const handleGlobalMouseUpWrapper = useCallback((e: MouseEvent) => {
      setIsDragging(false);
      dragStartRef.current = null;
+     draggedRoomIdRef.current = null;
      initialPositionsRef.current.clear();
+     setActiveGuides([]);
 
      // Check fresh state from store to be sure about final overlaps
      const store = useFloorplanStore.getState();
@@ -128,7 +165,6 @@ export const useRoomDrag = () => {
   }, [handleGlobalMouseMoveStable]);
 
 
-  // We need to bind the stable handler in start
   const handleDragStartStable = useCallback((e: React.MouseEvent, roomId: string) => {
        if (e.button !== 0) return;
        e.stopPropagation();
@@ -136,6 +172,7 @@ export const useRoomDrag = () => {
 
        setIsDragging(true);
        dragStartRef.current = { x: e.clientX, y: e.clientY };
+       draggedRoomIdRef.current = roomId;
 
        const store = useFloorplanStore.getState();
        let roomsToDragIds = store.selectedRoomIds;
@@ -162,6 +199,7 @@ export const useRoomDrag = () => {
   return {
     isDragging,
     overlappingRoomIds,
+    activeGuides,
     handleDragStart: handleDragStartStable
   };
 };

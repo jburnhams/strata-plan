@@ -230,7 +230,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Show warning indicator if overlapping
   - Allow placement but show warning toast
 
-- [ ] **4.5.4** Implement smart guides:
+- [x] **4.5.4** Implement smart guides:
   - Show alignment guides to other rooms
   - Horizontal guide when top/bottom/center aligns
   - Vertical guide when left/right/center aligns
