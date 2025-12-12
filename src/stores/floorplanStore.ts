@@ -10,7 +10,8 @@ import { generateUUID } from '../services/geometry';
 import { calculateArea, calculateVolume, getRoomBounds } from '../services/geometry/room';
 import { calculateAllConnections } from '../services/adjacency/graph';
 import { createManualConnection } from '../services/adjacency/manualConnections';
-import { DEFAULT_ROOM_GAP } from '../constants/defaults';
+import { DEFAULT_ROOM_GAP, ROOM_TYPE_MATERIALS } from '../constants/defaults';
+import { CeilingMaterial, FloorMaterial, WallMaterial } from '../types/materials';
 
 /**
  * Floorplan store state
@@ -64,6 +65,12 @@ export interface FloorplanActions {
   getConnection: (room1Id: string, room2Id: string) => RoomConnection | null;
   addManualConnection: (room1Id: string, room2Id: string) => void;
   removeConnection: (connectionId: string) => void;
+
+  // Material operations
+  setRoomFloorMaterial: (roomId: string, material: FloorMaterial) => void;
+  setRoomWallMaterial: (roomId: string, material: WallMaterial) => void;
+  setRoomCeilingMaterial: (roomId: string, material: CeilingMaterial) => void;
+  setRoomCustomColor: (roomId: string, surface: 'floor' | 'wall' | 'ceiling', color: string) => void;
 
   // Selection
   selectRoom: (id: string | null) => void;
@@ -175,6 +182,14 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
         x: lastRoomBounds.maxX + DEFAULT_ROOM_GAP,
         z: 0,
       };
+    }
+
+    // Apply default materials based on room type if not already set
+    const typeDefaults = ROOM_TYPE_MATERIALS[room.type];
+    if (typeDefaults) {
+      if (!room.floorMaterial) room.floorMaterial = typeDefaults.floor;
+      if (!room.wallMaterial) room.wallMaterial = typeDefaults.wall;
+      if (!room.ceilingMaterial) room.ceilingMaterial = typeDefaults.ceiling;
     }
 
     const newRooms = [...state.currentFloorplan.rooms, room];
@@ -578,6 +593,41 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
       currentFloorplan: updatedFloorplan,
       isDirty: true,
     });
+  },
+
+  // Material operations
+  setRoomFloorMaterial: (roomId: string, material: FloorMaterial) => {
+    const { updateRoom } = get();
+    updateRoom(roomId, { floorMaterial: material, customFloorColor: undefined });
+  },
+
+  setRoomWallMaterial: (roomId: string, material: WallMaterial) => {
+    const { updateRoom } = get();
+    updateRoom(roomId, { wallMaterial: material, customWallColor: undefined });
+  },
+
+  setRoomCeilingMaterial: (roomId: string, material: CeilingMaterial) => {
+    const { updateRoom } = get();
+    updateRoom(roomId, { ceilingMaterial: material, customCeilingColor: undefined });
+  },
+
+  setRoomCustomColor: (roomId: string, surface: 'floor' | 'wall' | 'ceiling', color: string) => {
+    const { updateRoom } = get();
+    const updates: Partial<Room> = {};
+
+    switch (surface) {
+      case 'floor':
+        updates.customFloorColor = color;
+        break;
+      case 'wall':
+        updates.customWallColor = color;
+        break;
+      case 'ceiling':
+        updates.customCeilingColor = color;
+        break;
+    }
+
+    updateRoom(roomId, updates);
   },
 
   // Selection
