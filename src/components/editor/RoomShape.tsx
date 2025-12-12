@@ -2,6 +2,7 @@ import React from 'react';
 import { Room } from '../../types';
 import { ROOM_TYPE_COLORS } from '../../constants/colors';
 import { DEFAULT_WALL_THICKNESS } from '../../constants/defaults';
+import { FLOOR_MATERIALS } from '../../constants/materialConfigs';
 
 interface RoomShapeProps {
   room: Room;
@@ -26,8 +27,17 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
   onMouseEnter,
   onMouseLeave,
 }) => {
-  // Use type color, or fallback to gray
-  const fill = ROOM_TYPE_COLORS[room.type] || '#cccccc';
+  // Fill color logic
+  let fill = ROOM_TYPE_COLORS[room.type] || '#cccccc';
+
+  // If custom color is set, use it
+  if (room.customFloorColor) {
+    fill = room.customFloorColor;
+  }
+  // Else if material is set, use material default color
+  else if (room.floorMaterial && FLOOR_MATERIALS[room.floorMaterial]) {
+    fill = FLOOR_MATERIALS[room.floorMaterial].defaultColor;
+  }
 
   // Stroke logic
   let stroke = '#666666';

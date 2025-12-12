@@ -39,14 +39,31 @@ export function MaterialPicker({
 
   // Group materials by category if applicable (mostly for floors)
   const groupedMaterials = React.useMemo(() => {
-    const groups: Record<string, typeof materialMap[keyof typeof materialMap][]> = {};
+    // Explicitly define the type for material items
+    type MaterialItem = {
+      id: string;
+      name: string;
+      defaultColor: string;
+      category?: string;
+    };
+
+    const groups: Record<string, MaterialItem[]> = {};
 
     Object.values(materialMap).forEach((material) => {
-      const category = 'category' in material ? (material as any).category : 'Standard';
+      // Cast to any first to safely access category, then to MaterialItem
+      const mat = material as any;
+      const category = 'category' in mat ? mat.category : 'Standard';
+
       if (!groups[category]) {
         groups[category] = [];
       }
-      groups[category].push(material);
+
+      groups[category].push({
+        id: mat.id,
+        name: mat.name,
+        defaultColor: mat.defaultColor,
+        category: category
+      });
     });
 
     return groups;
@@ -98,7 +115,7 @@ export function MaterialPicker({
           <input
             id="custom-color-input"
             type="color"
-            value={customColor || (value && materialMap[value as keyof typeof materialMap]?.defaultColor) || '#ffffff'}
+            value={customColor || (value && (materialMap as any)[value]?.defaultColor) || '#ffffff'}
             onChange={(e) => onCustomColorChange(e.target.value)}
             className="h-9 w-9 cursor-pointer rounded-md border border-input p-1"
           />
