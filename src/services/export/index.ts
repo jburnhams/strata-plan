@@ -1,25 +1,10 @@
 import { Floorplan } from '../../types/floorplan';
 import { exportToJSON } from './jsonExport';
+import { exportToGLTF } from './gltfExport';
+import { GLTFExportOptions, PDFExportOptions, ExportOptions } from './types';
 
+export * from './types';
 export type ExportFormat = 'json' | 'gltf' | 'pdf';
-
-export interface ExportOptions {
-  // Generic options
-}
-
-export interface GLTFExportOptions extends ExportOptions {
-  binary?: boolean;
-  includeTextures?: boolean;
-  quality?: 'low' | 'medium' | 'high';
-}
-
-export interface PDFExportOptions extends ExportOptions {
-  pageSize?: 'a4' | 'letter';
-  orientation?: 'portrait' | 'landscape';
-  includeTable?: boolean;
-  include2DView?: boolean;
-  include3DView?: boolean;
-}
 
 export interface ExportService {
   exportJSON(floorplan: Floorplan): Promise<Blob>;
@@ -68,18 +53,30 @@ export async function exportFloorplan(
 ): Promise<void> {
   let blob: Blob;
 
+  let filenameFormat = format;
+
   switch (format) {
     case 'json':
       blob = await exportToJSON(floorplan);
       break;
     case 'gltf':
-      throw new Error('GLTF export not implemented yet');
+      blob = await exportToGLTF(floorplan, options as GLTFExportOptions);
+      // Determine extension based on binary option.
+      // GLTFExportOptions.binary defaults to true in exportToGLTF.
+      // However, we can't easily see the result blob type here to decide extension without checking options.
+      const gltfOptions = options as GLTFExportOptions;
+      if (gltfOptions?.binary === false) {
+        filenameFormat = 'gltf';
+      } else {
+        filenameFormat = 'glb' as ExportFormat;
+      }
+      break;
     case 'pdf':
       throw new Error('PDF export not implemented yet');
     default:
       throw new Error(`Unsupported export format: ${format}`);
   }
 
-  const filename = generateFilename(floorplan.name, format);
+  const filename = generateFilename(floorplan.name, filenameFormat);
   downloadBlob(blob, filename);
 }
