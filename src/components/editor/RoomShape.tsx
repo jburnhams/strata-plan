@@ -2,6 +2,7 @@ import React from 'react';
 import { Room } from '../../types';
 import { ROOM_TYPE_COLORS } from '../../constants/colors';
 import { DEFAULT_WALL_THICKNESS } from '../../constants/defaults';
+import { FLOOR_MATERIALS } from '../../constants/materialConfigs';
 
 interface RoomShapeProps {
   room: Room;
@@ -26,8 +27,15 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
   onMouseEnter,
   onMouseLeave,
 }) => {
-  // Use type color, or fallback to gray
-  const fill = ROOM_TYPE_COLORS[room.type] || '#cccccc';
+  // Color logic
+  // Priority: Custom Floor Color > Floor Material Default Color > Room Type Default Color > Fallback
+  let fill = ROOM_TYPE_COLORS[room.type] || '#cccccc';
+
+  if (room.customFloorColor) {
+    fill = room.customFloorColor;
+  } else if (room.floorMaterial && FLOOR_MATERIALS[room.floorMaterial]) {
+    fill = FLOOR_MATERIALS[room.floorMaterial].defaultColor;
+  }
 
   // Stroke logic
   let stroke = '#666666';
@@ -74,7 +82,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
         width={room.length}
         height={room.width}
         fill={fill}
-        fillOpacity={0.5}
+        fillOpacity={0.8} // Increased opacity to show material color better
         stroke={stroke}
         strokeWidth={baseStrokeWidth}
       />
@@ -88,7 +96,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
           dominantBaseline="middle"
           fill="#1e293b" // slate-800
           fontSize={fontSize}
-          style={{ userSelect: 'none', pointerEvents: 'none' }}
+          style={{ userSelect: 'none', pointerEvents: 'none', textShadow: '0px 0px 2px white' }}
         >
           {room.name}
         </text>
@@ -102,7 +110,7 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
             dominantBaseline="middle"
             fill="#475569" // slate-600
             fontSize={fontSize * 0.7}
-            style={{ userSelect: 'none', pointerEvents: 'none' }}
+            style={{ userSelect: 'none', pointerEvents: 'none', textShadow: '0px 0px 2px white' }}
           >
             {area.toFixed(1)} m²
           </text>

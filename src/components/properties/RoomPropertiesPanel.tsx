@@ -11,10 +11,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '../ui/accordion';
 import { RoomType } from '../../types/room';
 import { Trash2 } from 'lucide-react';
 import { calculateArea, calculateVolume } from '../../services/geometry/room';
 import { AdjacentRoomsSection } from './AdjacentRoomsSection';
+import { MaterialPicker } from './MaterialPicker';
+import { FLOOR_MATERIALS, WALL_MATERIALS, CEILING_MATERIALS } from '@/constants/materialConfigs';
 
 const ROOM_TYPES: RoomType[] = [
   'bedroom',
@@ -158,23 +166,40 @@ export function RoomPropertiesPanel() {
           </div>
         </div>
 
-        <div className="grid gap-2">
-          <Label htmlFor="room-color">Color</Label>
-          <div className="flex gap-2">
-            <Input
-              id="room-color"
-              type="color"
-              value={selectedRoom.color || '#ffffff'}
-              onChange={(e) => handleChange('color', e.target.value)}
-              className="w-12 h-8 p-1 cursor-pointer"
-            />
-            <Input
-              value={selectedRoom.color || '#ffffff'}
-              onChange={(e) => handleChange('color', e.target.value)}
-              className="font-mono"
-            />
-          </div>
-        </div>
+        {/* Materials Section */}
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="materials">
+            <AccordionTrigger>Materials & Styling</AccordionTrigger>
+            <AccordionContent className="space-y-4 pt-2">
+              <MaterialPicker
+                type="floor"
+                value={selectedRoom.floorMaterial || 'hardwood'}
+                materials={FLOOR_MATERIALS as any}
+                onChange={(m) => handleChange('floorMaterial', m)}
+                customColor={selectedRoom.customFloorColor}
+                onCustomColorChange={(c) => handleChange('customFloorColor', c)}
+              />
+
+              <MaterialPicker
+                type="wall"
+                value={selectedRoom.wallMaterial || 'drywall-painted'}
+                materials={WALL_MATERIALS as any}
+                onChange={(m) => handleChange('wallMaterial', m)}
+                customColor={selectedRoom.customWallColor}
+                onCustomColorChange={(c) => handleChange('customWallColor', c)}
+              />
+
+              <MaterialPicker
+                type="ceiling"
+                value={selectedRoom.ceilingMaterial || 'drywall'}
+                materials={CEILING_MATERIALS as any}
+                onChange={(m) => handleChange('ceilingMaterial', m)}
+                customColor={selectedRoom.customCeilingColor}
+                onCustomColorChange={(c) => handleChange('customCeilingColor', c)}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
 
       <div className="pt-4 border-t">

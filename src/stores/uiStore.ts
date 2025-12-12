@@ -24,6 +24,11 @@ export type Theme = 'light' | 'dark' | 'system';
 export type SaveStatus = 'saved' | 'saving' | 'error' | 'unsaved';
 
 /**
+ * Material quality settings
+ */
+export type MaterialQuality = 'simple' | 'standard' | 'detailed';
+
+/**
  * UI store state
  */
 export interface UIState {
@@ -39,6 +44,7 @@ export interface UIState {
   viewerBrightness: number;
   viewerShadowQuality: 'off' | 'low' | 'medium' | 'high';
   viewerWallOpacity: number;
+  materialQuality: MaterialQuality;
   zoomLevel: number;
   panOffset: Position2D;
   mode: EditorMode;
@@ -68,6 +74,7 @@ export interface UIActions {
   setViewerBrightness: (brightness: number) => void;
   setViewerShadowQuality: (quality: 'off' | 'low' | 'medium' | 'high') => void;
   setViewerWallOpacity: (opacity: number) => void;
+  setMaterialQuality: (quality: MaterialQuality) => void;
   setZoom: (level: number) => void;
   zoomIn: () => void;
   zoomOut: () => void;
@@ -98,6 +105,7 @@ const initialState: UIState = {
   viewerBrightness: 1.0,
   viewerShadowQuality: 'medium',
   viewerWallOpacity: 1.0,
+  materialQuality: 'standard',
   zoomLevel: DEFAULT_ZOOM_LEVEL,
   panOffset: { x: 0, z: 0 },
   mode: 'table',
@@ -179,6 +187,10 @@ export const useUIStore = create<UIStore>()(
         set({ viewerWallOpacity: opacity });
       },
 
+      setMaterialQuality: (quality: MaterialQuality) => {
+        set({ materialQuality: quality });
+      },
+
       setZoom: (level: number) => {
         const clampedZoom = clamp(level, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
         set({ zoomLevel: clampedZoom });
@@ -231,6 +243,7 @@ export const useUIStore = create<UIStore>()(
         viewerBrightness: state.viewerBrightness,
         viewerShadowQuality: state.viewerShadowQuality,
         viewerWallOpacity: state.viewerWallOpacity,
+        materialQuality: state.materialQuality,
       }),
     }
   )

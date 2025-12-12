@@ -19,9 +19,10 @@ import {
   HelpCircle,
   FileImage,
   FileBox,
+  Palette,
 } from 'lucide-react';
 import { CameraControlsRef } from './CameraControls';
-import { useUIStore } from '@/stores/uiStore';
+import { useUIStore, MaterialQuality } from '@/stores/uiStore';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,7 +72,8 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({
     showRoomLabels, toggleRoomLabels,
     viewerBrightness, setViewerBrightness,
     viewerShadowQuality, setViewerShadowQuality,
-    viewerWallOpacity, setViewerWallOpacity
+    viewerWallOpacity, setViewerWallOpacity,
+    materialQuality, setMaterialQuality
   } = useUIStore();
 
   // Keyboard controls
@@ -355,6 +357,26 @@ export const ViewerControls: React.FC<ViewerControlsProps> = ({
                     <SelectItem value="low">Low</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
                     <SelectItem value="high">High (Best)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-1">
+                   <Palette className="h-4 w-4 text-muted-foreground" />
+                   <Label className="text-sm">Material Quality</Label>
+                </div>
+                <Select
+                  value={materialQuality}
+                  onValueChange={(val: any) => setMaterialQuality(val as MaterialQuality)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select quality" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="simple">Simple (Fastest)</SelectItem>
+                    <SelectItem value="standard">Standard</SelectItem>
+                    <SelectItem value="detailed">Detailed (Best)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

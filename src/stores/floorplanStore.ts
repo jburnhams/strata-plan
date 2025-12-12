@@ -4,6 +4,7 @@
 
 import { create } from 'zustand';
 import type { Floorplan, Room, Wall, Door, Window, MeasurementUnit, EditorMode, RoomConnection } from '../types';
+import { FloorMaterial, WallMaterial, CeilingMaterial } from '../types/materials';
 import { generateUUID } from '../services/geometry';
 import { calculateArea, calculateVolume, getRoomBounds } from '../services/geometry/room';
 import { calculateAllConnections } from '../services/adjacency/graph';
@@ -37,6 +38,12 @@ export interface FloorplanActions {
   addRoom: (room: Omit<Room, 'id'>) => Room;
   updateRoom: (id: string, updates: Partial<Room>) => void;
   deleteRoom: (id: string) => void;
+
+  // Material operations
+  setRoomFloorMaterial: (roomId: string, material: FloorMaterial) => void;
+  setRoomWallMaterial: (roomId: string, material: WallMaterial) => void;
+  setRoomCeilingMaterial: (roomId: string, material: CeilingMaterial) => void;
+  setRoomCustomColor: (roomId: string, surface: 'floor' | 'wall' | 'ceiling', color: string) => void;
 
   // Wall operations
   updateWall: (id: string, updates: Partial<Wall>) => void;
@@ -103,6 +110,20 @@ const initialState: FloorplanState = {
   isDirty: false,
 };
 
+// Material defaults by room type
+const ROOM_TYPE_MATERIALS: Record<string, { floor: FloorMaterial; wall: WallMaterial; ceiling?: CeilingMaterial }> = {
+  bedroom: { floor: 'hardwood', wall: 'drywall-painted' },
+  kitchen: { floor: 'tile-ceramic', wall: 'drywall-painted' },
+  bathroom: { floor: 'tile-porcelain', wall: 'tile-ceramic' },
+  living: { floor: 'hardwood', wall: 'drywall-painted' },
+  garage: { floor: 'concrete', wall: 'drywall-white' },
+  dining: { floor: 'hardwood', wall: 'drywall-painted' },
+  office: { floor: 'carpet', wall: 'drywall-painted' },
+  hallway: { floor: 'hardwood', wall: 'drywall-painted' },
+  closet: { floor: 'carpet', wall: 'drywall-painted' },
+  other: { floor: 'laminate', wall: 'drywall-painted' },
+};
+
 /**
  * Floorplan store
  */
@@ -152,9 +173,14 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
       throw new Error('No floorplan loaded');
     }
 
+    // Apply defaults based on room type if not provided
+    const defaults = ROOM_TYPE_MATERIALS[roomData.type] || ROOM_TYPE_MATERIALS['other'];
     const room: Room = {
       ...roomData,
       id: generateUUID(),
+      floorMaterial: roomData.floorMaterial || defaults.floor,
+      wallMaterial: roomData.wallMaterial || defaults.wall,
+      ceilingMaterial: roomData.ceilingMaterial || defaults.ceiling,
     };
 
     // Auto-calculate position if not provided
@@ -247,6 +273,27 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
       selectedRoomIds: newSelectedRoomIds,
       isDirty: true,
     });
+  },
+
+  // Material operations
+  setRoomFloorMaterial: (roomId: string, material: FloorMaterial) => {
+    get().updateRoom(roomId, { floorMaterial: material });
+  },
+
+  setRoomWallMaterial: (roomId: string, material: WallMaterial) => {
+    get().updateRoom(roomId, { wallMaterial: material });
+  },
+
+  setRoomCeilingMaterial: (roomId: string, material: CeilingMaterial) => {
+    get().updateRoom(roomId, { ceilingMaterial: material });
+  },
+
+  setRoomCustomColor: (roomId: string, surface: 'floor' | 'wall' | 'ceiling', color: string) => {
+    const updates: Partial<Room> = {};
+    if (surface === 'floor') updates.customFloorColor = color;
+    if (surface === 'wall') updates.customWallColor = color;
+    if (surface === 'ceiling') updates.customCeilingColor = color;
+    get().updateRoom(roomId, updates);
   },
 
   // Wall operations

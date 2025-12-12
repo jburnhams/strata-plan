@@ -4,6 +4,8 @@ import { Text, Billboard } from '@react-three/drei';
 import * as THREE from 'three';
 import { Room } from '../../types';
 import { generateRoomGeometry } from '../../services/geometry3d/roomGeometry';
+import { createRoomMaterial } from '../../services/geometry3d/materials';
+import { useUIStore } from '../../stores/uiStore';
 
 export interface RoomMeshProps {
   room: Room;
@@ -22,34 +24,36 @@ const RoomMeshComponent: React.FC<RoomMeshProps> = ({
 }) => {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
+  const materialQuality = useUIStore((state) => state.materialQuality || 'standard');
+
+  // Generate materials
+  const materials = useMemo(() => {
+    return createRoomMaterial(room, {
+      quality: materialQuality as 'simple' | 'standard' | 'detailed',
+      wallOpacity
+    });
+  }, [room, materialQuality, wallOpacity]);
 
   // Memoize geometry generation
   const roomGroup = useMemo(() => {
     const group = generateRoomGeometry(room);
 
-    // Apply opacity settings immediately after generation
-    if (wallOpacity < 1.0) {
-       group.traverse((child) => {
-         if ((child as THREE.Mesh).isMesh && child.userData.type === 'wall') {
-            const mesh = child as THREE.Mesh;
-            const mat = mesh.material;
-            if (Array.isArray(mat)) {
-                mat.forEach(m => {
-                    m.transparent = true;
-                    m.opacity = wallOpacity;
-                    m.needsUpdate = true;
-                });
-            } else {
-                mat.transparent = true;
-                mat.opacity = wallOpacity;
-                mat.needsUpdate = true;
-            }
-         }
-       });
-    }
+    // Apply materials to meshes in the group
+    group.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        if (mesh.userData.type === 'floor') {
+          mesh.material = materials.floor;
+        } else if (mesh.userData.type === 'ceiling') {
+          mesh.material = materials.ceiling;
+        } else if (mesh.userData.type === 'wall') {
+          mesh.material = materials.walls;
+        }
+      }
+    });
 
     return group;
-  }, [room, wallOpacity]);
+  }, [room, materials]);
 
   // Clean up resources when roomGroup changes or component unmounts
   useEffect(() => {
@@ -61,6 +65,10 @@ const RoomMeshComponent: React.FC<RoomMeshProps> = ({
                     if (mesh.geometry) {
                         mesh.geometry.dispose();
                     }
+                    // Do not dispose materials here as they might be shared/cached if we implemented caching fully
+                    // But in current createRoomMaterial they are new instances per room.
+                    // For safety, we can dispose them if they are unique.
+                    // createRoomMaterial returns new instances currently.
                     if (mesh.material) {
                         if (Array.isArray(mesh.material)) {
                             mesh.material.forEach(m => m.dispose());
