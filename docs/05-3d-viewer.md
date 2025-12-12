@@ -489,7 +489,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Subtasks
 
-- [ ] **5.11.1** Implement level of detail (LOD):
+- [x] **5.11.1** Implement level of detail (LOD):
   - Simplified geometry at distance
   - Full detail when close
 
@@ -500,7 +500,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 - [ ] **5.11.3** Geometry instancing for repeated elements:
   - Use InstancedMesh for doors/windows if many
 
-- [ ] **5.11.4** Implement render-on-demand:
+- [x] **5.11.4** Implement render-on-demand:
   - Only render when camera moves or scene changes
   - Use dirty flag pattern
 

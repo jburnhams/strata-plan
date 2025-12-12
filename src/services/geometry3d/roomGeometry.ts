@@ -116,8 +116,11 @@ export function generateRoomGeometry(
     return shape;
   };
 
+  // Determine material quality based on detail level
+  const materialQuality = detailLevel === 'low' ? 'simple' : 'standard';
+
   // Create materials
-  const materials = createRoomMaterial(room, { quality: 'standard', wallOpacity });
+  const materials = createRoomMaterial(room, { quality: materialQuality, wallOpacity });
 
   // --- Floor ---
   const floorShape = new THREE.Shape();

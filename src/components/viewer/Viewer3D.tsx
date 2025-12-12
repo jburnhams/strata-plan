@@ -205,6 +205,7 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({
       <Suspense fallback={<ViewerLoader />}>
         <Canvas
           shadows
+          frameloop={isFirstPerson ? 'always' : 'demand'}
           gl={{ preserveDrawingBuffer: true }} // Required for screenshots
           camera={{ position: [0, 10, 10], fov: 50 }}
           onCreated={({ gl }) => {
