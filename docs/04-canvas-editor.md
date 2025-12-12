@@ -386,7 +386,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Subtasks
 
-- [ ] **4.9.1** Implement enclosed area detection:
+- [x] **4.9.1** Implement enclosed area detection:
   - Find closed polygons formed by walls
   - Use graph algorithm (find cycles)
 
@@ -395,7 +395,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Highlight detected area on hover
   - Click creates room with that boundary
 
-- [ ] **4.9.3** Implement polygon-to-room conversion:
+- [x] **4.9.3** Implement polygon-to-room conversion:
   - Calculate bounding box for dimensions
   - Set room position from bounding box
   - Store polygon vertices for non-rectangular rooms
@@ -407,10 +407,10 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Unit Tests
 
-- [ ] Enclosed area detection finds simple rectangles
-- [ ] Enclosed area detection finds L-shapes
+- [x] Enclosed area detection finds simple rectangles
+- [x] Enclosed area detection finds L-shapes
 - [ ] Click inside area creates room
-- [ ] Polygon area calculated correctly
+- [x] Polygon area calculated correctly
 
 ---
 
@@ -555,6 +555,8 @@ tests/
 │   └── hooks/
 │       ├── useRoomResize.test.ts
 │       └── useRoomResize_advanced.test.ts
+│   └── services/
+│       └── roomDetection.test.ts
 └── integration/
     └── canvas-editor.integration.test.tsx
 ```
