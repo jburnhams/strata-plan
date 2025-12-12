@@ -4,15 +4,26 @@ import { WallSide } from '../../types/geometry';
 import { createRoomMaterial } from './materials';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
+export interface RoomGeometryOptions {
+  wallOpacity?: number;
+  detailLevel?: 'high' | 'low';
+}
+
 /**
  * Generate a 3D group representing a room, including floor, ceiling, and walls.
  * @param room The room to generate geometry for
  * @param doors List of all doors in the floorplan (will be filtered by roomId)
  * @param windows List of all windows in the floorplan (will be filtered by roomId)
- * @param wallOpacity Opacity for the walls (0.0 to 1.0)
+ * @param options Options for geometry generation
  * @returns A THREE.Group containing the room parts
  */
-export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Window[] = [], wallOpacity: number = 1.0): THREE.Group {
+export function generateRoomGeometry(
+  room: Room,
+  doors: Door[] = [],
+  windows: Window[] = [],
+  options: RoomGeometryOptions = {}
+): THREE.Group {
+  const { wallOpacity = 1.0, detailLevel = 'high' } = options;
   const group = new THREE.Group();
 
   // Calculate effective dimensions based on rotation
@@ -38,66 +49,69 @@ export function generateRoomGeometry(room: Room, doors: Door[] = [], windows: Wi
     shape.lineTo(0, h);
     shape.lineTo(0, 0);
 
-    // Map the PHYSICAL side (which we are generating) to the LOGICAL side (in room data).
-    let mappedSide: WallSide = side;
+    // Only add holes if detail level is high
+    if (detailLevel === 'high') {
+      // Map the PHYSICAL side (which we are generating) to the LOGICAL side (in room data).
+      let mappedSide: WallSide = side;
 
-    switch (room.rotation) {
-      case 0:
-        if (side === 'north') mappedSide = 'north';
-        if (side === 'south') mappedSide = 'south';
-        if (side === 'west') mappedSide = 'west';
-        if (side === 'east') mappedSide = 'east';
-        break;
-      case 90:
-        if (side === 'north') mappedSide = 'east';
-        if (side === 'south') mappedSide = 'west';
-        if (side === 'west') mappedSide = 'north';
-        if (side === 'east') mappedSide = 'south';
-        break;
-      case 180:
-        if (side === 'north') mappedSide = 'south';
-        if (side === 'south') mappedSide = 'north';
-        if (side === 'west') mappedSide = 'east';
-        if (side === 'east') mappedSide = 'west';
-        break;
-      case 270:
-        if (side === 'north') mappedSide = 'west';
-        if (side === 'south') mappedSide = 'east';
-        if (side === 'west') mappedSide = 'south';
-        if (side === 'east') mappedSide = 'north';
-        break;
+      switch (room.rotation) {
+        case 0:
+          if (side === 'north') mappedSide = 'north';
+          if (side === 'south') mappedSide = 'south';
+          if (side === 'west') mappedSide = 'west';
+          if (side === 'east') mappedSide = 'east';
+          break;
+        case 90:
+          if (side === 'north') mappedSide = 'east';
+          if (side === 'south') mappedSide = 'west';
+          if (side === 'west') mappedSide = 'north';
+          if (side === 'east') mappedSide = 'south';
+          break;
+        case 180:
+          if (side === 'north') mappedSide = 'south';
+          if (side === 'south') mappedSide = 'north';
+          if (side === 'west') mappedSide = 'east';
+          if (side === 'east') mappedSide = 'west';
+          break;
+        case 270:
+          if (side === 'north') mappedSide = 'west';
+          if (side === 'south') mappedSide = 'east';
+          if (side === 'west') mappedSide = 'south';
+          if (side === 'east') mappedSide = 'north';
+          break;
+      }
+
+      const sideDoors = roomDoors.filter(d => d.wallSide === mappedSide);
+      const sideWindows = roomWindows.filter(w => w.wallSide === mappedSide);
+
+      // We invert the position (1-pos) because we generate walls with "Outward" normals,
+      // which corresponds to traversing the perimeter in reverse (CCW vs CW) or simply
+      // looking at the wall from the outside where Left/Right is reversed compared to segment direction.
+      const addHole = (centerRel: number, width: number, height: number, y: number) => {
+         const hole = new THREE.Path();
+         const correctedRel = 1 - centerRel;
+         const x = correctedRel * w;
+         const xMin = x - width / 2;
+         const xMax = x + width / 2;
+         const yMin = y;
+         const yMax = y + height;
+
+         hole.moveTo(xMin, yMin);
+         hole.lineTo(xMax, yMin);
+         hole.lineTo(xMax, yMax);
+         hole.lineTo(xMin, yMax);
+         hole.lineTo(xMin, yMin);
+         shape.holes.push(hole);
+      };
+
+      sideDoors.forEach(door => {
+          addHole(door.position, door.width, door.height, 0);
+      });
+
+      sideWindows.forEach(window => {
+          addHole(window.position, window.width, window.height, window.sillHeight);
+      });
     }
-
-    const sideDoors = roomDoors.filter(d => d.wallSide === mappedSide);
-    const sideWindows = roomWindows.filter(w => w.wallSide === mappedSide);
-
-    // We invert the position (1-pos) because we generate walls with "Outward" normals,
-    // which corresponds to traversing the perimeter in reverse (CCW vs CW) or simply
-    // looking at the wall from the outside where Left/Right is reversed compared to segment direction.
-    const addHole = (centerRel: number, width: number, height: number, y: number) => {
-       const hole = new THREE.Path();
-       const correctedRel = 1 - centerRel;
-       const x = correctedRel * w;
-       const xMin = x - width / 2;
-       const xMax = x + width / 2;
-       const yMin = y;
-       const yMax = y + height;
-
-       hole.moveTo(xMin, yMin);
-       hole.lineTo(xMax, yMin);
-       hole.lineTo(xMax, yMax);
-       hole.lineTo(xMin, yMax);
-       hole.lineTo(xMin, yMin);
-       shape.holes.push(hole);
-    };
-
-    sideDoors.forEach(door => {
-        addHole(door.position, door.width, door.height, 0);
-    });
-
-    sideWindows.forEach(window => {
-        addHole(window.position, window.width, window.height, window.sillHeight);
-    });
 
     return shape;
   };
@@ -201,6 +215,7 @@ export function generateFloorplanGeometry(floorplan: Floorplan): THREE.Group {
   group.userData = { floorplanId: floorplan.id, type: 'floorplan' };
 
   floorplan.rooms.forEach(room => {
+    // Pass default options
     const roomGroup = generateRoomGeometry(room, floorplan.doors, floorplan.windows);
     group.add(roomGroup);
   });

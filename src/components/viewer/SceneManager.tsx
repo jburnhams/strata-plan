@@ -13,7 +13,7 @@ export const SceneManager: React.FC<SceneManagerProps> = ({
   showLabels = true
 }) => {
   // Use the sync hook to get debounced floorplan data
-  const { rooms, sceneVersion } = useSceneSync(100);
+  const { rooms, floorplan, sceneVersion } = useSceneSync(100);
 
   const selectedRoomId = useFloorplanStore(state => state.selectedRoomId);
   const selectedRoomIds = useFloorplanStore(state => state.selectedRoomIds);
@@ -35,6 +35,8 @@ export const SceneManager: React.FC<SceneManagerProps> = ({
         <RoomMesh
           key={room.id}
           room={room}
+          doors={floorplan?.doors}
+          windows={floorplan?.windows}
           isSelected={selectedRoomId === room.id || selectedRoomIds.includes(room.id)}
           onSelect={handleSelect}
           showLabels={showLabels}
