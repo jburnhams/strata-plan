@@ -324,7 +324,7 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Subtasks
 
-- [ ] **9.7.1** Create migration framework:
+- [x] **9.7.1** Create migration framework:
   ```typescript
   interface Migration {
     fromVersion: string
@@ -337,7 +337,7 @@ This section implements client-side persistence using IndexedDB. All project dat
   ]
   ```
 
-- [ ] **9.7.2** Implement migration runner:
+- [x] **9.7.2** Implement migration runner:
   ```typescript
   function migrateData(data: unknown, fromVersion: string, toVersion: string): unknown
   ```
@@ -345,17 +345,17 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Run migrations in sequence
   - Return migrated data
 
-- [ ] **9.7.3** Trigger migration on load:
+- [x] **9.7.3** Trigger migration on load:
   - Check stored version vs current
   - Run migrations if version mismatch
   - Save migrated data back
 
-- [ ] **9.7.4** Handle migration errors:
+- [x] **9.7.4** Handle migration errors:
   - Log error details
   - Offer to export raw data for recovery
   - Don't corrupt original data
 
-- [ ] **9.7.5** Example migration (for future):
+- [x] **9.7.5** Example migration (for future):
   ```typescript
   // v1.0.0 → v1.1.0: Add floorMaterial to rooms
   {
@@ -373,9 +373,9 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Unit Tests
 
-- [ ] Migration transforms data correctly
-- [ ] Multiple migrations run in sequence
-- [ ] Unknown version handled gracefully
+- [x] Migration transforms data correctly
+- [x] Multiple migrations run in sequence
+- [x] Unknown version handled gracefully
 
 ---
 
@@ -385,7 +385,7 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Subtasks
 
-- [ ] **9.8.1** Define settings schema:
+- [x] **9.8.1** Define settings schema:
   ```typescript
   interface UserSettings {
     theme: 'light' | 'dark' | 'system'
@@ -401,14 +401,14 @@ This section implements client-side persistence using IndexedDB. All project dat
   }
   ```
 
-- [ ] **9.8.2** Save settings:
+- [x] **9.8.2** Save settings:
   ```typescript
   async function saveSettings(settings: Partial<UserSettings>): Promise<void>
   ```
   - Merge with existing settings
   - Store in IndexedDB 'settings' store
 
-- [ ] **9.8.3** Load settings:
+- [x] **9.8.3** Load settings:
   ```typescript
   async function loadSettings(): Promise<UserSettings>
   ```
@@ -419,16 +419,16 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Load settings into uiStore on app start
   - Save settings when uiStore changes
 
-- [ ] **9.8.5** Recent projects tracking:
+- [x] **9.8.5** Recent projects tracking:
   - Update on project open
   - Keep last 5 projects
   - Remove deleted projects from list
 
 ### Unit Tests
 
-- [ ] Settings save and load correctly
-- [ ] Defaults applied for missing settings
-- [ ] Recent projects list maintains limit
+- [x] Settings save and load correctly
+- [x] Defaults applied for missing settings
+- [x] Recent projects list maintains limit
 
 ---
 
@@ -438,18 +438,18 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Subtasks
 
-- [ ] **9.9.1** Check available storage:
+- [x] **9.9.1** Check available storage:
   ```typescript
   async function getStorageInfo(): Promise<{ used: number; available: number }>
   ```
   - Use StorageManager API if available
   - Fallback to estimation
 
-- [ ] **9.9.2** Monitor storage usage:
+- [x] **9.9.2** Monitor storage usage:
   - Calculate current usage
   - Warn if approaching quota (>80%)
 
-- [ ] **9.9.3** Storage warning UI:
+- [x] **9.9.3** Storage warning UI:
   - Toast when storage is low
   - Suggest exporting/deleting old projects
 
@@ -460,8 +460,8 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Unit Tests
 
-- [ ] Storage info returns values
-- [ ] Warning triggers at threshold
+- [x] Storage info returns values
+- [x] Warning triggers at threshold
 
 ---
 
@@ -471,7 +471,7 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Subtasks
 
-- [ ] **9.10.1** Create unified storage service:
+- [x] **9.10.1** Create unified storage service:
   ```typescript
   const storageService = {
     projects: projectStorage,
@@ -486,13 +486,13 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Load settings into stores
   - Handle initialization errors
 
-- [ ] **9.10.3** Create storage hooks:
+- [x] **9.10.3** Create storage hooks:
   ```typescript
   useProject(id: string): { project: Floorplan | null, loading: boolean, error: Error | null }
   useProjectList(): { projects: ProjectMetadata[], loading: boolean }
   ```
 
-- [ ] **9.10.4** Error handling:
+- [x] **9.10.4** Error handling:
   - IndexedDB not available (private browsing)
   - Quota exceeded
   - Corruption detected
@@ -500,8 +500,8 @@ This section implements client-side persistence using IndexedDB. All project dat
 ### Unit Tests
 
 - [ ] Service initializes correctly
-- [ ] Hooks return loading states
-- [ ] Errors propagate correctly
+- [x] Hooks return loading states
+- [x] Errors propagate correctly
 
 ---
 
@@ -524,16 +524,16 @@ Note: IndexedDB testing may require `fake-indexeddb` package for Jest.
 
 ## Acceptance Criteria
 
-- [ ] Projects save to IndexedDB successfully
-- [ ] Projects load and restore completely
-- [ ] Auto-save works without data loss
-- [ ] Manual save (Ctrl+S) works
-- [ ] Project list shows all saved projects
-- [ ] Delete removes project permanently
-- [ ] Settings persist across sessions
-- [ ] Data migration handles version changes
-- [ ] Storage errors handled gracefully
-- [ ] Unit test coverage > 85%
+- [x] Projects save to IndexedDB successfully
+- [x] Projects load and restore completely
+- [x] Auto-save works without data loss
+- [x] Manual save (Ctrl+S) works
+- [x] Project list shows all saved projects
+- [x] Delete removes project permanently
+- [x] Settings persist across sessions
+- [x] Data migration handles version changes
+- [x] Storage errors handled gracefully
+- [x] Unit test coverage > 85%
 
 ---
 

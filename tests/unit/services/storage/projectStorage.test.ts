@@ -1,11 +1,22 @@
 import { saveProject, loadProject, updateProject, deleteProject, listProjects, projectExists } from '@/services/storage/projectStorage';
 import { initDatabase, StoredProject } from '@/services/storage/database';
 import { serializeFloorplan, deserializeFloorplan } from '@/services/storage/serialization';
+import { migrateData } from '@/services/storage/migrations';
 import { Floorplan } from '@/types/floorplan';
 
 // Mock dependencies
 jest.mock('@/services/storage/database');
-jest.mock('@/services/storage/serialization');
+jest.mock('@/services/storage/serialization', () => ({
+    serializeFloorplan: jest.fn(),
+    deserializeFloorplan: jest.fn(),
+    CURRENT_VERSION: '1.0.0', // Ensure this is exported for the mock
+}));
+jest.mock('@/services/storage/migrations');
+
+// Need to import CURRENT_VERSION to use it in tests, but we mocked it.
+// However, since we defined the mock factory above, we can assume '1.0.0' is used internally by the SUT if it imports it.
+// To use it here, we can just use the literal '1.0.0'.
+const MOCK_CURRENT_VERSION = '1.0.0';
 
 describe('Project Storage Service', () => {
   const mockDb = {
@@ -35,8 +46,12 @@ describe('Project Storage Service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (initDatabase as jest.Mock).mockResolvedValue(mockDb);
+    // Re-setup the mocks because jest.resetModules() or similar might clear them,
+    // but mainly to be explicit about return values.
+    const { serializeFloorplan, deserializeFloorplan } = require('@/services/storage/serialization');
     (serializeFloorplan as jest.Mock).mockReturnValue(mockSerialized);
     (deserializeFloorplan as jest.Mock).mockReturnValue(mockFloorplan);
+    (migrateData as jest.Mock).mockImplementation((data) => data);
   });
 
   describe('saveProject', () => {
@@ -60,13 +75,14 @@ describe('Project Storage Service', () => {
 
   describe('loadProject', () => {
     it('retrieves and deserializes the project', async () => {
-      const storedProject = { data: mockSerialized };
+      const storedProject = { data: { ...mockSerialized, version: MOCK_CURRENT_VERSION } };
       mockDb.get.mockResolvedValue(storedProject);
 
       const result = await loadProject('p1');
 
       expect(mockDb.get).toHaveBeenCalledWith('projects', 'p1');
-      expect(deserializeFloorplan).toHaveBeenCalledWith(mockSerialized);
+      expect(migrateData).not.toHaveBeenCalled();
+      expect(deserializeFloorplan).toHaveBeenCalledWith(storedProject.data);
       expect(result).toBe(mockFloorplan);
     });
 
@@ -76,8 +92,28 @@ describe('Project Storage Service', () => {
       expect(result).toBeNull();
     });
 
+    it('triggers migration for old versions and saves back', async () => {
+       const oldData = { ...mockSerialized, version: '0.9.0' };
+       const storedProject = { id: 'p1', data: oldData };
+       const migratedData = { ...oldData, version: MOCK_CURRENT_VERSION, migrated: true };
+
+       mockDb.get.mockResolvedValue(storedProject);
+       (migrateData as jest.Mock).mockReturnValue(migratedData);
+       (deserializeFloorplan as jest.Mock).mockReturnValue(mockFloorplan);
+
+       await loadProject('p1');
+
+       expect(migrateData).toHaveBeenCalledWith(oldData, MOCK_CURRENT_VERSION);
+       expect(mockDb.put).toHaveBeenCalledWith('projects', expect.objectContaining({
+           data: migratedData,
+           version: MOCK_CURRENT_VERSION
+       }));
+       expect(deserializeFloorplan).toHaveBeenCalledWith(migratedData);
+    });
+
     it('throws error if deserialization fails', async () => {
         mockDb.get.mockResolvedValue({ data: mockSerialized });
+        const { deserializeFloorplan } = require('@/services/storage/serialization');
         (deserializeFloorplan as jest.Mock).mockImplementation(() => {
             throw new Error('Deserialization error');
         });
