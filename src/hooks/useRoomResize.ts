@@ -29,99 +29,165 @@ export const useRoomResize = () => {
     if (!resizeStartRef.current || !initialRoomRef.current || !activeHandleRef.current) return;
 
     const { zoomLevel, showGrid, updateRoom } = stateRef.current;
+    const initialRoom = initialRoomRef.current;
+    const handle = activeHandleRef.current;
 
     const dxPixels = e.clientX - resizeStartRef.current.x;
     const dyPixels = e.clientY - resizeStartRef.current.y;
 
     const scale = PIXELS_PER_METER * zoomLevel;
-    const dxMeters = dxPixels / scale;
-    const dyMeters = dyPixels / scale;
+    let dxMeters = dxPixels / scale;
+    let dyMeters = dyPixels / scale;
 
-    const initialRoom = initialRoomRef.current;
-    const handle = activeHandleRef.current;
-
-    let newX = initialRoom.position.x;
-    let newZ = initialRoom.position.z;
-    let newLength = initialRoom.length;
-    let newWidth = initialRoom.width;
-
-    // Calculate raw new dimensions based on handle
-    if (handle.includes('e')) {
-      newLength = initialRoom.length + dxMeters;
-    }
-    if (handle.includes('w')) {
-      newLength = initialRoom.length - dxMeters;
-      newX = initialRoom.position.x + dxMeters;
-    }
-    if (handle.includes('s')) {
-      newWidth = initialRoom.width + dyMeters;
-    }
-    if (handle.includes('n')) {
-      newWidth = initialRoom.width - dyMeters;
-      newZ = initialRoom.position.z + dyMeters;
-    }
-
-    // Apply grid snapping to position if grid enabled
-    // Note: If we snap position, we must adjust length/width to keep other edge fixed?
-    // Actually, usually we snap the *moving edge* to the grid.
+    // Grid snapping logic (simplified: snap the delta or the resulting edge?)
+    // Existing logic snapped the resulting edge coordinate.
+    // Let's stick to calculating target edge and snapping it, then deriving dx/dy.
 
     if (showGrid) {
-      // Calculate world coordinate of moving edges
-      let rightEdge = newX + newLength;
-      let bottomEdge = newZ + newWidth;
-      let leftEdge = newX;
-      let topEdge = newZ;
+        // Calculate where the handle *would* be
+        // Only apply to primary axes involved in handle
+        // E.g. 'e' involves x. 's' involves z. 'se' involves both.
 
-      if (handle.includes('e')) {
-        rightEdge = Math.round(rightEdge / gridSize) * gridSize;
-        newLength = rightEdge - newX;
-      }
-      if (handle.includes('w')) {
-        leftEdge = Math.round(leftEdge / gridSize) * gridSize;
-        const diff = leftEdge - newX; // shift amount
-        newX = leftEdge;
-        newLength = newLength - diff;
-      }
-      if (handle.includes('s')) {
-        bottomEdge = Math.round(bottomEdge / gridSize) * gridSize;
-        newWidth = bottomEdge - newZ;
-      }
-      if (handle.includes('n')) {
-        topEdge = Math.round(topEdge / gridSize) * gridSize;
-        const diff = topEdge - newZ;
-        newZ = topEdge;
-        newWidth = newWidth - diff;
-      }
+        let targetX = handle.includes('e') ? initialRoom.position.x + initialRoom.length + dxMeters :
+                      handle.includes('w') ? initialRoom.position.x + dxMeters : null;
+
+        let targetZ = handle.includes('s') ? initialRoom.position.z + initialRoom.width + dyMeters :
+                      handle.includes('n') ? initialRoom.position.z + dyMeters : null;
+
+        if (targetX !== null) {
+            const snappedX = Math.round(targetX / gridSize) * gridSize;
+            const diffX = snappedX - targetX;
+            dxMeters += diffX;
+        }
+
+        if (targetZ !== null) {
+            const snappedZ = Math.round(targetZ / gridSize) * gridSize;
+            const diffZ = snappedZ - targetZ;
+            dyMeters += diffZ;
+        }
     }
 
-    // Apply min/max constraints
-    // If w/n (moving origin), we need to cap change so it doesn't flip or go too small
+    // Logic for Dimensions
+    const isAlt = e.altKey;
+    const isShift = e.shiftKey;
 
-    // Length constraints
+    let deltaL = 0;
+    let deltaW = 0;
+
+    // Calculate raw deltas based on handle
+    if (handle.includes('e')) deltaL += dxMeters;
+    if (handle.includes('w')) deltaL -= dxMeters;
+    if (handle.includes('s')) deltaW += dyMeters;
+    if (handle.includes('n')) deltaW -= dyMeters;
+
+    // Apply Alt (Center Resize)
+    if (isAlt) {
+        deltaL *= 2;
+        deltaW *= 2;
+    }
+
+    let newLength = initialRoom.length + deltaL;
+    let newWidth = initialRoom.width + deltaW;
+
+    // Apply Shift (Proportional)
+    if (isShift) {
+        const ratio = initialRoom.width / initialRoom.length;
+
+        const isCorner = handle.length === 2; // ne, nw, se, sw
+        const isEdge = !isCorner;
+
+        if (isCorner) {
+            // Use dominant change
+            // Compare absolute deltas? Or relative deltas?
+            // Usually absolute mouse movement.
+            // But dxMeters and dyMeters might be conflicting signs.
+            // Let's check which dimension changed more relative to its size? Or just absolute?
+            // "hold shift to maintain aspect ratio".
+            // Typically driven by the axis with largest movement.
+            if (Math.abs(dxMeters) > Math.abs(dyMeters)) {
+                // Drive by Length
+                newWidth = newLength * ratio;
+            } else {
+                // Drive by Width
+                newLength = newWidth / ratio;
+            }
+        } else if (isEdge) {
+            if (handle.includes('e') || handle.includes('w')) {
+                // Driving Length
+                newWidth = newLength * ratio;
+            } else {
+                // Driving Width
+                newLength = newWidth / ratio;
+            }
+        }
+    }
+
+    // Constraints
     if (newLength < MIN_DIMENSION) {
-      if (handle.includes('w')) {
-        // If left edge moving right, stop it at min width from right edge
-        newX = (initialRoom.position.x + initialRoom.length) - MIN_DIMENSION;
-      }
-      newLength = MIN_DIMENSION;
+        newLength = MIN_DIMENSION;
+        if (isShift) newWidth = newLength * (initialRoom.width / initialRoom.length);
     } else if (newLength > MAX_DIMENSION) {
-       if (handle.includes('w')) {
-         newX = (initialRoom.position.x + initialRoom.length) - MAX_DIMENSION;
-       }
-       newLength = MAX_DIMENSION;
+        newLength = MAX_DIMENSION;
+        if (isShift) newWidth = newLength * (initialRoom.width / initialRoom.length);
     }
 
-    // Width constraints
     if (newWidth < MIN_DIMENSION) {
-      if (handle.includes('n')) {
-         newZ = (initialRoom.position.z + initialRoom.width) - MIN_DIMENSION;
-      }
-      newWidth = MIN_DIMENSION;
+        newWidth = MIN_DIMENSION;
+        if (isShift) newLength = newWidth / (initialRoom.width / initialRoom.length);
     } else if (newWidth > MAX_DIMENSION) {
-      if (handle.includes('n')) {
-        newZ = (initialRoom.position.z + initialRoom.width) - MAX_DIMENSION;
-      }
-      newWidth = MAX_DIMENSION;
+        newWidth = MAX_DIMENSION;
+        if (isShift) newLength = newWidth / (initialRoom.width / initialRoom.length);
+    }
+
+    // Calculate Position
+    let newX = initialRoom.position.x;
+    let newZ = initialRoom.position.z;
+
+    if (isAlt) {
+        // Center Resize: Center stays fixed
+        const centerX = initialRoom.position.x + initialRoom.length / 2;
+        const centerZ = initialRoom.position.z + initialRoom.width / 2;
+
+        newX = centerX - newLength / 2;
+        newZ = centerZ - newWidth / 2;
+    } else {
+        // Normal Resize (Anchor opposite side)
+
+        // Horizontal Logic
+        if (handle.includes('w')) {
+            // Anchor is Right (East)
+            const right = initialRoom.position.x + initialRoom.length;
+            newX = right - newLength;
+        } else if (handle.includes('e')) {
+            // Anchor is Left (West) - Default x
+            newX = initialRoom.position.x;
+        } else {
+            // Handle n or s (no x change normally)
+            // BUT if Shift is active on n/s edge, Width drives Length.
+            // Length expands symmetrically.
+            if (isShift && (handle === 'n' || handle === 's')) {
+                 const centerX = initialRoom.position.x + initialRoom.length / 2;
+                 newX = centerX - newLength / 2;
+            }
+        }
+
+        // Vertical Logic
+        if (handle.includes('n')) {
+            // Anchor is Bottom (South)
+            const bottom = initialRoom.position.z + initialRoom.width;
+            newZ = bottom - newWidth;
+        } else if (handle.includes('s')) {
+            // Anchor is Top (North) - Default z
+            newZ = initialRoom.position.z;
+        } else {
+            // Handle e or w
+            // If Shift is active on e/w edge, Length drives Width.
+            // Width expands symmetrically.
+            if (isShift && (handle === 'e' || handle === 'w')) {
+                const centerZ = initialRoom.position.z + initialRoom.width / 2;
+                newZ = centerZ - newWidth / 2;
+            }
+        }
     }
 
     updateRoom(initialRoom.id, {

@@ -126,6 +126,8 @@ describe('Room Geometry Generation', () => {
     expect(wall).toBeDefined();
     // We expect the geometry to be more complex due to holes, but exact verification is hard.
     // We just ensure it builds successfully.
+    const northWall = group.children.find(c => c.userData.type === 'wall' && c.userData.side === 'north') as THREE.Mesh;
+    expect(northWall).toBeDefined();
   });
 
   it('maps door sides correctly for rotated rooms', () => {
@@ -163,6 +165,37 @@ describe('Room Geometry Generation', () => {
       const group = generateRoomGeometry(room, [], windows);
       const wall = group.children.find(c => c.userData.type === 'wall');
       expect(wall).toBeDefined();
+  });
+
+  it('applies wall opacity when specified', () => {
+    const opacity = 0.5;
+    const group = generateRoomGeometry(mockRoom, [], [], opacity);
+
+    const walls = group.children.filter(c => c.userData.type === 'wall');
+    expect(walls.length).toBeGreaterThan(0);
+
+    walls.forEach(wall => {
+      const mesh = wall as THREE.Mesh;
+      const material = mesh.material as THREE.MeshStandardMaterial;
+
+      expect(material.transparent).toBe(true);
+      expect(material.opacity).toBe(opacity);
+    });
+  });
+
+  it('uses default opacity (1.0) when not specified', () => {
+    const group = generateRoomGeometry(mockRoom);
+
+    const walls = group.children.filter(c => c.userData.type === 'wall');
+
+    walls.forEach(wall => {
+      const mesh = wall as THREE.Mesh;
+      const material = mesh.material as THREE.MeshStandardMaterial;
+
+      // Default behavior from materials.ts: if opacity is 1.0, transparent is not set (undefined)
+      expect(material.opacity).toBe(1.0);
+      expect(material.transparent).toBeFalsy();
+    });
   });
 });
 
