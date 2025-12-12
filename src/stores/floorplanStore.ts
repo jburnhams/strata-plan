@@ -41,6 +41,7 @@ export interface FloorplanActions {
   deleteRoom: (id: string) => void;
 
   // Wall operations
+  addWall: (wall: Omit<Wall, 'id'>) => Wall;
   updateWall: (id: string, updates: Partial<Wall>) => void;
   deleteWall: (id: string) => void;
 
@@ -257,6 +258,33 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
   },
 
   // Wall operations
+  addWall: (wallData: Omit<Wall, 'id'>) => {
+    const state = get();
+    if (!state.currentFloorplan) {
+      throw new Error('No floorplan loaded');
+    }
+
+    const wall: Wall = {
+      ...wallData,
+      id: generateUUID(),
+    };
+
+    const updatedWalls = [...(state.currentFloorplan.walls || []), wall];
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      walls: updatedWalls,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      isDirty: true,
+    });
+
+    return wall;
+  },
+
   updateWall: (id: string, updates: Partial<Wall>) => {
     const state = get();
     if (!state.currentFloorplan) return;

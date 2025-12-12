@@ -4,11 +4,11 @@ import { useFloorplanStore } from '../../../src/stores/floorplanStore';
 import { useUIStore } from '../../../src/stores/uiStore';
 import { Room } from '../../../src/types';
 
-// Mock PIXELS_PER_METER constant indirectly by mocking the logic in hook if needed
-// or just rely on the implementation using the constant.
-// Ideally we should mock the constant but it's hard with ESM.
-// We can control the zoomLevel to make calculations easy.
-// PIXELS_PER_METER is 50.
+// Mock useToast
+const mockToast = jest.fn();
+jest.mock('../../../src/hooks/use-toast', () => ({
+  useToast: () => ({ toast: mockToast })
+}));
 
 describe('useRoomResize', () => {
   const mockUpdateRoom = jest.fn();
@@ -50,6 +50,7 @@ describe('useRoomResize', () => {
   it('initializes with isResizing false', () => {
     const { result } = renderHook(() => useRoomResize());
     expect(result.current.isResizing).toBe(false);
+    expect(result.current.resizingRoomId).toBeNull();
   });
 
   it('starts resizing on handleResizeStart', () => {
@@ -67,6 +68,7 @@ describe('useRoomResize', () => {
     });
 
     expect(result.current.isResizing).toBe(true);
+    expect(result.current.resizingRoomId).toBe('room-1');
     expect(event.stopPropagation).toHaveBeenCalled();
   });
 
@@ -262,5 +264,47 @@ describe('useRoomResize', () => {
     });
 
     expect(result.current.isResizing).toBe(false);
+    expect(result.current.resizingRoomId).toBeNull();
+  });
+
+  it('validates dimensions on mouse up and shows warning if unusual', () => {
+    // Setup state so room is unusually large (e.g. 60m)
+    // We can't easily trigger the drag to make it 60m here without lots of math
+    // Instead we can just modify the store to simulate the "current" state
+    // before the mouseup happens, because the hook reads from store on mouseup.
+
+    // Mock the store to return an unusually large room
+    useFloorplanStore.setState({
+        currentFloorplan: {
+            ...useFloorplanStore.getState().currentFloorplan!,
+            rooms: [{ ...initialRoom, length: 60 }] // 60m > 50m warning
+        }
+    });
+
+    const { result } = renderHook(() => useRoomResize());
+
+    const startEvent = {
+        stopPropagation: jest.fn(),
+        preventDefault: jest.fn(),
+        clientX: 100,
+        clientY: 100
+    } as unknown as React.MouseEvent;
+
+    act(() => {
+        result.current.handleResizeStart(startEvent, 'room-1', 'se');
+    });
+
+    // We don't need to move mouse, just fire mouseup,
+    // it should check the *current* state in store (which we hacked to be 60m)
+
+    const upEvent = new MouseEvent('mouseup');
+    act(() => {
+        document.dispatchEvent(upEvent);
+    });
+
+    expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({
+        title: 'Note',
+        description: expect.stringMatching(/unusually large/),
+    }));
   });
 });

@@ -9,7 +9,7 @@ export const SelectionOverlay: React.FC = () => {
   const selectedRoomIds = useFloorplanStore((state) => state.selectedRoomIds);
   const currentFloorplan = useFloorplanStore((state) => state.currentFloorplan);
   const zoomLevel = useUIStore((state) => state.zoomLevel);
-  const { handleResizeStart } = useRoomResize();
+  const { handleResizeStart, resizingRoomId } = useRoomResize();
   const { handleRotationStart } = useRoomRotation();
 
   const rooms = currentFloorplan?.rooms || [];
@@ -64,6 +64,34 @@ export const SelectionOverlay: React.FC = () => {
               strokeWidth={strokeWidth}
               pointerEvents="none" // Click through to room/background
             />
+
+            {/* Dimension Labels (only when resizing this room) */}
+            {resizingRoomId === room.id && (
+                <g>
+                    {/* Background for visibility */}
+                    <rect
+                        x={cx - (2.0 / zoomLevel) / 2} // Approximate width
+                        y={room.position.z - (20 / (PIXELS_PER_METER * zoomLevel))}
+                        width={2.0 / zoomLevel}
+                        height={16 / (PIXELS_PER_METER * zoomLevel)}
+                        fill="white"
+                        fillOpacity={0.8}
+                        rx={2 / (PIXELS_PER_METER * zoomLevel)}
+                    />
+                    <text
+                        x={cx}
+                        y={room.position.z - (8 / (PIXELS_PER_METER * zoomLevel))}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        fill="#2563eb"
+                        fontSize={12 / (PIXELS_PER_METER * zoomLevel)}
+                        fontWeight="bold"
+                        style={{ userSelect: 'none', pointerEvents: 'none' }}
+                    >
+                        {room.length.toFixed(2)}m × {room.width.toFixed(2)}m
+                    </text>
+                </g>
+            )}
 
             {/* Corner Handles */}
             {/* Top Left */}
