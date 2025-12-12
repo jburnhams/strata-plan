@@ -24,7 +24,7 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Subtasks
 
-- [ ] **8.1.1** Define floor material types:
+- [x] **8.1.1** Define floor material types:
   ```typescript
   type FloorMaterial =
     | 'hardwood' | 'laminate' | 'tile-ceramic' | 'tile-porcelain'
@@ -42,7 +42,7 @@ This section adds visual richness through material selection, textures, and colo
   }
   ```
 
-- [ ] **8.1.2** Define wall material types:
+- [x] **8.1.2** Define wall material types:
   ```typescript
   type WallMaterial =
     | 'drywall-white' | 'drywall-painted' | 'brick-red' | 'brick-white'
@@ -57,7 +57,7 @@ This section adds visual richness through material selection, textures, and colo
   }
   ```
 
-- [ ] **8.1.3** Define ceiling material types:
+- [x] **8.1.3** Define ceiling material types:
   ```typescript
   type CeilingMaterial =
     | 'drywall' | 'acoustic-tile' | 'wood-beam' | 'exposed-concrete'
@@ -67,10 +67,11 @@ This section adds visual richness through material selection, textures, and colo
     name: string
     defaultColor: string
     textureUrl?: string
+    roughness: number
   }
   ```
 
-- [ ] **8.1.4** Create material registry:
+- [x] **8.1.4** Create material registry:
   ```typescript
   const FLOOR_MATERIALS: Record<FloorMaterial, FloorMaterialConfig>
   const WALL_MATERIALS: Record<WallMaterial, WallMaterialConfig>
@@ -79,9 +80,9 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Unit Tests
 
-- [ ] All material types have valid configs
-- [ ] Default colors are valid hex strings
-- [ ] Roughness values in 0-1 range
+- [x] All material types have valid configs
+- [x] Default colors are valid hex strings
+- [x] Roughness values in 0-1 range
 
 ---
 

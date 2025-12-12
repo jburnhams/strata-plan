@@ -41,8 +41,9 @@ export function createRoom(params: CreateRoomParams): Room {
     position: params.position ?? { x: 0, z: 0 },
     rotation: params.rotation ?? 0,
     color: params.color,
-    material: undefined,
+    floorMaterial: undefined,
     wallMaterial: undefined,
+    ceilingMaterial: undefined,
   };
 }
 

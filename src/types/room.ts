@@ -3,7 +3,12 @@
  */
 
 import { Position2D, WallSide } from './geometry';
-import { FloorMaterial, WallMaterial, WindowMaterial } from './materials';
+import {
+  CeilingMaterial,
+  FloorMaterial,
+  WallMaterial,
+  WindowMaterial,
+} from './materials';
 
 /**
  * Room type categories for default styling and layout
@@ -33,8 +38,12 @@ export interface Room {
   position: Position2D; // Top-left corner in world space
   rotation: 0 | 90 | 180 | 270; // Rotation in degrees
   color?: string; // Hex color override
-  material?: FloorMaterial;
+  floorMaterial?: FloorMaterial;
   wallMaterial?: WallMaterial;
+  ceilingMaterial?: CeilingMaterial;
+  customFloorColor?: string;
+  customWallColor?: string;
+  customCeilingColor?: string;
 }
 
 /**

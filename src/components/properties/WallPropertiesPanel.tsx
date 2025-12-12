@@ -15,7 +15,16 @@ import { WallMaterial } from '../../types/materials';
 import { Trash2 } from 'lucide-react';
 import { distance } from '../../services/geometry';
 
-const WALL_MATERIALS: WallMaterial[] = ['drywall', 'brick', 'wood', 'concrete', 'stone'];
+const WALL_MATERIALS: WallMaterial[] = [
+  'drywall-white',
+  'drywall-painted',
+  'brick-red',
+  'brick-white',
+  'concrete',
+  'wood-panel',
+  'wallpaper',
+  'stone'
+];
 
 export function WallPropertiesPanel() {
   const selectedWallId = useFloorplanStore(state => state.selectedWallId);
@@ -72,7 +81,7 @@ export function WallPropertiesPanel() {
         <div className="grid gap-2">
           <Label htmlFor="wall-material">Material</Label>
           <Select
-            value={selectedWall.material || 'drywall'}
+            value={selectedWall.material || 'drywall-white'}
             onValueChange={(value) => updateWall(selectedWall.id, { material: value as WallMaterial })}
           >
             <SelectTrigger id="wall-material">
@@ -81,7 +90,7 @@ export function WallPropertiesPanel() {
             <SelectContent>
               {WALL_MATERIALS.map((mat) => (
                 <SelectItem key={mat} value={mat}>
-                  {mat.charAt(0).toUpperCase() + mat.slice(1)}
+                  {mat.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                 </SelectItem>
               ))}
             </SelectContent>
