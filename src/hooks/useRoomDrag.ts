@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { useFloorplanStore } from '../stores/floorplanStore';
+import { useHistoryStore } from '../stores/historyStore';
 import { useUIStore } from '../stores/uiStore';
 import { Position2D } from '../types';
 import { PIXELS_PER_METER } from '../constants/defaults';
@@ -15,11 +16,13 @@ export const useRoomDrag = () => {
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const initialPositionsRef = useRef<Map<string, Position2D>>(new Map());
   const draggedRoomIdRef = useRef<string | null>(null);
+  const startFloorplanRef = useRef<any>(null); // To store snapshot before drag
 
   const selectedRoomIds = useFloorplanStore((state) => state.selectedRoomIds);
   const updateRoom = useFloorplanStore((state) => state.updateRoom);
   const selectRoom = useFloorplanStore((state) => state.selectRoom);
   const currentFloorplan = useFloorplanStore((state) => state.currentFloorplan);
+  const pushState = useHistoryStore((state) => state.pushState);
   const { toast } = useToast();
 
   const zoomLevel = useUIStore((state) => state.zoomLevel);
@@ -122,6 +125,10 @@ export const useRoomDrag = () => {
   const toastRef = useRef(toast);
   toastRef.current = toast;
 
+  // Stable ref for pushState
+  const pushStateRef = useRef(pushState);
+  pushStateRef.current = pushState;
+
   const handleGlobalMouseUpWrapper = useCallback((e: MouseEvent) => {
      setIsDragging(false);
      dragStartRef.current = null;
@@ -158,6 +165,15 @@ export const useRoomDrag = () => {
          }
      }
 
+     // Push to history if position changed
+     if (startFloorplanRef.current && store.currentFloorplan) {
+         const hasChanged = JSON.stringify(startFloorplanRef.current.rooms) !== JSON.stringify(store.currentFloorplan.rooms);
+         if (hasChanged) {
+             pushStateRef.current(startFloorplanRef.current);
+         }
+     }
+     startFloorplanRef.current = null;
+
      setOverlappingRoomIds([]);
 
      document.removeEventListener('mousemove', handleGlobalMouseMoveStable);
@@ -175,6 +191,12 @@ export const useRoomDrag = () => {
        draggedRoomIdRef.current = roomId;
 
        const store = useFloorplanStore.getState();
+
+       // Capture state BEFORE any drag updates happen
+       if (store.currentFloorplan) {
+           startFloorplanRef.current = store.currentFloorplan;
+       }
+
        let roomsToDragIds = store.selectedRoomIds;
        if (!roomsToDragIds.includes(roomId)) {
            store.selectRoom(roomId);
