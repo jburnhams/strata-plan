@@ -137,7 +137,7 @@ const RoomMeshComponent: React.FC<RoomMeshProps> = ({
 
     return (
       <Detailed distances={[0, 20]} ref={groupRef as any} onClick={handleClick} onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}>
-        <primitive object={highDetailGroup} />
+        <primitive object={highDetailGroup!} />
         <primitive object={lowDetailGroup} />
       </Detailed>
     );
