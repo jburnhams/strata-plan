@@ -2,9 +2,11 @@ import { renderHook, act } from '@testing-library/react';
 import { useRoomDrag } from '../../../src/hooks/useRoomDrag';
 import { useFloorplanStore } from '../../../src/stores/floorplanStore';
 import { useUIStore } from '../../../src/stores/uiStore';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
 // Reset stores helper
 const resetStore = () => {
+    // @ts-ignore
     useFloorplanStore.setState({
         currentFloorplan: {
             id: 'test',
@@ -22,6 +24,7 @@ const resetStore = () => {
         selectedRoomIds: [],
         selectedRoomId: null,
     });
+    // @ts-ignore
     useUIStore.setState({ zoomLevel: 1.0, showGrid: true });
 };
 
@@ -113,5 +116,72 @@ describe('useRoomDrag', () => {
 
         const updatedRoom = useFloorplanStore.getState().currentFloorplan?.rooms[0]!;
         expect(updatedRoom.position.x).toBe(0.5);
+    });
+
+    it('updates multi-selection room position on drag', () => {
+        const store = useFloorplanStore.getState();
+        const room1 = store.currentFloorplan?.rooms[0]!;
+        const room2 = store.addRoom({
+            name: 'Room 2',
+            length: 5, width: 4, height: 2.7, type: 'bedroom',
+            position: { x: 5, z: 0 }, rotation: 0
+        });
+
+        store.setRoomSelection([room1.id, room2.id]);
+
+        const { result } = renderHook(() => useRoomDrag());
+
+        const e = {
+            button: 0,
+            clientX: 100,
+            clientY: 100,
+            stopPropagation: jest.fn(),
+            preventDefault: jest.fn(),
+        } as unknown as React.MouseEvent;
+
+        act(() => {
+            result.current.handleDragStart(e, room1.id);
+        });
+
+        expect(result.current.isDragging).toBe(true);
+
+        const moveEvent = new MouseEvent('mousemove', {
+            clientX: 150, // +1m
+            clientY: 150, // +1m
+        });
+
+        act(() => {
+            document.dispatchEvent(moveEvent);
+        });
+
+        const updatedRoom1 = useFloorplanStore.getState().getRoomById(room1.id)!;
+        const updatedRoom2 = useFloorplanStore.getState().getRoomById(room2.id)!;
+
+        expect(updatedRoom1.position.x).toBe(1);
+        expect(updatedRoom2.position.x).toBe(6); // 5 + 1
+    });
+
+    it('selects unselected room on drag start', () => {
+        const store = useFloorplanStore.getState();
+        const room1 = store.currentFloorplan?.rooms[0]!;
+
+        // Deselect
+        store.clearSelection();
+
+        const { result } = renderHook(() => useRoomDrag());
+
+        const e = {
+            button: 0,
+            clientX: 100,
+            clientY: 100,
+            stopPropagation: jest.fn(),
+            preventDefault: jest.fn(),
+        } as unknown as React.MouseEvent;
+
+        act(() => {
+            result.current.handleDragStart(e, room1.id);
+        });
+
+        expect(useFloorplanStore.getState().selectedRoomIds).toContain(room1.id);
     });
 });

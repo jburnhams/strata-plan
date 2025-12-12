@@ -1,118 +1,132 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { SelectionOverlay } from '../../../../src/components/editor/SelectionOverlay';
-import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
-import { useUIStore } from '../../../../src/stores/uiStore';
-import { useRoomResize } from '../../../../src/hooks/useRoomResize';
+import { render, screen, fireEvent, createEvent } from '@testing-library/react';
+import { SelectionOverlay } from '@/components/editor/SelectionOverlay';
+import { useRoomResize } from '@/hooks/useRoomResize';
+import { useRoomRotation } from '@/hooks/useRoomRotation';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
-// Mock the resize hook
-jest.mock('../../../../src/hooks/useRoomResize');
+jest.mock('@/stores/floorplanStore', () => {
+    const { jest } = require('@jest/globals');
+    return {
+        useFloorplanStore: jest.fn()
+    };
+});
+jest.mock('@/stores/uiStore', () => {
+    const { jest } = require('@jest/globals');
+    return {
+        useUIStore: jest.fn()
+    };
+});
+jest.mock('@/hooks/useRoomResize', () => {
+    const { jest } = require('@jest/globals');
+    return {
+        useRoomResize: jest.fn()
+    };
+});
+jest.mock('@/hooks/useRoomRotation', () => {
+    const { jest } = require('@jest/globals');
+    return {
+        useRoomRotation: jest.fn()
+    };
+});
 
-// Reset stores helper
-const resetStore = () => {
-    useFloorplanStore.setState({
-        currentFloorplan: {
-            id: 'test',
-            name: 'Test',
-            units: 'meters',
-            rooms: [],
-            connections: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        },
-        selectedRoomIds: [],
-        selectedRoomId: null,
-    });
-    useUIStore.setState({ zoomLevel: 1.0 });
-};
+// Access mocks after definition
+const { useFloorplanStore } = require('@/stores/floorplanStore');
+const { useUIStore } = require('@/stores/uiStore');
 
 describe('SelectionOverlay', () => {
-    const mockHandleResizeStart = jest.fn();
+  const mockHandleResizeStart = jest.fn();
+  const mockHandleRotationStart = jest.fn();
 
-    beforeEach(() => {
-        resetStore();
-        (useRoomResize as jest.Mock).mockReturnValue({
-            handleResizeStart: mockHandleResizeStart,
-            isResizing: false
-        });
-        mockHandleResizeStart.mockClear();
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector: any) => {
+      const state = {
+        currentFloorplan: {
+          rooms: [
+            { id: 'room1', name: 'Room 1', position: { x: 0, z: 0 }, length: 5, width: 4, rotation: 0 },
+          ],
+        },
+        selectedRoomIds: ['room1'],
+      };
+      return selector(state);
     });
 
-    it('renders nothing when no room is selected', () => {
-        render(<SelectionOverlay />);
-        expect(screen.queryByTestId('selection-overlay')).not.toBeInTheDocument();
+    (useUIStore as unknown as jest.Mock).mockImplementation((selector: any) => {
+      const state = {
+        zoomLevel: 1,
+      };
+      return selector(state);
     });
 
-    it('renders handles when room is selected', () => {
-        const store = useFloorplanStore.getState();
-        store.addRoom({
-            name: 'Room 1',
-            length: 5, width: 4, height: 2.7, type: 'bedroom',
-            position: { x: 0, z: 0 }, rotation: 0
-        });
-
-        const updatedStore = useFloorplanStore.getState();
-        const roomId = updatedStore.currentFloorplan?.rooms[0].id!;
-
-        updatedStore.selectRoom(roomId);
-
-        render(
-            <svg>
-                <SelectionOverlay />
-            </svg>
-        );
-
-        expect(screen.getByTestId('selection-overlay')).toBeInTheDocument();
-
-        // Check for specific handles
-        expect(screen.getByTestId(`handle-nw-${roomId}`)).toBeInTheDocument();
-        expect(screen.getByTestId(`handle-ne-${roomId}`)).toBeInTheDocument();
-        expect(screen.getByTestId(`handle-sw-${roomId}`)).toBeInTheDocument();
-        expect(screen.getByTestId(`handle-se-${roomId}`)).toBeInTheDocument();
+    (useRoomResize as unknown as jest.Mock).mockReturnValue({
+      handleResizeStart: mockHandleResizeStart,
     });
 
-    it('renders handles for multiple selected rooms', () => {
-        const store = useFloorplanStore.getState();
-        store.addRoom({ name: 'R1', length: 5, width: 4, height: 2.7, type: 'bedroom', position: { x: 0, z: 0 }, rotation: 0 });
-        store.addRoom({ name: 'R2', length: 5, width: 4, height: 2.7, type: 'bedroom', position: { x: 10, z: 0 }, rotation: 0 });
-
-        const updatedStore = useFloorplanStore.getState();
-        const rooms = updatedStore.currentFloorplan?.rooms!;
-        updatedStore.setRoomSelection([rooms[0].id, rooms[1].id]);
-
-        render(
-            <svg>
-                <SelectionOverlay />
-            </svg>
-        );
-
-        expect(screen.getByTestId(`handle-nw-${rooms[0].id}`)).toBeInTheDocument();
-        expect(screen.getByTestId(`handle-nw-${rooms[1].id}`)).toBeInTheDocument();
+    (useRoomRotation as unknown as jest.Mock).mockReturnValue({
+      handleRotationStart: mockHandleRotationStart,
     });
+  });
 
-    it('calls handleResizeStart when handle is clicked/mouse-down', () => {
-        const store = useFloorplanStore.getState();
-        store.addRoom({
-            name: 'Room 1',
-            length: 5, width: 4, height: 2.7, type: 'bedroom',
-            position: { x: 0, z: 0 }, rotation: 0
-        });
-        const updatedStore = useFloorplanStore.getState();
-        const roomId = updatedStore.currentFloorplan?.rooms[0].id!;
-        updatedStore.selectRoom(roomId);
+  const renderComponent = () => {
+    return render(
+      <svg>
+        <SelectionOverlay />
+      </svg>
+    );
+  };
 
-        render(
-            <svg>
-                <SelectionOverlay />
-            </svg>
-        );
+  it('renders handles for selected room', () => {
+    const { container } = renderComponent();
+    // Outline + 8 resize handles + 1 rotate handle
+    // handles have data-testid="handle-..."
+    const handles = container.querySelectorAll('[data-testid^="handle-"]');
+    // nw, ne, sw, se, n, s, e, w, rotate (9 handles)
+    expect(handles).toHaveLength(9);
+  });
 
-        const nwHandle = screen.getByTestId(`handle-nw-${roomId}`);
-        fireEvent.mouseDown(nwHandle, { button: 0 });
+  it('does not render if no room selected', () => {
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector: any) => {
+        const state = {
+          currentFloorplan: { rooms: [] },
+          selectedRoomIds: [],
+        };
+        return selector(state);
+      });
+    const { container } = renderComponent();
+    // Since we wrapped in <svg>, container has <svg>. We check if <svg> is empty.
+    expect(container.querySelector('g[data-testid="selection-overlay"]')).toBeNull();
+  });
 
-        expect(mockHandleResizeStart).toHaveBeenCalledTimes(1);
-        // Arguments: event, roomId, handleType
-        expect(mockHandleResizeStart).toHaveBeenCalledWith(expect.anything(), roomId, 'nw');
-    });
+  it('calls handleResizeStart on corner handle mousedown', () => {
+    renderComponent();
+    const handle = screen.getByTestId('handle-nw-room1');
+    fireEvent.mouseDown(handle, { button: 0 });
+    expect(mockHandleResizeStart).toHaveBeenCalledWith(expect.anything(), 'room1', 'nw');
+  });
+
+  it('calls handleRotationStart on rotate handle mousedown', () => {
+    renderComponent();
+    const handle = screen.getByTestId('handle-rotate-room1');
+    fireEvent.mouseDown(handle, { button: 0 });
+    expect(mockHandleRotationStart).toHaveBeenCalledWith(expect.anything(), 'room1');
+  });
+
+  it('stops propagation on handle click', () => {
+    renderComponent();
+    const handle = screen.getByTestId('handle-nw-room1');
+
+    const event = createEvent.click(handle);
+    event.stopPropagation = jest.fn();
+    fireEvent(handle, event);
+
+    expect(event.stopPropagation).toHaveBeenCalled();
+  });
+
+  it('ignores right click on handles', () => {
+    renderComponent();
+    const handle = screen.getByTestId('handle-nw-room1');
+    fireEvent.mouseDown(handle, { button: 2 });
+    expect(mockHandleResizeStart).not.toHaveBeenCalled();
+  });
 });

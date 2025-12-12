@@ -1,10 +1,46 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { RoomLayer } from '../../../../src/components/editor/RoomLayer';
-import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
-import { useUIStore } from '../../../../src/stores/uiStore';
 import { ROOM_TYPE_COLORS } from '../../../../src/constants/colors';
+import { RoomLayer } from '@/components/editor/RoomLayer';
+import { useRoomDrag } from '@/hooks/useRoomDrag';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+
+jest.mock('@/stores/floorplanStore', () => {
+    const { jest } = require('@jest/globals');
+    return {
+        useFloorplanStore: jest.fn()
+    };
+});
+jest.mock('@/stores/uiStore', () => {
+    const { jest } = require('@jest/globals');
+    return {
+        useUIStore: jest.fn()
+    };
+});
+jest.mock('@/hooks/useRoomDrag', () => {
+    const { jest } = require('@jest/globals');
+    return {
+        useRoomDrag: jest.fn()
+    };
+});
+jest.mock('@/components/editor/RoomShape', () => ({
+  RoomShape: ({ onClick, onMouseDown, onMouseEnter, onMouseLeave, isSelected, isHovered, room }: any) => (
+    <rect
+      data-testid={`room-${room.id}`}
+      onClick={(e) => onClick(e, room.id)}
+      onMouseDown={onMouseDown}
+      onMouseEnter={() => onMouseEnter(room.id)}
+      onMouseLeave={onMouseLeave}
+      data-selected={isSelected}
+      data-hovered={isHovered}
+    />
+  ),
+}));
+
+// Access mocks after definition
+const { useFloorplanStore } = require('@/stores/floorplanStore');
+const { useUIStore } = require('@/stores/uiStore');
 
 // Helper to reset store
 const resetStore = () => {
@@ -35,122 +71,66 @@ const resetStore = () => {
 };
 
 describe('RoomLayer', () => {
+  const mockSelectRoom = jest.fn();
+  const mockSetRoomSelection = jest.fn();
+  const mockSetHoveredRoom = jest.fn();
+  const mockHandleDragStart = jest.fn();
+
   beforeEach(() => {
-    resetStore();
-  });
+    jest.clearAllMocks();
 
-  it('renders rooms correctly', () => {
-    const store = useFloorplanStore.getState();
-    store.addRoom({
-      name: 'Room 1',
-      length: 5,
-      width: 4,
-      height: 2.7,
-      type: 'bedroom',
-      position: { x: 1, z: 2 },
-      rotation: 0,
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector: any) => {
+      const state = {
+        currentFloorplan: {
+          rooms: [
+            { id: 'room1', name: 'Room 1' },
+            { id: 'room2', name: 'Room 2' },
+          ],
+        },
+        selectedRoomIds: ['room1'],
+        selectRoom: mockSelectRoom,
+        setRoomSelection: mockSetRoomSelection,
+      };
+      return selector(state);
     });
 
-    render(
-        <svg>
-            <RoomLayer />
-        </svg>
-    );
-
-    const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
-    const roomId = rooms[0].id;
-
-    // getByTestId returns the <g> element
-    const group = screen.getByTestId(`room-shape-${roomId}`);
-    const rect = group.querySelector('rect');
-
-    expect(rect).toBeInTheDocument();
-    expect(rect).toHaveAttribute('x', '1');
-    expect(rect).toHaveAttribute('y', '2');
-    expect(rect).toHaveAttribute('width', '5');
-    expect(rect).toHaveAttribute('height', '4');
-    expect(rect).toHaveAttribute('fill', ROOM_TYPE_COLORS.bedroom);
-  });
-
-  it('handles rotation', () => {
-    const store = useFloorplanStore.getState();
-    store.addRoom({
-      name: 'Room 1',
-      length: 4,
-      width: 2,
-      height: 2.7,
-      type: 'bedroom',
-      position: { x: 10, z: 10 },
-      rotation: 90,
+    (useUIStore as unknown as jest.Mock).mockImplementation((selector: any) => {
+      const state = {
+        hoveredRoomId: null,
+        setHoveredRoom: mockSetHoveredRoom,
+      };
+      return selector(state);
     });
 
-    render(
-        <svg>
-            <RoomLayer />
-        </svg>
-    );
-
-    const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
-    const room = rooms[0];
-    const group = screen.getByTestId(`room-shape-${room.id}`);
-
-    const cx = 10 + 2; // x + length/2
-    const cy = 10 + 1; // z + width/2
-
-    expect(group).toHaveAttribute('transform', `rotate(90, ${cx}, ${cy})`);
-  });
-
-  it('handles click selection', () => {
-    const store = useFloorplanStore.getState();
-    store.addRoom({
-      name: 'Room 1',
-      length: 4, width: 4, height: 2.7, type: 'bedroom',
-      position: { x: 0, z: 0 }, rotation: 0
+    (useRoomDrag as unknown as jest.Mock).mockReturnValue({
+      handleDragStart: mockHandleDragStart,
+      isDragging: false,
     });
-
-    render(
-        <svg>
-            <RoomLayer />
-        </svg>
-    );
-
-    const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
-    const room = rooms[0];
-    const group = screen.getByTestId(`room-shape-${room.id}`);
-
-    fireEvent.click(group);
-
-    expect(useFloorplanStore.getState().selectedRoomId).toBe(room.id);
   });
 
-  it('handles multi-selection with shift click', () => {
-    const store = useFloorplanStore.getState();
-    store.addRoom({ name: 'R1', length: 4, width: 4, height: 2.7, type: 'other', position: { x: 0, z: 0 }, rotation: 0 });
-    store.addRoom({ name: 'R2', length: 4, width: 4, height: 2.7, type: 'other', position: { x: 5, z: 0 }, rotation: 0 });
-
-    render(
-        <svg>
-            <RoomLayer />
-        </svg>
+  const renderComponent = () => {
+    return render(
+      <svg>
+        <RoomLayer />
+      </svg>
     );
+  };
 
-    const rooms = useFloorplanStore.getState().currentFloorplan?.rooms || [];
-    const r1 = rooms[0];
-    const r2 = rooms[1];
+  it('renders sorted rooms', () => {
+    const { container } = renderComponent();
+    // Use regex to find specific room elements, ignoring the container group
+    const rooms = screen.getAllByTestId(/^room-room/);
 
-    // Select R1
-    fireEvent.click(screen.getByTestId(`room-shape-${r1.id}`));
-    expect(useFloorplanStore.getState().selectedRoomIds).toEqual([r1.id]);
-
-    // Shift+Click R2
-    fireEvent.click(screen.getByTestId(`room-shape-${r2.id}`), { shiftKey: true });
-    expect(useFloorplanStore.getState().selectedRoomIds).toEqual(expect.arrayContaining([r1.id, r2.id]));
-
-    // Shift+Click R1 again (deselect)
-    fireEvent.click(screen.getByTestId(`room-shape-${r1.id}`), { shiftKey: true });
-    expect(useFloorplanStore.getState().selectedRoomIds).toEqual([r2.id]);
+    expect(rooms).toHaveLength(2);
+    // room1 is selected, so it should be last in DOM (to be on top)
+    expect(rooms[1].getAttribute('data-testid')).toBe('room-room1');
   });
 
+  it('handles room click for selection', () => {
+    renderComponent();
+    fireEvent.click(screen.getByTestId('room-room2'));
+    expect(mockSelectRoom).toHaveBeenCalledWith('room2');
+  });
   it('handles double click to open properties', () => {
     const store = useFloorplanStore.getState();
     store.addRoom({
@@ -189,30 +169,30 @@ describe('RoomLayer', () => {
     const r1 = rooms[0];
     const r2 = rooms[1];
 
-    // Initially R1 then R2
-    const { rerender } = render(
-      <svg>
-        <RoomLayer />
-      </svg>
-    );
+  it('handles shift+click for multi-selection', () => {
+    renderComponent();
+    fireEvent.click(screen.getByTestId('room-room2'), { shiftKey: true });
+    expect(mockSetRoomSelection).toHaveBeenCalledWith(['room1', 'room2']);
+  });
 
-    // We check DOM order
-    let shapes = screen.getAllByTestId(/^room-shape-/);
-    expect(shapes[0]).toHaveAttribute('data-testid', `room-shape-${r1.id}`);
-    expect(shapes[1]).toHaveAttribute('data-testid', `room-shape-${r2.id}`);
+  it('handles shift+click to deselect', () => {
+    renderComponent();
+    fireEvent.click(screen.getByTestId('room-room1'), { shiftKey: true });
+    expect(mockSetRoomSelection).toHaveBeenCalledWith([]);
+  });
 
-    // Select R1
-    act(() => { useFloorplanStore.getState().selectRoom(r1.id); });
+  it('handles room mouse down (drag start)', () => {
+    renderComponent();
+    fireEvent.mouseDown(screen.getByTestId('room-room1'));
+    expect(mockHandleDragStart).toHaveBeenCalled();
+  });
 
-    rerender(
-      <svg>
-        <RoomLayer />
-      </svg>
-    );
+  it('handles hover states', () => {
+    renderComponent();
+    fireEvent.mouseEnter(screen.getByTestId('room-room1'));
+    expect(mockSetHoveredRoom).toHaveBeenCalledWith('room1');
 
-    shapes = screen.getAllByTestId(/^room-shape-/);
-    // Should be R2 then R1 (selected on top)
-    expect(shapes[0]).toHaveAttribute('data-testid', `room-shape-${r2.id}`);
-    expect(shapes[1]).toHaveAttribute('data-testid', `room-shape-${r1.id}`);
+    fireEvent.mouseLeave(screen.getByTestId('room-room1'));
+    expect(mockSetHoveredRoom).toHaveBeenCalledWith(null);
   });
 });
