@@ -18,7 +18,7 @@ import {
   AccordionTrigger,
 } from '../ui/accordion';
 import { RoomType } from '../../types/room';
-import { Trash2 } from 'lucide-react';
+import { Trash2, BoxSelect } from 'lucide-react';
 import { calculateArea, calculateVolume } from '../../services/geometry/room';
 import { AdjacentRoomsSection } from './AdjacentRoomsSection';
 import { MaterialPicker } from './MaterialPicker';
@@ -42,6 +42,7 @@ export function RoomPropertiesPanel() {
   const selectedRoom = useFloorplanStore(state => state.getSelectedRoom());
   const updateRoom = useFloorplanStore(state => state.updateRoom);
   const deleteRoom = useFloorplanStore(state => state.deleteRoom);
+  const convertRoomToWalls = useFloorplanStore(state => state.convertRoomToWalls);
   const setRoomFloorMaterial = useFloorplanStore(state => state.setRoomFloorMaterial);
   const setRoomWallMaterial = useFloorplanStore(state => state.setRoomWallMaterial);
   const setRoomCeilingMaterial = useFloorplanStore(state => state.setRoomCeilingMaterial);
@@ -78,6 +79,12 @@ export function RoomPropertiesPanel() {
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this room?')) {
       deleteRoom(selectedRoom.id);
+    }
+  };
+
+  const handleConvert = () => {
+    if (window.confirm('Convert this room to walls? The room entity will be removed and replaced by 4 walls.')) {
+        convertRoomToWalls(selectedRoom.id);
     }
   };
 
@@ -257,7 +264,15 @@ export function RoomPropertiesPanel() {
         <AdjacentRoomsSection />
       </div>
 
-      <div className="pt-4 border-t">
+      <div className="pt-4 border-t space-y-2">
+        <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleConvert}
+        >
+            <BoxSelect className="mr-2 h-4 w-4" />
+            Convert to Walls
+        </Button>
         <Button
           variant="destructive"
           className="w-full"

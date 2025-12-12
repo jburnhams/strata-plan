@@ -362,7 +362,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Press Escape or double-click to finish
   - Connect back to start to close shape
 
-- [ ] **4.8.5** Create wall from room boundary:
+- [x] **4.8.5** Create wall from room boundary:
   - Option to convert room rectangle to walls
   - Creates 4 walls matching room dimensions
 
@@ -390,7 +390,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Find closed polygons formed by walls
   - Use graph algorithm (find cycles)
 
-- [ ] **4.9.2** Create "Click to create room" UI:
+- [x] **4.9.2** Create "Click to create room" UI:
   - Detect click inside enclosed area
   - Highlight detected area on hover
   - Click creates room with that boundary

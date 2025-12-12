@@ -1,9 +1,17 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Canvas2D } from '../../src/components/editor/Canvas2D';
 import { useFloorplanStore } from '../../src/stores/floorplanStore';
 import { useUIStore } from '../../src/stores/uiStore';
 import { Room } from '../../src/types';
+
+// We need to mock ResizeObserver for CanvasViewport
+class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+global.ResizeObserver = ResizeObserver;
 
 describe('Canvas Editor Integration', () => {
   // Setup store and mocks
@@ -191,5 +199,46 @@ describe('Canvas Editor Integration', () => {
     // Measurements should be visible
     expect(screen.getByText('5.00 m')).toBeInTheDocument();
     expect(screen.getByText('4.00 m')).toBeInTheDocument();
+  });
+
+  it('Wall drawing: Draw walls -> create room from closed area', async () => {
+      render(<Canvas2D />);
+
+      // Manually add 4 walls forming a 5x5 rectangle at 0,0
+      const { addWall } = useFloorplanStore.getState();
+
+      // Wall 1: 0,0 -> 5,0
+      addWall({ from: { x: 0, z: 0 }, to: { x: 5, z: 0 }, thickness: 0.2 });
+      // Wall 2: 5,0 -> 5,5
+      addWall({ from: { x: 5, z: 0 }, to: { x: 5, z: 5 }, thickness: 0.2 });
+      // Wall 3: 5,5 -> 0,5
+      addWall({ from: { x: 5, z: 5 }, to: { x: 0, z: 5 }, thickness: 0.2 });
+      // Wall 4: 0,5 -> 0,0
+      addWall({ from: { x: 0, z: 5 }, to: { x: 0, z: 0 }, thickness: 0.2 });
+
+      // The RoomCreationOverlay should detect this and render a clickable area
+      // It might take a render cycle for useMemo to update
+
+      const overlay = await screen.findByTestId('room-creation-overlay');
+      expect(overlay).toBeInTheDocument();
+
+      // There should be a path element inside representing the room
+      // We can search for the text "Click to Create Room"
+      // Wait for it because detecting might be async or require re-render
+      const createText = await screen.findByText('Click to Create Room');
+      expect(createText).toBeInTheDocument();
+
+      // Click the text/group to create room
+      fireEvent.click(createText);
+
+      // Verify room was created
+      // The store should now have a room
+      await waitFor(() => {
+          expect(useFloorplanStore.getState().currentFloorplan?.rooms.length).toBe(1);
+      });
+
+      const room = useFloorplanStore.getState().currentFloorplan?.rooms[0];
+      expect(room?.length).toBeCloseTo(5);
+      expect(room?.width).toBeCloseTo(5);
   });
 });
