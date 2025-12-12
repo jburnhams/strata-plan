@@ -1,111 +1,123 @@
-import { useState, useEffect } from "react"
-import { useDialog } from "@/hooks/useDialog"
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { useToast } from "@/hooks/useToast"
+  DialogFooter,
+  DialogDescription,
+} from '../ui/dialog';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { ProjectMetadata } from '../../types/floorplan';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Separator } from '../ui/separator';
 
-export function ProjectSettingsDialog() {
-  const { isOpen, closeDialog, data } = useDialog('projectSettings')
-  const { toastWarning } = useToast()
+interface ProjectSettingsDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  project: ProjectMetadata;
+  onSave: (updates: { name: string; units: 'meters' | 'feet' }) => Promise<void>;
+}
 
-  const [name, setName] = useState('')
-  const [units, setUnits] = useState<'meters' | 'feet'>('meters')
+export function ProjectSettingsDialog({ open, onOpenChange, project, onSave }: ProjectSettingsDialogProps) {
+  const [name, setName] = useState(project.name);
+  const [units, setUnits] = useState<'meters' | 'feet'>('meters'); // Default, would come from project metadata if available
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (isOpen && data) {
-      setName(data.name || '')
-      setUnits(data.units || 'meters')
+    if (open) {
+      setName(project.name);
+      // setUnits(project.units); // Assuming metadata has units later
     }
-  }, [isOpen, data])
+  }, [open, project]);
 
-  const handleSave = () => {
-    if (!name.trim()) return
-
-    if (data?.units && units !== data.units) {
-        toastWarning("Units changed", "All measurements will be converted.");
+  const handleSave = async () => {
+    if (!name.trim()) return;
+    setIsSaving(true);
+    try {
+      await onSave({ name, units });
+      onOpenChange(false);
+    } finally {
+      setIsSaving(false);
     }
-    // TODO: Save logic
-    console.log('Save settings', { name, units })
-    closeDialog()
-  }
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && closeDialog()}>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Project Settings</DialogTitle>
           <DialogDescription>
-            Update project configuration.
+            Manage settings for {project.name}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+
+        <div className="grid gap-6 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="setting-name" className="text-right">
+            <Label htmlFor="settings-name" className="text-right">
               Name
             </Label>
             <Input
-              id="setting-name"
+              id="settings-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="col-span-3"
+              maxLength={100}
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="setting-units" className="text-right">
-              Units
-            </Label>
-            <Select value={units} onValueChange={(v) => setUnits(v as 'meters' | 'feet')}>
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Select units" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="meters">Meters</SelectItem>
-                <SelectItem value="feet">Feet</SelectItem>
-              </SelectContent>
-            </Select>
+
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label className="text-right pt-2">Units</Label>
+            <div className="col-span-3 space-y-4">
+               <RadioGroup value={units} onValueChange={(v) => setUnits(v as any)}>
+                 <div className="flex items-center space-x-2">
+                   <RadioGroupItem value="meters" id="s-meters" />
+                   <Label htmlFor="s-meters">Meters</Label>
+                 </div>
+                 <div className="flex items-center space-x-2">
+                   <RadioGroupItem value="feet" id="s-feet" />
+                   <Label htmlFor="s-feet">Feet</Label>
+                 </div>
+               </RadioGroup>
+               <p className="text-xs text-muted-foreground">
+                 Changing units does not convert existing numeric values.
+               </p>
+            </div>
           </div>
-          {data?.createdAt && (
-             <div className="grid grid-cols-4 items-center gap-4">
-               <Label className="text-right text-muted-foreground">Created</Label>
-               <span className="col-span-3 text-sm text-muted-foreground">
-                 {new Date(data.createdAt).toLocaleString()}
-               </span>
+
+          <Separator />
+
+          <div className="space-y-2 text-sm text-gray-500">
+             <div className="flex justify-between">
+                <span>Created:</span>
+                <span>{new Date(project.updatedAt).toLocaleDateString()}</span> {/* Placeholder for createdAt */}
              </div>
-          )}
-           {data?.updatedAt && (
-             <div className="grid grid-cols-4 items-center gap-4">
-               <Label className="text-right text-muted-foreground">Updated</Label>
-               <span className="col-span-3 text-sm text-muted-foreground">
-                 {new Date(data.updatedAt).toLocaleString()}
-               </span>
+             <div className="flex justify-between">
+                <span>Last Modified:</span>
+                <span>{new Date(project.updatedAt).toLocaleDateString()}</span>
              </div>
-          )}
+             <div className="flex justify-between">
+                <span>Room Count:</span>
+                <span>{project.roomCount}</span>
+             </div>
+             <div className="flex justify-between">
+                <span>Total Area:</span>
+                <span>{project.totalArea} m²</span>
+             </div>
+          </div>
         </div>
+
         <DialogFooter>
-          <Button variant="outline" onClick={closeDialog}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={!name.trim()}>
-            Save Changes
+          <Button onClick={handleSave} disabled={!name.trim() || isSaving}>
+            {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

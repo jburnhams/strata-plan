@@ -1,47 +1,47 @@
-import { useState } from "react"
-import { useDialog } from "@/hooks/useDialog"
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  DialogFooter,
+  DialogDescription,
+} from '../ui/dialog';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { useNavigation } from '../../hooks/useNavigation';
+import { MeasurementUnit } from '../../types/floorplan';
 
-export function NewProjectDialog() {
-  const { isOpen, closeDialog } = useDialog('newProject')
-  const [name, setName] = useState('')
-  const [units, setUnits] = useState<'meters' | 'feet'>('meters')
+interface NewProjectDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 
-  const handleCreate = () => {
-    if (!name.trim()) return
-    // TODO: Create project logic
-    console.log('Create project', { name, units })
-    closeDialog()
-    setName('')
-  }
+export function NewProjectDialog({ open, onOpenChange }: NewProjectDialogProps) {
+  const [name, setName] = useState('My Floorplan');
+  const [units, setUnits] = useState<MeasurementUnit>('meters');
+  const { createProject } = useNavigation();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+
+    createProject(name, units);
+    onOpenChange(false);
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && closeDialog()}>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>New Project</DialogTitle>
+          <DialogTitle>Create New Project</DialogTitle>
           <DialogDescription>
-            Create a new floorplan project.
+            Enter the details for your new floorplan project.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
               Name
@@ -51,33 +51,38 @@ export function NewProjectDialog() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="col-span-3"
+              maxLength={100}
+              required
               autoFocus
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="units" className="text-right">
-              Units
-            </Label>
-            <Select value={units} onValueChange={(v) => setUnits(v as 'meters' | 'feet')}>
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Select units" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="meters">Meters</SelectItem>
-                <SelectItem value="feet">Feet</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label className="text-right">Units</Label>
+            <RadioGroup
+              value={units}
+              onValueChange={(val) => setUnits(val as MeasurementUnit)}
+              className="col-span-3 flex gap-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="meters" id="meters" />
+                <Label htmlFor="meters">Meters (m)</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="feet" id="feet" />
+                <Label htmlFor="feet">Feet (ft)</Label>
+              </div>
+            </RadioGroup>
           </div>
-        </div>
+        </form>
         <DialogFooter>
-          <Button variant="outline" onClick={closeDialog}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleCreate} disabled={!name.trim()}>
+          <Button type="submit" onClick={handleSubmit} disabled={!name.trim()}>
             Create Project
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
