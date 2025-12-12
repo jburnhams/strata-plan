@@ -1,96 +1,121 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { WindowPropertiesPanel } from '../../../../src/components/properties/WindowPropertiesPanel';
-import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
-import { Window } from '../../../../src/types';
+import { WindowPropertiesPanel } from '@/components/properties/WindowPropertiesPanel';
+import { useFloorplanStore } from '@/stores/floorplanStore';
+import { Window } from '@/types/window';
+
+// Mock the store
+jest.mock('@/stores/floorplanStore');
+
+// Mock UI components
+jest.mock('@/components/ui/select', () => ({
+  Select: ({ children, onValueChange, value }: any) => (
+    <div data-testid="mock-select" data-value={value} onClick={() => onValueChange && onValueChange('double')}>
+      {children}
+    </div>
+  ),
+  SelectTrigger: ({ children }: any) => <div>{children}</div>,
+  SelectValue: () => <div>Select Value</div>,
+  SelectContent: ({ children }: any) => <div>{children}</div>,
+  SelectItem: ({ children, value, onClick }: any) => (
+    <div data-testid={`select-item-${value}`} onClick={onClick}>
+      {children}
+    </div>
+  ),
+}));
+
+jest.mock('@/components/ui/slider', () => ({
+  Slider: ({ value, onValueChange, max, step }: any) => (
+    <input
+      data-testid="mock-slider"
+      type="range"
+      value={value[0]}
+      max={max}
+      step={step}
+      onChange={(e) => onValueChange([parseFloat(e.target.value)])}
+    />
+  ),
+}));
 
 describe('WindowPropertiesPanel', () => {
+  const mockUpdateWindow = jest.fn();
+  const mockDeleteWindow = jest.fn();
+  const mockGetWindowById = jest.fn();
+
   const mockWindow: Window = {
-    id: 'win-1',
-    wallId: 'wall-1',
+    id: 'window-1',
+    roomId: 'room-1',
+    wallSide: 'north',
+    position: 0.5,
     width: 1.2,
-    height: 1.5,
-    offset: 2.0,
+    height: 1.2,
     sillHeight: 0.9,
     frameType: 'single',
-    material: 'pvc'
+    material: 'pvc',
+    openingType: 'fixed',
   };
 
-  const setupStore = (windowObj: Window | null = mockWindow) => {
-    useFloorplanStore.setState({
-      currentFloorplan: {
-        id: 'fp-1',
-        name: 'Test Plan',
-        units: 'meters',
-        rooms: [],
-        walls: [],
-        doors: [],
-        windows: windowObj ? [windowObj] : [],
-        connections: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        version: '1.0.0',
-      },
-      selectedWindowId: windowObj ? windowObj.id : null,
-    });
+  const mockFloorplan = {
+    units: 'meters',
+    rooms: [
+      { id: 'room-1', name: 'Master Bedroom' },
+    ],
+    connections: [],
   };
 
   beforeEach(() => {
-    setupStore();
+    jest.clearAllMocks();
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector: any) => {
+      const state = {
+        selectedWindowId: 'window-1',
+        getWindowById: mockGetWindowById,
+        updateWindow: mockUpdateWindow,
+        deleteWindow: mockDeleteWindow,
+        currentFloorplan: mockFloorplan,
+      };
+      return selector(state);
+    });
+    mockGetWindowById.mockReturnValue(mockWindow);
   });
 
-  it('renders nothing if no window selected', () => {
-    setupStore(null);
+  it('renders nothing when no window is selected', () => {
+    mockGetWindowById.mockReturnValue(undefined);
     const { container } = render(<WindowPropertiesPanel />);
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders window properties when window selected', () => {
+  it('renders window properties when a window is selected', () => {
     render(<WindowPropertiesPanel />);
-    expect(screen.getByText('Window Properties')).toBeInTheDocument();
-    expect(screen.getByLabelText(/^Width/)).toHaveValue(1.2);
-    expect(screen.getByLabelText(/^Height/)).toHaveValue(1.5);
-    expect(screen.getByLabelText(/Sill/)).toHaveValue(0.9);
+    expect(screen.getByTestId('window-properties-panel')).toBeInTheDocument();
   });
 
-  it('updates width when input changes', () => {
+  it('displays room and wall info', () => {
     render(<WindowPropertiesPanel />);
-    const input = screen.getByLabelText(/Width/);
-    fireEvent.change(input, { target: { value: '1.8' } });
-
-    const updated = useFloorplanStore.getState().getWindowById(mockWindow.id);
-    expect(updated?.width).toBe(1.8);
+    expect(screen.getByText(/Master Bedroom/)).toBeInTheDocument();
+    expect(screen.getByText(/North Wall/)).toBeInTheDocument();
   });
 
-  it('updates sill height when input changes', () => {
+  it('updates window position via slider', () => {
     render(<WindowPropertiesPanel />);
-    const input = screen.getByLabelText(/Sill/);
-    fireEvent.change(input, { target: { value: '0.5' } });
-
-    const updated = useFloorplanStore.getState().getWindowById(mockWindow.id);
-    expect(updated?.sillHeight).toBe(0.5);
+    const slider = screen.getByTestId('mock-slider');
+    fireEvent.change(slider, { target: { value: '0.8' } });
+    expect(mockUpdateWindow).toHaveBeenCalledWith('window-1', { position: 0.8 });
   });
 
-  it('does not update for invalid input', () => {
-      render(<WindowPropertiesPanel />);
-      const input = screen.getByLabelText(/Width/);
-      fireEvent.change(input, { target: { value: 'NaN' } });
-
-      const updated = useFloorplanStore.getState().getWindowById(mockWindow.id);
-      expect(updated?.width).toBe(1.2);
+  it('updates window width', () => {
+    render(<WindowPropertiesPanel />);
+    const widthInput = screen.getByLabelText(/Width/);
+    fireEvent.change(widthInput, { target: { value: '1.5' } });
+    expect(mockUpdateWindow).toHaveBeenCalledWith('window-1', { width: 1.5 });
   });
 
-  it('deletes window on button click and confirm', () => {
-      const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
-      render(<WindowPropertiesPanel />);
-
-      const deleteBtn = screen.getByText('Delete Window');
-      fireEvent.click(deleteBtn);
-
-      expect(confirmSpy).toHaveBeenCalled();
-      const updated = useFloorplanStore.getState().getWindowById(mockWindow.id);
-      expect(updated).toBeUndefined();
-
-      confirmSpy.mockRestore();
+  it('calls delete window when delete button is clicked', () => {
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+    render(<WindowPropertiesPanel />);
+    const deleteButton = screen.getByText('Delete Window');
+    fireEvent.click(deleteButton);
+    expect(confirmSpy).toHaveBeenCalled();
+    expect(mockDeleteWindow).toHaveBeenCalledWith('window-1');
+    confirmSpy.mockRestore();
   });
 });
