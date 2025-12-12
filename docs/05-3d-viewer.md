@@ -377,7 +377,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Apply in single render frame
   - Prevents flickering
 
-- [ ] **5.8.6** Create "Regenerate Scene" function:
+- [x] **5.8.6** Create "Regenerate Scene" function:
   - Clears and rebuilds entire scene
   - Use when data structure changes significantly
 
@@ -458,7 +458,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - D: strafe right
   - Smooth acceleration/deceleration
 
-- [ ] **5.10.4** Implement collision detection:
+- [x] **5.10.4** Implement collision detection:
   - Prevent walking through walls
   - Raycast in movement direction
   - Stop at wall surface
@@ -477,7 +477,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 - [x] First-person mode activates
 - [x] WASD moves camera
 - [x] Escape exits first-person mode
-- [ ] Collision prevents wall clipping
+- [x] Collision prevents wall clipping
 
 ---
 
@@ -502,7 +502,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
   - Only render when camera moves or scene changes
   - Use dirty flag pattern
 
-- [ ] **5.11.5** Create performance monitor:
+- [x] **5.11.5** Create performance monitor:
   - FPS counter
   - Draw call count
   - Triangle count
@@ -519,7 +519,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 ### Unit Tests
 
-- [ ] LOD switches at correct distances
+- [x] LOD switches at correct distances
 - [ ] Render-on-demand prevents unnecessary renders
 - [ ] Quality presets apply correct settings
 
@@ -533,11 +533,11 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 Note: Full WebGL testing may require special setup or mocking. Focus on:
 
-- [ ] **Scene initialization**: Create floorplan → viewer initializes without error
-- [ ] **Room rendering**: Add room to store → verify mesh created in scene
-- [ ] **Update sync**: Change room dimensions → verify geometry updates
+- [x] **Scene initialization**: Create floorplan → viewer initializes without error
+- [x] **Room rendering**: Add room to store → verify mesh created in scene
+- [x] **Update sync**: Change room dimensions → verify geometry updates
 - [ ] **Camera presets**: Click preset button → verify camera position changes
-- [ ] **Selection sync**: Select room in store → verify selection highlight in viewer
+- [x] **Selection sync**: Select room in store → verify selection highlight in viewer
 - [ ] **Memory cleanup**: Delete room → verify geometry disposed
 
 ---

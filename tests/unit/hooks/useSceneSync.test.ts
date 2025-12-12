@@ -5,10 +5,6 @@ import { useFloorplanStore } from '../../../src/stores/floorplanStore';
 // Mock useFloorplanStore
 jest.mock('../../../src/stores/floorplanStore');
 
-// We use the REAL useDebounce by NOT mocking it, but we need fake timers.
-// If we mock it, we assume it works.
-// To integration test it properly within useSceneSync, we should rely on real implementation + timers.
-
 describe('useSceneSync', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -29,14 +25,14 @@ describe('useSceneSync', () => {
 
     const { result, rerender } = renderHook(() => useSceneSync(100));
 
-    // Initial render - should have initial value immediately (as per useDebounce implementation)
+    // Initial render
     expect(result.current.rooms).toHaveLength(1);
     expect(result.current.rooms[0].id).toBe('r1');
 
     // Update store state
     currentFloorplan = { id: 'fp1', rooms: [{ id: 'r1', name: 'Room 1' }, { id: 'r2', name: 'Room 2' }] };
 
-    // Rerender hook to pick up new state (in real app, store subscription triggers this)
+    // Rerender hook
     rerender();
 
     // Should NOT be updated yet (debouncing)
@@ -61,5 +57,27 @@ describe('useSceneSync', () => {
 
     expect(result.current.rooms).toEqual([]);
     expect(result.current.floorplan).toBeNull();
+  });
+
+  it('should increment sceneVersion when regenerateScene is called', () => {
+    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector) => {
+        return selector({ currentFloorplan: { rooms: [] } });
+    });
+
+    const { result } = renderHook(() => useSceneSync());
+
+    expect(result.current.sceneVersion).toBe(0);
+
+    act(() => {
+      result.current.regenerateScene();
+    });
+
+    expect(result.current.sceneVersion).toBe(1);
+
+    act(() => {
+      result.current.regenerateScene();
+    });
+
+    expect(result.current.sceneVersion).toBe(2);
   });
 });

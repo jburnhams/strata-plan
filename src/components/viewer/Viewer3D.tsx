@@ -1,11 +1,12 @@
 import React, { Suspense, useEffect, useState, useRef } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
+import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { FirstPersonControls } from './FirstPersonControls';
 import { ViewerControls } from './ViewerControls';
 import { CameraControls, CameraControlsRef } from './CameraControls';
 import { useToast } from '@/hooks/use-toast';
+import { PerformanceMonitor } from '@/services/geometry3d/optimization';
 
 // Define explicit types for GLTFExporter since imports might fail resolution
 // or use 'any' if acceptable for dynamic import situations where types are tricky
@@ -51,6 +52,27 @@ interface ViewerActions {
     takeScreenshot: () => void;
     exportGLTF: () => void;
     toggleFullscreen: () => void;
+}
+
+// Performance monitoring component
+const PerformanceTracker = () => {
+    const { gl } = useThree();
+    const monitorRef = useRef<PerformanceMonitor | null>(null);
+
+    useEffect(() => {
+        monitorRef.current = new PerformanceMonitor(gl);
+    }, [gl]);
+
+    useFrame(() => {
+        if (monitorRef.current) {
+            monitorRef.current.update();
+            // In a real app we might expose these metrics to a store or UI overlay
+            // const metrics = monitorRef.current.getMetrics();
+            // console.log(metrics.fps);
+        }
+    });
+
+    return null;
 }
 
 // Internal component to expose three instances and actions
@@ -194,6 +216,7 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({
             canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
           }}
         >
+          <PerformanceTracker />
           <SceneExposer onSceneReady={onSceneReady} onActionsReady={setActions} />
 
           {/* Lighting and Environment are usually children passed in,
