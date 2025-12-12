@@ -351,10 +351,10 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Show wall length as label
   - Show angle relative to horizontal
 
-- [ ] **4.8.3** Implement wall snapping:
+- [x] **4.8.3** Implement wall snapping:
   - [x] Snap to grid points
-  - [ ] Snap to existing wall endpoints
-  - [ ] Snap to perpendicular angles (0°, 90°)
+  - [x] Snap to existing wall endpoints
+  - [x] Snap to perpendicular angles (0°, 90°)
   - [ ] Snap to 45° angles (optional)
 
 - [x] **4.8.4** Implement continuous wall drawing:
@@ -375,7 +375,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 - [x] Wall tool activates on button click
 - [x] Wall preview shows correct length
 - [x] Grid snapping works for wall endpoints
-- [ ] Wall-to-wall snapping works
+- [x] Wall-to-wall snapping works
 - [x] Escape cancels current wall
 
 ---
