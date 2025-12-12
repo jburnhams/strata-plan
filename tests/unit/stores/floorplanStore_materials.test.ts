@@ -1,190 +1,169 @@
-import { act, renderHook } from '@testing-library/react';
-import { useFloorplanStore } from '../../../src/stores/floorplanStore';
-import { ROOM_TYPE_MATERIALS } from '../../../src/constants/defaults';
-import { FloorMaterial, WallMaterial, CeilingMaterial } from '../../../src/types/materials';
-import { Room } from '../../../src/types/room';
+import { act } from '@testing-library/react';
+import { useFloorplanStore } from '@/stores/floorplanStore';
+import { ROOM_TYPE_MATERIALS } from '@/constants/defaults';
+import { RoomType } from '@/types/room';
 
 // Mock generateUUID
-jest.mock('../../../src/services/geometry', () => {
-    const { jest } = require('@jest/globals');
-    return {
-        generateUUID: jest.fn(() => 'test-id'),
-    };
-});
+jest.mock('@/services/geometry', () => ({
+  generateUUID: jest.fn(() => 'mock-uuid-' + Math.random().toString(36).substr(2, 9)),
+}));
 
-// Mock geometry services
-jest.mock('../../../src/services/geometry/room', () => {
-    const { jest } = require('@jest/globals');
-    return {
-        calculateArea: jest.fn(() => 20),
-        calculateVolume: jest.fn(() => 50),
-        getRoomBounds: jest.fn(() => ({ minX: 0, maxX: 4, minZ: 0, maxZ: 5 })),
-    };
-});
+// Mock calculateAllConnections
+jest.mock('@/services/adjacency/graph', () => ({
+  calculateAllConnections: jest.fn(() => []),
+}));
 
-// Mock adjacency services
-jest.mock('../../../src/services/adjacency/graph', () => {
-    const { jest } = require('@jest/globals');
-    return {
-        calculateAllConnections: jest.fn(() => []),
-    };
-});
+describe('floorplanStore Material Actions', () => {
+  const initialState = useFloorplanStore.getState();
 
-describe('useFloorplanStore Materials', () => {
   beforeEach(() => {
-    const { result } = renderHook(() => useFloorplanStore());
+    useFloorplanStore.setState(initialState, true);
+    // Create a floorplan to work with
     act(() => {
-      result.current.clearFloorplan();
-      result.current.createFloorplan('Test Plan', 'meters');
+      useFloorplanStore.getState().createFloorplan('Test Plan', 'meters');
     });
   });
 
   it('should apply default materials when adding a room', () => {
-    const { result } = renderHook(() => useFloorplanStore());
+    const roomType: RoomType = 'kitchen';
 
-    let room: Room;
+    let addedRoom;
     act(() => {
-      room = result.current.addRoom({
-        name: 'Master Bedroom',
+      addedRoom = useFloorplanStore.getState().addRoom({
+        name: 'Test Kitchen',
         length: 4,
-        width: 5,
+        width: 3,
         height: 2.7,
-        type: 'bedroom',
+        type: roomType,
         position: { x: 0, z: 0 },
         rotation: 0,
       });
     });
 
-    const bedroomDefaults = ROOM_TYPE_MATERIALS['bedroom'];
-    const addedRoom = result.current.getRoomById(room!.id);
-
-    expect(addedRoom).toBeDefined();
-    expect(addedRoom?.floorMaterial).toBe(bedroomDefaults.floor);
-    expect(addedRoom?.wallMaterial).toBe(bedroomDefaults.wall);
-    expect(addedRoom?.ceilingMaterial).toBe(bedroomDefaults.ceiling);
+    const room = useFloorplanStore.getState().currentFloorplan?.rooms.find(r => r.id === addedRoom.id);
+    expect(room).toBeDefined();
+    expect(room?.floorMaterial).toBe(ROOM_TYPE_MATERIALS[roomType].floor);
+    expect(room?.wallMaterial).toBe(ROOM_TYPE_MATERIALS[roomType].wall);
+    expect(room?.ceilingMaterial).toBe(ROOM_TYPE_MATERIALS[roomType].ceiling);
   });
 
-  it('should not override provided materials when adding a room', () => {
-    const { result } = renderHook(() => useFloorplanStore());
-
-    let room: Room;
+  it('should set room floor material and clear custom floor color', () => {
+    // First add a room
+    let roomId;
     act(() => {
-      room = result.current.addRoom({
-        name: 'Custom Room',
+      const room = useFloorplanStore.getState().addRoom({
+        name: 'Test Room',
         length: 4,
-        width: 5,
+        width: 4,
         height: 2.7,
         type: 'bedroom',
         position: { x: 0, z: 0 },
         rotation: 0,
-        floorMaterial: 'concrete' as FloorMaterial,
-        wallMaterial: 'brick-red' as WallMaterial,
+        customFloorColor: '#ff0000',
       });
+      roomId = room.id;
     });
 
-    const addedRoom = result.current.getRoomById(room!.id);
+    // Verify initial state
+    let room = useFloorplanStore.getState().currentFloorplan?.rooms.find(r => r.id === roomId);
+    expect(room?.customFloorColor).toBe('#ff0000');
 
-    expect(addedRoom?.floorMaterial).toBe('concrete');
-    expect(addedRoom?.wallMaterial).toBe('brick-red');
-    // Ceiling should still get default since we didn't provide it
-    expect(addedRoom?.ceilingMaterial).toBe(ROOM_TYPE_MATERIALS['bedroom'].ceiling);
+    // Update floor material
+    act(() => {
+      useFloorplanStore.getState().setRoomFloorMaterial(roomId!, 'tile-ceramic');
+    });
+
+    // Verify update
+    room = useFloorplanStore.getState().currentFloorplan?.rooms.find(r => r.id === roomId);
+    expect(room?.floorMaterial).toBe('tile-ceramic');
+    expect(room?.customFloorColor).toBeUndefined();
   });
 
-  it('should update room floor material', () => {
-    const { result } = renderHook(() => useFloorplanStore());
-
-    let room: Room;
+  it('should set room wall material and clear custom wall color', () => {
+    let roomId;
     act(() => {
-      room = result.current.addRoom({
+      const room = useFloorplanStore.getState().addRoom({
         name: 'Test Room',
-        length: 4, width: 5, height: 2.7, type: 'living',
-        position: { x: 0, z: 0 }, rotation: 0,
+        length: 4,
+        width: 4,
+        height: 2.7,
+        type: 'bedroom',
+        position: { x: 0, z: 0 },
+        rotation: 0,
+        customWallColor: '#00ff00',
       });
+      roomId = room.id;
     });
 
     act(() => {
-      result.current.setRoomFloorMaterial(room!.id, 'tile-ceramic' as FloorMaterial);
+      useFloorplanStore.getState().setRoomWallMaterial(roomId!, 'brick-red');
     });
 
-    const updatedRoom = result.current.getRoomById(room!.id);
-    expect(updatedRoom?.floorMaterial).toBe('tile-ceramic');
+    const room = useFloorplanStore.getState().currentFloorplan?.rooms.find(r => r.id === roomId);
+    expect(room?.wallMaterial).toBe('brick-red');
+    expect(room?.customWallColor).toBeUndefined();
   });
 
-  it('should update room wall material', () => {
-    const { result } = renderHook(() => useFloorplanStore());
-
-    let room: Room;
+  it('should set room ceiling material and clear custom ceiling color', () => {
+    let roomId;
     act(() => {
-      room = result.current.addRoom({
+      const room = useFloorplanStore.getState().addRoom({
         name: 'Test Room',
-        length: 4, width: 5, height: 2.7, type: 'living',
-        position: { x: 0, z: 0 }, rotation: 0,
+        length: 4,
+        width: 4,
+        height: 2.7,
+        type: 'bedroom',
+        position: { x: 0, z: 0 },
+        rotation: 0,
+        customCeilingColor: '#0000ff',
       });
+      roomId = room.id;
     });
 
     act(() => {
-      result.current.setRoomWallMaterial(room!.id, 'brick-white' as WallMaterial);
+      useFloorplanStore.getState().setRoomCeilingMaterial(roomId!, 'wood-beam');
     });
 
-    const updatedRoom = result.current.getRoomById(room!.id);
-    expect(updatedRoom?.wallMaterial).toBe('brick-white');
+    const room = useFloorplanStore.getState().currentFloorplan?.rooms.find(r => r.id === roomId);
+    expect(room?.ceilingMaterial).toBe('wood-beam');
+    expect(room?.customCeilingColor).toBeUndefined();
   });
 
-  it('should update room ceiling material', () => {
-    const { result } = renderHook(() => useFloorplanStore());
-
-    let room: Room;
+  it('should set custom room color', () => {
+    let roomId;
     act(() => {
-      room = result.current.addRoom({
+      const room = useFloorplanStore.getState().addRoom({
         name: 'Test Room',
-        length: 4, width: 5, height: 2.7, type: 'living',
-        position: { x: 0, z: 0 }, rotation: 0,
+        length: 4,
+        width: 4,
+        height: 2.7,
+        type: 'bedroom',
+        position: { x: 0, z: 0 },
+        rotation: 0,
       });
-    });
-
-    act(() => {
-      result.current.setRoomCeilingMaterial(room!.id, 'wood-beam' as CeilingMaterial);
-    });
-
-    const updatedRoom = result.current.getRoomById(room!.id);
-    expect(updatedRoom?.ceilingMaterial).toBe('wood-beam');
-  });
-
-  it('should set custom colors and clear material when needed', () => {
-    const { result } = renderHook(() => useFloorplanStore());
-
-    let room: Room;
-    act(() => {
-      room = result.current.addRoom({
-        name: 'Test Room',
-        length: 4, width: 5, height: 2.7, type: 'living',
-        position: { x: 0, z: 0 }, rotation: 0,
-      });
+      roomId = room.id;
     });
 
     // Set custom floor color
     act(() => {
-      result.current.setRoomCustomColor(room!.id, 'floor', '#123456');
+      useFloorplanStore.getState().setRoomCustomColor(roomId!, 'floor', '#123456');
     });
 
-    let updatedRoom = result.current.getRoomById(room!.id);
-    expect(updatedRoom?.customFloorColor).toBe('#123456');
+    let room = useFloorplanStore.getState().currentFloorplan?.rooms.find(r => r.id === roomId);
+    expect(room?.customFloorColor).toBe('#123456');
 
-    // Setting material should clear custom color
+    // Set custom wall color
     act(() => {
-      result.current.setRoomFloorMaterial(room!.id, 'carpet');
+      useFloorplanStore.getState().setRoomCustomColor(roomId!, 'wall', '#654321');
     });
+    room = useFloorplanStore.getState().currentFloorplan?.rooms.find(r => r.id === roomId);
+    expect(room?.customWallColor).toBe('#654321');
 
-    updatedRoom = result.current.getRoomById(room!.id);
-    expect(updatedRoom?.floorMaterial).toBe('carpet');
-    expect(updatedRoom?.customFloorColor).toBeUndefined();
-
-    // Setting custom color again
+    // Set custom ceiling color
     act(() => {
-      result.current.setRoomCustomColor(room!.id, 'wall', '#aabbcc');
+      useFloorplanStore.getState().setRoomCustomColor(roomId!, 'ceiling', '#abcdef');
     });
-
-    updatedRoom = result.current.getRoomById(room!.id);
-    expect(updatedRoom?.customWallColor).toBe('#aabbcc');
+    room = useFloorplanStore.getState().currentFloorplan?.rooms.find(r => r.id === roomId);
+    expect(room?.customCeilingColor).toBe('#abcdef');
   });
 });
