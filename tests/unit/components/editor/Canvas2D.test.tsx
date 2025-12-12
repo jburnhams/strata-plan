@@ -4,8 +4,12 @@ import { Canvas2D } from '../../../../src/components/editor/Canvas2D';
 
 // Mocks
 jest.mock('../../../../src/components/editor/CanvasViewport', () => ({
-  CanvasViewport: ({ children, onCursorMove }: any) => (
-    <div data-testid="mock-viewport" onMouseMove={() => onCursorMove && onCursorMove({ x: 1, z: 1 })}>
+  CanvasViewport: ({ children, onCursorMove, onMouseDown }: any) => (
+    <div
+      data-testid="mock-viewport"
+      onMouseMove={() => onCursorMove && onCursorMove({ x: 1, z: 1 })}
+      onMouseDown={onMouseDown}
+    >
       {children}
     </div>
   ),
@@ -30,11 +34,25 @@ jest.mock('../../../../src/components/editor/SnapIndicator', () => ({
 jest.mock('../../../../src/components/editor/EditorToolbar', () => ({
   EditorToolbar: () => <div data-testid="mock-toolbar" />,
 }));
+jest.mock('../../../../src/components/editor/WallOverlay', () => ({
+  WallOverlay: () => <div data-testid="mock-wall-overlay" />,
+  WallPreview: () => <div data-testid="mock-wall-preview" />,
+}));
 
 // Mock hook
 jest.mock('../../../../src/hooks/useKeyboardSelection', () => ({
   useKeyboardSelection: jest.fn(),
 }));
+
+jest.mock('../../../../src/hooks/useWallDrawing', () => ({
+  useWallDrawing: () => ({
+    isDrawing: false,
+    startPoint: null,
+    currentPoint: null,
+    handleMouseDown: jest.fn(),
+  }),
+}));
+
 import { useKeyboardSelection } from '../../../../src/hooks/useKeyboardSelection';
 
 describe('Canvas2D', () => {
@@ -50,6 +68,8 @@ describe('Canvas2D', () => {
     expect(screen.getByTestId('mock-room-layer')).toBeInTheDocument();
     expect(screen.getByTestId('mock-selection')).toBeInTheDocument();
     expect(screen.getByTestId('mock-snap-indicator')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-wall-overlay')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-wall-preview')).toBeInTheDocument();
   });
 
   it('passes cursor position from Viewport to SnapIndicator', () => {
