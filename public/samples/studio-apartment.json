@@ -1,0 +1,40 @@
+{
+  "id": "sample-studio",
+  "name": "Studio Apartment",
+  "units": "meters",
+  "createdAt": "2024-01-01T10:00:00.000Z",
+  "updatedAt": "2024-01-01T10:00:00.000Z",
+  "rooms": [
+    {
+      "id": "room-1",
+      "name": "Main Living Area",
+      "type": "living",
+      "length": 6,
+      "width": 5,
+      "height": 2.4,
+      "position": { "x": 0, "z": 0 },
+      "doors": [],
+      "windows": []
+    },
+    {
+      "id": "room-2",
+      "name": "Bathroom",
+      "type": "bathroom",
+      "length": 2,
+      "width": 3,
+      "height": 2.4,
+      "position": { "x": 6, "z": 0 },
+      "doors": [],
+      "windows": []
+    }
+  ],
+  "connections": [
+    {
+      "id": "conn-1",
+      "room1Id": "room-1",
+      "room2Id": "room-2",
+      "sharedWall": "east",
+      "doors": []
+    }
+  ]
+}

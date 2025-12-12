@@ -11,6 +11,7 @@ export interface UserSettings {
   materialQuality: 'simple' | 'standard' | 'detailed';
   colorScheme: string;
   recentProjects: string[]; // Last 5 project IDs
+  importHistory?: { filename: string; importedAt: string; size: number }[];
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
@@ -24,6 +25,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   materialQuality: 'standard',
   colorScheme: 'default',
   recentProjects: [],
+  importHistory: [],
 };
 
 const SETTINGS_KEY = 'user_settings';
@@ -102,3 +104,6 @@ export const removeRecentProject = async (projectId: string): Promise<void> => {
         await saveSettings({ recentProjects: recent });
     }
 };
+
+// Re-export getSettings as alias for loadSettings to match usage in history.ts
+export const getSettings = loadSettings;

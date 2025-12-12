@@ -1,0 +1,65 @@
+{
+  "id": "sample-2bed",
+  "name": "Two Bedroom Apartment",
+  "units": "meters",
+  "createdAt": "2024-01-01T10:00:00.000Z",
+  "updatedAt": "2024-01-01T10:00:00.000Z",
+  "rooms": [
+    {
+      "id": "living",
+      "name": "Living Room",
+      "type": "living",
+      "length": 5,
+      "width": 4,
+      "height": 2.4,
+      "position": { "x": 0, "z": 0 },
+      "doors": [],
+      "windows": []
+    },
+    {
+      "id": "kitchen",
+      "name": "Kitchen",
+      "type": "kitchen",
+      "length": 3,
+      "width": 4,
+      "height": 2.4,
+      "position": { "x": 5, "z": 0 },
+      "doors": [],
+      "windows": []
+    },
+    {
+      "id": "hallway",
+      "name": "Hallway",
+      "type": "hallway",
+      "length": 8,
+      "width": 1.2,
+      "height": 2.4,
+      "position": { "x": 0, "z": 4 },
+      "doors": [],
+      "windows": []
+    },
+    {
+      "id": "bed1",
+      "name": "Master Bedroom",
+      "type": "bedroom",
+      "length": 4,
+      "width": 3.5,
+      "height": 2.4,
+      "position": { "x": 0, "z": 5.2 },
+      "doors": [],
+      "windows": []
+    },
+    {
+      "id": "bed2",
+      "name": "Second Bedroom",
+      "type": "bedroom",
+      "length": 3.5,
+      "width": 3.5,
+      "height": 2.4,
+      "position": { "x": 4, "z": 5.2 },
+      "doors": [],
+      "windows": []
+    }
+  ],
+  "connections": []
+}

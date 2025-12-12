@@ -1,0 +1,43 @@
+{
+  "id": "sample-office",
+  "name": "Office Space",
+  "units": "meters",
+  "createdAt": "2024-01-01T10:00:00.000Z",
+  "updatedAt": "2024-01-01T10:00:00.000Z",
+  "rooms": [
+    {
+      "id": "open-plan",
+      "name": "Open Plan Office",
+      "type": "office",
+      "length": 10,
+      "width": 8,
+      "height": 3,
+      "position": { "x": 0, "z": 0 },
+      "doors": [],
+      "windows": []
+    },
+    {
+      "id": "meeting-1",
+      "name": "Meeting Room A",
+      "type": "office",
+      "length": 4,
+      "width": 3,
+      "height": 3,
+      "position": { "x": 0, "z": 8 },
+      "doors": [],
+      "windows": []
+    },
+    {
+      "id": "meeting-2",
+      "name": "Meeting Room B",
+      "type": "office",
+      "length": 4,
+      "width": 3,
+      "height": 3,
+      "position": { "x": 4, "z": 8 },
+      "doors": [],
+      "windows": []
+    }
+  ],
+  "connections": []
+}
