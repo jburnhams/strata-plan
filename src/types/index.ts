@@ -12,14 +12,23 @@ export type { FloorMaterial, WallMaterial, WindowMaterial } from './materials';
 export type {
   Room,
   Wall,
-  Door,
-  Window,
   RoomType,
+} from './room';
+
+// Door types
+export type {
+  Door,
   DoorType,
   DoorSwing,
   HandleSide,
+} from './door';
+
+// Window types
+export type {
+  Window,
   WindowFrameType,
-} from './room';
+  WindowOpeningType,
+} from './window';
 
 // Floorplan types
 export type {

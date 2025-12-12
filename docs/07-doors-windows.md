@@ -26,7 +26,7 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Subtasks
 
-- [ ] **7.1.1** Finalize `Door` interface:
+- [x] **7.1.1** Finalize `Door` interface:
   ```typescript
   interface Door {
     id: string
@@ -45,7 +45,7 @@ This section implements doors and windows as openings in walls. Doors connect ad
   type DoorType = 'single' | 'double' | 'sliding' | 'pocket' | 'bifold'
   ```
 
-- [ ] **7.1.2** Add door defaults:
+- [x] **7.1.2** Add door defaults:
   ```typescript
   const DOOR_DEFAULTS = {
     width: 0.9,
@@ -56,16 +56,16 @@ This section implements doors and windows as openings in walls. Doors connect ad
   }
   ```
 
-- [ ] **7.1.3** Add door validation:
+- [x] **7.1.3** Add door validation:
   - Width: 0.5m - 1.5m for single, 1.0m - 2.5m for double
   - Height: 1.8m - 2.5m
   - Position must keep door within wall bounds
 
 ### Unit Tests
 
-- [ ] Door type validation
-- [ ] Position bounds checking
-- [ ] Default values applied correctly
+- [x] Door type validation
+- [x] Position bounds checking
+- [x] Default values applied correctly
 
 ---
 
@@ -75,7 +75,7 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Subtasks
 
-- [ ] **7.2.1** Finalize `Window` interface:
+- [x] **7.2.1** Finalize `Window` interface:
   ```typescript
   interface Window {
     id: string
@@ -95,7 +95,7 @@ This section implements doors and windows as openings in walls. Doors connect ad
   type WindowOpeningType = 'fixed' | 'casement' | 'sliding' | 'awning' | 'hopper'
   ```
 
-- [ ] **7.2.2** Add window defaults:
+- [x] **7.2.2** Add window defaults:
   ```typescript
   const WINDOW_DEFAULTS = {
     width: 1.2,
@@ -107,7 +107,7 @@ This section implements doors and windows as openings in walls. Doors connect ad
   }
   ```
 
-- [ ] **7.2.3** Add window validation:
+- [x] **7.2.3** Add window validation:
   - Width: 0.3m - 3.0m
   - Height: 0.3m - 2.5m
   - Sill height: 0m - 1.5m
@@ -115,8 +115,8 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Unit Tests
 
-- [ ] Window validation catches invalid dimensions
-- [ ] Sill height + height checked against ceiling
+- [x] Window validation catches invalid dimensions
+- [x] Sill height + height checked against ceiling
 
 ---
 
@@ -126,7 +126,7 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Subtasks
 
-- [ ] **7.3.1** Add doors and windows to floorplan state:
+- [x] **7.3.1** Add doors and windows to floorplan state:
   ```typescript
   doors: Door[]
   windows: Window[]
@@ -134,7 +134,7 @@ This section implements doors and windows as openings in walls. Doors connect ad
   selectedWindowId: string | null
   ```
 
-- [ ] **7.3.2** Add door actions:
+- [x] **7.3.2** Add door actions:
   ```typescript
   addDoor(params: CreateDoorParams): Door
   updateDoor(id: string, updates: Partial<Door>): void
@@ -144,7 +144,7 @@ This section implements doors and windows as openings in walls. Doors connect ad
   getDoorsByConnection(connectionId: string): Door[]
   ```
 
-- [ ] **7.3.3** Add window actions:
+- [x] **7.3.3** Add window actions:
   ```typescript
   addWindow(params: CreateWindowParams): Window
   updateWindow(id: string, updates: Partial<Window>): void
@@ -153,15 +153,15 @@ This section implements doors and windows as openings in walls. Doors connect ad
   getWindowsByRoom(roomId: string): Window[]
   ```
 
-- [ ] **7.3.4** Handle cascading deletes:
+- [x] **7.3.4** Handle cascading deletes:
   - Deleting room deletes its doors and windows
   - Deleting connection removes associated doors
 
 ### Unit Tests
 
-- [ ] Add door creates door in store
-- [ ] Delete room cascades to doors/windows
-- [ ] Selection updates correctly
+- [x] Add door creates door in store
+- [x] Delete room cascades to doors/windows
+- [x] Selection updates correctly
 
 ---
 
