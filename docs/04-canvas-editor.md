@@ -248,7 +248,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 - [x] Drag updates room position
 - [x] Grid snapping works at different grid sizes
-- [ ] Smart guides appear when aligned
+- [x] Smart guides appear when aligned
 - [x] Multi-select drag maintains relative positions
 - [x] Collision warning appears for overlapping rooms
 
@@ -497,25 +497,25 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 - [x] **Room positioning**: Add room via table → verify appears in canvas at correct position
 - [x] **Drag and drop**: Select room → drag to new position → verify position updated in store
-- [ ] **Resize workflow**: Select room → drag corner handle → verify dimensions updated
-- [ ] **Multi-room selection**: Shift+click multiple rooms → drag → verify all move together
-- [ ] **Zoom and pan**: Zoom to 200% → pan right → verify coordinates transform correctly
-- [x] **Wall drawing**: Draw 4 walls forming rectangle → click inside → verify room created
+- [x] **Resize workflow**: Select room → drag corner handle → verify dimensions updated
+- [x] **Multi-room selection**: Shift+click multiple rooms → drag → verify all move together
+- [x] **Zoom and pan**: Zoom to 200% → pan right → verify coordinates transform correctly
+- [x] **Wall drawing**: Draw walls → create room from closed area → click inside → verify room created
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Rooms display in 2D canvas with correct positions and sizes
-- [ ] Click to select, Shift+click for multi-select works
-- [ ] Drag to move rooms works with grid snapping
-- [ ] Resize handles work for all directions
-- [ ] Rotation snaps to 90° increments
-- [ ] Wall drawing tool creates walls
-- [ ] Enclosed areas can become rooms
-- [ ] Pan and zoom work smoothly
-- [ ] Grid displays at appropriate density
-- [ ] Unit test coverage > 85%
+- [x] Rooms display in 2D canvas with correct positions and sizes
+- [x] Click to select, Shift+click for multi-select works
+- [x] Drag to move rooms works with grid snapping
+- [x] Resize handles work for all directions
+- [x] Rotation snaps to 90° increments
+- [x] Wall drawing tool creates walls
+- [x] Enclosed areas can become rooms
+- [x] Pan and zoom work smoothly
+- [x] Grid displays at appropriate density
+- [x] Unit test coverage > 85%
 
 ---
 
