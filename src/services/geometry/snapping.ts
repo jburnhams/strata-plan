@@ -170,7 +170,7 @@ export const getWallSnapPoints = (
     }
   }
 
-  // 2. Check for angle snapping if start point exists (0, 90 degrees)
+  // 2. Check for angle snapping if start point exists (0, 45, 90 degrees)
   if (startPoint) {
     const dx = currentPoint.x - startPoint.x;
     const dz = currentPoint.z - startPoint.z;
@@ -183,6 +183,10 @@ export const getWallSnapPoints = (
 
       const isHorizontal = Math.abs(dz) < dist * Math.sin(angleTolerance); // Close to 0 or 180
       const isVertical = Math.abs(dx) < dist * Math.sin(angleTolerance); // Close to 90 or 270
+
+      // Check diagonal (45, 135, 225, 315)
+      const absDiff = Math.abs(Math.abs(dx) - Math.abs(dz));
+      const isDiagonal = absDiff < dist * Math.sin(angleTolerance);
 
       if (isHorizontal) {
         // Snap Z to match startPoint.z (make line perfectly horizontal)
@@ -208,6 +212,47 @@ export const getWallSnapPoints = (
           position: { x: startPoint.x, z: snappedZ },
           snappedTo: 'angle'
         };
+      }
+
+      if (isDiagonal) {
+         // Project to nearest diagonal
+         const sameSign = (dx > 0 && dz > 0) || (dx < 0 && dz < 0);
+
+         let snappedDx, snappedDz;
+
+         if (sameSign) {
+            // Slope 1: dx = dz
+            const mean = (dx + dz) / 2;
+            snappedDx = mean;
+            snappedDz = mean;
+         } else {
+            // Slope -1: dx = -dz
+            const mean = (dx - dz) / 2;
+            snappedDx = mean;
+            snappedDz = -mean;
+         }
+
+         // Calculate base snapped position
+         let finalX = startPoint.x + snappedDx;
+         let finalZ = startPoint.z + snappedDz;
+
+         // Apply grid snapping if enabled
+         if (showGrid) {
+            const gridSnappedX = Math.round(finalX / gridSize) * gridSize;
+            const diff = gridSnappedX - finalX;
+            finalX = gridSnappedX;
+            // Adjust Z to stay on diagonal
+            if (sameSign) {
+                finalZ += diff;
+            } else {
+                finalZ -= diff;
+            }
+         }
+
+         return {
+            position: { x: finalX, z: finalZ },
+            snappedTo: 'angle'
+         };
       }
     }
   }

@@ -63,6 +63,26 @@ describe('getWallSnapPoints', () => {
         expect(result.position.z).toBe(5);
     });
 
+    it('snaps to 45 degree diagonal (slope 1)', () => {
+        // Start at (0,0). Move to (4, 4.1). Should snap to (4.05, 4.05) -> grid snapped x=4 -> z=4
+        const cursor: Position2D = { x: 4, z: 4.1 };
+        const result = getWallSnapPoints(cursor, existingWalls, {x:0, z:0}, gridSize, true, snapTolerance);
+
+        expect(result.snappedTo).toBe('angle');
+        expect(result.position.x).toBeCloseTo(4.0);
+        expect(result.position.z).toBeCloseTo(4.0);
+    });
+
+    it('snaps to 135 degree diagonal (slope -1)', () => {
+        // Start at (0,0). Move to (4, -4.1).
+        const cursor: Position2D = { x: 4, z: -4.1 };
+        const result = getWallSnapPoints(cursor, existingWalls, {x:0, z:0}, gridSize, true, snapTolerance);
+
+        expect(result.snappedTo).toBe('angle');
+        expect(result.position.x).toBeCloseTo(4.0);
+        expect(result.position.z).toBeCloseTo(-4.0);
+    });
+
     it('snaps to grid if no wall endpoint or angle snap applies', () => {
         // Random point far from walls and not aligned with start
         const cursor: Position2D = { x: 3.2, z: 3.3 };
@@ -70,8 +90,6 @@ describe('getWallSnapPoints', () => {
 
         expect(result.snappedTo).toBe('grid');
         // Closest grid point (0.5 spacing)
-        // 3.2 -> 3.0 or 3.5? 3.0 is closer.
-        // 3.3 -> 3.5 is closer.
         expect(result.position).toEqual({ x: 3.0, z: 3.5 });
     });
 

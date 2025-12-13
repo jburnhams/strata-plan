@@ -126,8 +126,6 @@ describe('MeasurementOverlay', () => {
     );
 
     // Should verify gap is 2.00 m
-    // There are already texts for lengths/widths (4.00 m)
-    // We expect "2.00 m" to appear for the gap
     expect(screen.getByText('2.00 m')).toBeInTheDocument();
   });
 
@@ -145,5 +143,39 @@ describe('MeasurementOverlay', () => {
 
     // 5m * 3.28084 = 16.40 ft
     expect(screen.getByText(/16.40 ft/)).toBeInTheDocument();
+  });
+
+  it('renders rotation angle when room is rotated', () => {
+    const rotatedRoom = { ...mockRoom, rotation: 45 };
+    useFloorplanStore.setState(state => ({
+      currentFloorplan: { ...state.currentFloorplan!, rooms: [rotatedRoom] },
+      selectedRoomIds: ['room-1']
+    }));
+
+    render(
+      <svg>
+        <MeasurementOverlay />
+      </svg>
+    );
+
+    expect(screen.getByText('45°')).toBeInTheDocument();
+  });
+
+  it('does not render rotation angle when rotation is 0', () => {
+    const normalRoom = { ...mockRoom, rotation: 0 };
+    useFloorplanStore.setState(state => ({
+      currentFloorplan: { ...state.currentFloorplan!, rooms: [normalRoom] },
+      selectedRoomIds: ['room-1']
+    }));
+
+    render(
+      <svg>
+        <MeasurementOverlay />
+      </svg>
+    );
+
+    // 0° shouldn't be rendered as text
+    const zeroDegrees = screen.queryByText('0°');
+    expect(zeroDegrees).not.toBeInTheDocument();
   });
 });

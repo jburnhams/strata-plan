@@ -191,6 +191,9 @@ export const MeasurementOverlay: React.FC = () => {
         const lengthText = formatDimension(room.length, units);
         const widthText = formatDimension(room.width, units);
 
+        // Rotation Angle Text
+        const rotationText = `${Math.round(room.rotation || 0)}°`;
+
         const charWidth = fontSize * 0.6;
         const lengthTextWidth = lengthText.length * charWidth;
         const widthTextWidth = widthText.length * charWidth;
@@ -245,6 +248,22 @@ export const MeasurementOverlay: React.FC = () => {
                   {widthText}
                </text>
              </g>
+
+             {/* Rotation Angle (Center) - Only show if rotated */}
+             {room.rotation !== 0 && (
+                <text
+                    x={cx}
+                    y={cy}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fontSize={fontSize * 1.5}
+                    fill="#2563eb"
+                    fillOpacity={0.3}
+                    style={{ userSelect: 'none', pointerEvents: 'none', fontWeight: 'bold' }}
+                >
+                    {rotationText}
+                </text>
+             )}
           </g>
         );
       })}
