@@ -1,12 +1,59 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigation } from '../../hooks/useNavigation';
 import { useDialogStore } from '../../stores/dialogStore';
-import { DIALOG_NEW_PROJECT } from '../../constants/dialogs';
+import { DIALOG_NEW_PROJECT, DIALOG_IMPORT } from '../../constants/dialogs';
 import { Button } from '../ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { SAMPLE_PROJECTS, loadSampleProject } from '../../services/import/samples';
+import { useFloorplanStore } from '../../stores/floorplanStore';
+import { useToast } from '../../hooks/use-toast';
+import { saveProject } from '../../services/storage/projectStorage';
+import { ChevronDown, Loader2 } from 'lucide-react';
 
 export function LandingPage() {
   const { createProject, navigateTo } = useNavigation();
   const { openDialog } = useDialogStore();
+  const { loadFloorplan } = useFloorplanStore();
+  const { toast } = useToast();
+
+  const [isLoadingSample, setIsLoadingSample] = useState(false);
+
+  const handleLoadSample = async (filename: string, name: string) => {
+    setIsLoadingSample(true);
+    try {
+      const floorplan = await loadSampleProject(filename);
+
+      // Update store
+      loadFloorplan(floorplan);
+
+      // Save to storage
+      await saveProject(floorplan);
+
+      toast({
+        title: "Sample Loaded",
+        description: `Loaded "${name}" successfully.`,
+      });
+
+      // Navigate to editor
+      navigateTo('editor');
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Error",
+        description: "Failed to load sample project",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingSample(false);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
@@ -24,15 +71,47 @@ export function LandingPage() {
               onClick={() => {
                 openDialog(DIALOG_NEW_PROJECT);
               }}
+              disabled={isLoadingSample}
             >
               Create New Floorplan
             </Button>
 
             <div className="flex gap-4">
-              <Button variant="outline" className="flex-1" onClick={() => createProject('Demo Project', 'meters')}>
-                Try Demo
-              </Button>
-              <Button variant="outline" className="flex-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex-1" disabled={isLoadingSample}>
+                    {isLoadingSample ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Loading...
+                      </>
+                    ) : (
+                      <>
+                        Try a Demo <ChevronDown className="ml-2 h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <DropdownMenuLabel>Sample Projects</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {SAMPLE_PROJECTS.map((sample) => (
+                    <DropdownMenuItem
+                      key={sample.id}
+                      onClick={() => handleLoadSample(sample.filename, sample.name)}
+                    >
+                      {sample.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => openDialog(DIALOG_IMPORT)}
+                disabled={isLoadingSample}
+              >
                 Import File
               </Button>
             </div>
@@ -45,6 +124,7 @@ export function LandingPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigateTo('projectList')}
+                disabled={isLoadingSample}
               >
                 View All
               </Button>

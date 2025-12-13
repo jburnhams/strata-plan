@@ -356,7 +356,7 @@ The import system allows users to load floorplans from external files. JSON impo
   - Store import timestamps
   - Stored in user settings
 
-- [ ] **11.8.2** Display in import dialog:
+- [x] **11.8.2** Display in import dialog:
   - "Recent imports" section
   - Filename and date
   - Note: Can't re-import from history (file not stored)
@@ -389,20 +389,20 @@ The import system allows users to load floorplans from external files. JSON impo
   - Parse and validate
   - Return floorplan
 
-- [ ] **11.9.3** Sample selector in landing page:
+- [x] **11.9.3** Sample selector in landing page:
   - "Try a demo" button
   - Dropdown of sample projects
   - Loads directly into editor
 
-- [ ] **11.9.4** Sample selector in import dialog:
+- [x] **11.9.4** Sample selector in import dialog:
   - Section: "Or try a sample project"
   - List of available samples
 
 ### Unit Tests
 
-- [ ] Sample projects load correctly
-- [ ] Sample files are valid JSON
-- [ ] All samples pass validation
+- [x] Sample projects load correctly
+- [x] Sample files are valid JSON
+- [x] All samples pass validation
 
 ---
 
@@ -412,26 +412,26 @@ The import system allows users to load floorplans from external files. JSON impo
 
 ### Test Cases
 
-- [ ] **JSON round-trip**: Export → Import → Verify identical
-- [ ] **Drop zone interaction**: Simulate file drop → Verify import triggered
-- [ ] **Validation flow**: Import invalid file → Verify errors shown
-- [ ] **Replace project**: Import with replace → Verify old project replaced
-- [ ] **New project**: Import as new → Verify new project created
-- [ ] **Sample loading**: Load sample → Verify renders correctly
+- [x] **JSON round-trip**: Export → Import → Verify identical
+- [x] **Drop zone interaction**: Simulate file drop → Verify import triggered
+- [x] **Validation flow**: Import invalid file → Verify errors shown
+- [x] **Replace project**: Import with replace → Verify old project replaced
+- [x] **New project**: Import as new → Verify new project created
+- [x] **Sample loading**: Load sample → Verify renders correctly
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] JSON files import successfully
-- [ ] Validation catches invalid files with helpful errors
-- [ ] Drag-and-drop works
-- [ ] File browser works
-- [ ] Replace vs new project option works
-- [ ] Sample projects load
-- [ ] Import progress shown
-- [ ] Error handling is user-friendly
-- [ ] Unit test coverage > 85%
+- [x] JSON files import successfully
+- [x] Validation catches invalid files with helpful errors
+- [x] Drag-and-drop works
+- [x] File browser works
+- [x] Replace vs new project option works
+- [x] Sample projects load
+- [x] Import progress shown
+- [x] Error handling is user-friendly
+- [x] Unit test coverage > 85%
 
 ---
 
