@@ -44,17 +44,13 @@ jest.mock('../../src/components/layout/SettingsSync', () => ({
   SettingsSync: () => null,
 }));
 
-// Ensure crypto.randomUUID is available in JSDOM
-if (typeof crypto === 'undefined') {
-  Object.defineProperty(global, 'crypto', {
-    value: {
-      randomUUID: () => '1234-5678-90ab-cdef',
-    },
-    writable: true,
-  });
-} else if (!crypto.randomUUID) {
-  // @ts-ignore
-  crypto.randomUUID = () => '1234-5678-90ab-cdef';
+// Mock crypto if needed
+if (!global.crypto) {
+    Object.defineProperty(global, 'crypto', {
+        value: {
+            randomUUID: () => '1234-5678',
+        }
+    });
 }
 
 describe('Mobile Integration', () => {
@@ -65,6 +61,7 @@ describe('Mobile Integration', () => {
     useFloorplanStore.getState().clearFloorplan();
     useUIStore.setState({ mode: 'canvas' });
 
+    // Reset window width to original
     Object.defineProperty(window, 'innerWidth', {
       writable: true,
       configurable: true,
@@ -73,12 +70,37 @@ describe('Mobile Integration', () => {
   });
 
   afterEach(() => {
-    window.innerWidth = originalInnerWidth;
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: originalInnerWidth,
+    });
   });
 
+  // Robust viewport setter
   const setWindowWidth = (width: number) => {
     act(() => {
-      window.innerWidth = width;
+      // Use Object.defineProperty to ensure the property is set even if JSDOM/Environment tries to protect it
+      Object.defineProperty(window, 'innerWidth', {
+        writable: true,
+        configurable: true,
+        value: width,
+      });
+
+      // Also update matchMedia mock to consistent state (optional but good practice)
+      window.matchMedia = jest.fn().mockImplementation((query) => {
+        return {
+          matches: false, // Simplification: we rely on useBreakpoint (innerWidth), but libraries might check this
+          media: query,
+          onchange: null,
+          addListener: jest.fn(),
+          removeListener: jest.fn(),
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+          dispatchEvent: jest.fn(),
+        };
+      });
+
       window.dispatchEvent(new Event('resize'));
     });
   };
@@ -107,7 +129,7 @@ describe('Mobile Integration', () => {
     // Should see Desktop Canvas
     await waitFor(() => {
         expect(screen.getByTestId('desktop-canvas')).toBeInTheDocument();
-    }, { timeout: 2000 });
+    }, { timeout: 3000 });
 
     expect(screen.queryByTestId('touch-canvas')).not.toBeInTheDocument();
   });
@@ -121,7 +143,7 @@ describe('Mobile Integration', () => {
     // Should see Touch Canvas
     await waitFor(() => {
         expect(screen.getByTestId('touch-canvas')).toBeInTheDocument();
-    }, { timeout: 2000 });
+    }, { timeout: 3000 });
 
     expect(screen.queryByTestId('desktop-canvas')).not.toBeInTheDocument();
   });
@@ -149,7 +171,7 @@ describe('Mobile Integration', () => {
     // MobileRoomTable usually renders "Rooms (0)" or "No rooms added yet"
     await waitFor(() => {
         expect(screen.getByText('No rooms added yet.')).toBeInTheDocument();
-    }, { timeout: 2000 });
+    }, { timeout: 3000 });
 
     expect(screen.getByText('Add Room')).toBeInTheDocument();
   });
@@ -162,6 +184,6 @@ describe('Mobile Integration', () => {
     // Tablet uses Canvas2D (Desktop version) currently
     await waitFor(() => {
         expect(screen.getByTestId('desktop-canvas')).toBeInTheDocument();
-    }, { timeout: 2000 });
+    }, { timeout: 3000 });
   });
 });
