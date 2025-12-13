@@ -1,14 +1,27 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { WindowsList } from '@/components/sidebar/WindowsList';
-import { useFloorplanStore } from '@/stores/floorplanStore';
+import { WindowsList } from '../../../../src/components/sidebar/WindowsList';
+import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
 import { mockFloorplan } from '../../../utils/mockData';
 
-// Mock Lucide icons
+// Mock dependencies
 jest.mock('lucide-react', () => ({
-  Maximize: () => <div data-testid="window-icon" />,
-  ChevronDown: () => <div data-testid="chevron-down" />,
-  ChevronRight: () => <div data-testid="chevron-right" />
+  Maximize: () => <div data-testid="icon-maximize" />,
+  Layers: () => <div data-testid="icon-layers" />,
+  List: () => <div data-testid="icon-list" />,
+  ChevronDown: () => <div data-testid="icon-chevron-down" />,
+  ChevronRight: () => <div data-testid="icon-chevron-right" />,
+  Copy: () => <div data-testid="icon-copy" />,
+  Trash2: () => <div data-testid="icon-trash" />,
+}));
+
+// Mock Context Menu
+jest.mock('../../../../src/components/ui/context-menu', () => ({
+  ContextMenu: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  ContextMenuTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  ContextMenuContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  ContextMenuItem: ({ children, onClick }: { children: React.ReactNode, onClick: any }) => <div onClick={onClick} data-testid="context-menu-item">{children}</div>,
+  ContextMenuSeparator: () => <div />,
 }));
 
 describe('WindowsList', () => {
