@@ -429,7 +429,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Display distance with line between points
   - Measurements persist until cleared
 
-- [ ] **4.10.3** Create distance-between-rooms display:
+- [x] **4.10.3** Create distance-between-rooms display:
   - When two rooms selected, show gap distance
   - Horizontal and vertical gaps
 
@@ -437,7 +437,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Optional: show wall angles
   - Show rotation angle during rotation
 
-- [ ] **4.10.5** Toggle measurements visibility:
+- [x] **4.10.5** Toggle measurements visibility:
   - Checkbox in View menu
   - Keyboard shortcut: M
 
@@ -445,7 +445,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 - [x] Dimension labels show correct values
 - [x] Measurement tool calculates correct distance
-- [ ] Measurements toggle on/off
+- [x] Measurements toggle on/off
 
 ---
 
@@ -495,12 +495,12 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Test Cases (using jsdom + @napi-rs/canvas)
 
-- [ ] **Room positioning**: Add room via table → verify appears in canvas at correct position
-- [ ] **Drag and drop**: Select room → drag to new position → verify position updated in store
+- [x] **Room positioning**: Add room via table → verify appears in canvas at correct position
+- [x] **Drag and drop**: Select room → drag to new position → verify position updated in store
 - [ ] **Resize workflow**: Select room → drag corner handle → verify dimensions updated
 - [ ] **Multi-room selection**: Shift+click multiple rooms → drag → verify all move together
 - [ ] **Zoom and pan**: Zoom to 200% → pan right → verify coordinates transform correctly
-- [ ] **Wall drawing**: Draw 4 walls forming rectangle → click inside → verify room created
+- [x] **Wall drawing**: Draw 4 walls forming rectangle → click inside → verify room created
 
 ---
 
