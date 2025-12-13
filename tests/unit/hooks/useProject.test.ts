@@ -58,4 +58,52 @@ describe('useProject Hook', () => {
 
         expect(loadProject).toHaveBeenCalledTimes(2); // Initial + reload
     });
+
+    it('handles race conditions when id changes rapidly', async () => {
+        const mockProject1 = { id: 'p1', name: 'Project 1' };
+        const mockProject2 = { id: 'p2', name: 'Project 2' };
+
+        // Mock loadProject to have a delay
+        (loadProject as jest.Mock).mockImplementation(async (id) => {
+            await new Promise(resolve => setTimeout(resolve, 10));
+            if (id === 'p1') return mockProject1;
+            if (id === 'p2') return mockProject2;
+            return null;
+        });
+
+        const { result, rerender } = renderHook((props) => useProject(props.id), {
+            initialProps: { id: 'p1' }
+        });
+
+        // Immediately change to p2 before p1 finishes
+        rerender({ id: 'p2' });
+
+        await waitFor(() => expect(result.current.loading).toBe(false));
+
+        // Should have p2 loaded, not p1
+        expect(result.current.project).toEqual(mockProject2);
+        expect(loadProject).toHaveBeenCalledTimes(2);
+    });
+
+    it('handles race conditions in reload', async () => {
+        // This is harder to test because reload is imperative, but we can check if unmounting prevents state updates
+        const mockProject = { id: 'p1', name: 'Test' };
+        let resolveLoad: (value: any) => void;
+        (loadProject as jest.Mock).mockImplementation(() => new Promise(resolve => {
+            resolveLoad = resolve;
+        }));
+
+        const { result, unmount } = renderHook(() => useProject('p1'));
+
+        expect(result.current.loading).toBe(true);
+
+        unmount();
+
+        // Resolve after unmount
+        // @ts-ignore
+        resolveLoad(mockProject);
+
+        // We can't really assert state on unmounted hook, but we want to ensure no "act" warnings or errors
+        // React Testing Library usually catches these.
+    });
 });

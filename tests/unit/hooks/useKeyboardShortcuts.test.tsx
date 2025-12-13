@@ -9,15 +9,15 @@ describe('useKeyboardShortcuts', () => {
 
     renderHook(() => useKeyboardShortcuts({
       handlers: {
-        SAVE: handler
+        ZOOM_IN: handler // Use a non-Ctrl shortcut or check defs. ZOOM_IN is '='
       }
     }));
 
-    await user.keyboard('{Control>}s{/Control}');
+    await user.keyboard('=');
     expect(handler).toHaveBeenCalled();
   });
 
-  it('does not call handler when in input', async () => {
+  it('calls SAVE handler even when in input', async () => {
     const user = userEvent.setup();
     const handler = jest.fn();
 
@@ -32,6 +32,24 @@ describe('useKeyboardShortcuts', () => {
     input.focus();
 
     await user.keyboard('{Control>}s{/Control}');
+    expect(handler).toHaveBeenCalled();
+  });
+
+  it('does not call other handlers when in input', async () => {
+    const user = userEvent.setup();
+    const handler = jest.fn();
+
+    renderHook(() => useKeyboardShortcuts({
+      handlers: {
+        ZOOM_IN: handler
+      }
+    }));
+
+    document.body.innerHTML = '<input />';
+    const input = document.querySelector('input')!;
+    input.focus();
+
+    await user.keyboard('=');
     expect(handler).not.toHaveBeenCalled();
   });
 });
