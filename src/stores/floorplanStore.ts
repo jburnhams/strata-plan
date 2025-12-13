@@ -52,6 +52,7 @@ export interface FloorplanActions {
   addDoor: (door: Omit<Door, 'id'>) => Door;
   updateDoor: (id: string, updates: Partial<Door>) => void;
   deleteDoor: (id: string) => void;
+  duplicateDoor: (id: string) => Door | undefined;
   getDoorsByRoom: (roomId: string) => Door[];
   getDoorsByConnection: (connectionId: string) => Door[];
 
@@ -59,6 +60,7 @@ export interface FloorplanActions {
   addWindow: (window: Omit<Window, 'id'>) => Window;
   updateWindow: (id: string, updates: Partial<Window>) => void;
   deleteWindow: (id: string) => void;
+  duplicateWindow: (id: string) => Window | undefined;
   getWindowsByRoom: (roomId: string) => Window[];
 
   // Connection operations
@@ -467,6 +469,46 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
     });
   },
 
+  duplicateDoor: (id: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return undefined;
+
+    const originalDoor = state.currentFloorplan.doors.find(d => d.id === id);
+    if (!originalDoor) return undefined;
+
+    // Offset position slightly by 0.2m (20cm) if space permits, or wrap around
+    // This is a naive positioning, but better than exact overlap
+    // A more robust solution would check for available space on the wall
+    const newPosition = Math.min(originalDoor.position + 0.1, 0.9);
+
+    const newDoor: Door = {
+      ...originalDoor,
+      id: generateUUID(),
+      position: newPosition,
+      // Clear connectionId for new door - manual relinking or auto-detection needed
+      // But typically duplicate is just a copy of properties on the same wall
+      connectionId: undefined,
+    };
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      doors: [...state.currentFloorplan.doors, newDoor],
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      selectedDoorId: newDoor.id,
+      selectedRoomId: null,
+      selectedWallId: null,
+      selectedWindowId: null,
+      selectedRoomIds: [],
+      isDirty: true,
+    });
+
+    return newDoor;
+  },
+
   getDoorsByRoom: (roomId: string) => {
     const state = get();
     if (!state.currentFloorplan) return [];
@@ -551,6 +593,41 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
       selectedWindowId: state.selectedWindowId === id ? null : state.selectedWindowId,
       isDirty: true,
     });
+  },
+
+  duplicateWindow: (id: string) => {
+    const state = get();
+    if (!state.currentFloorplan) return undefined;
+
+    const originalWindow = state.currentFloorplan.windows.find(w => w.id === id);
+    if (!originalWindow) return undefined;
+
+    // Offset position slightly by 0.1m if space permits
+    const newPosition = Math.min(originalWindow.position + 0.1, 0.9);
+
+    const newWindow: Window = {
+      ...originalWindow,
+      id: generateUUID(),
+      position: newPosition,
+    };
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      windows: [...state.currentFloorplan.windows, newWindow],
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      selectedWindowId: newWindow.id,
+      selectedRoomId: null,
+      selectedWallId: null,
+      selectedDoorId: null,
+      selectedRoomIds: [],
+      isDirty: true,
+    });
+
+    return newWindow;
   },
 
   // Connection operations

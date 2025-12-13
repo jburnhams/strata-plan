@@ -2,31 +2,49 @@ import { useState, useCallback, useRef } from 'react';
 import { useFloorplanStore } from '../stores/floorplanStore';
 import { useHistoryStore } from '../stores/historyStore';
 import { useUIStore } from '../stores/uiStore';
-import { PIXELS_PER_METER } from '../constants/defaults';
 import { useToast } from './use-toast';
 import { Door } from '../types/door';
+import { screenToWorld } from '../utils/coordinates';
+import { projectPointOnLine } from '../utils/geometry';
+import { getRoomWallSegments, getWallLength } from '../services/geometry';
+import { WallSegment } from '../types';
 
 export const useDoorDrag = () => {
   const [isDragging, setIsDragging] = useState(false);
 
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const draggedDoorIdRef = useRef<string | null>(null);
-  const initialPositionRef = useRef<number>(0);
   const startFloorplanRef = useRef<any>(null);
 
   const updateDoor = useFloorplanStore((state) => state.updateDoor);
   const pushState = useHistoryStore((state) => state.pushState);
   const { toast } = useToast();
 
-  const zoomLevel = useUIStore((state) => state.zoomLevel);
+  const { zoomLevel, panOffset } = useUIStore();
 
   // Stable ref for state used in event handlers
-  const stateRef = useRef({ zoomLevel, updateDoor });
-  stateRef.current = { zoomLevel, updateDoor };
+  const stateRef = useRef({ zoomLevel, panOffset, updateDoor });
+  stateRef.current = { zoomLevel, panOffset, updateDoor };
 
   const handleGlobalMouseMove = useCallback((e: MouseEvent) => {
       if (!dragStartRef.current || !draggedDoorIdRef.current) return;
-      const { zoomLevel, updateDoor } = stateRef.current;
+
+      const canvas = document.querySelector('[data-testid="canvas-viewport"]');
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const { zoomLevel, panOffset, updateDoor } = stateRef.current;
+
+      const worldPos = screenToWorld(
+          e.clientX - rect.left,
+          e.clientY - rect.top,
+          {
+              zoom: zoomLevel,
+              pan: panOffset,
+              width: rect.width,
+              height: rect.height
+          }
+      );
 
       const store = useFloorplanStore.getState();
       const door = store.currentFloorplan?.doors.find(d => d.id === draggedDoorIdRef.current);
@@ -35,108 +53,56 @@ export const useDoorDrag = () => {
       const room = store.currentFloorplan?.rooms.find(r => r.id === door.roomId);
       if (!room) return;
 
-      // Calculate wall length based on wallSide
-      let wallLength = 0;
-      let isHorizontal = false; // Is the wall horizontal in world space? (North/South)
+      // Find closest wall
+      const walls = getRoomWallSegments(room);
+      let bestMatch: { wall: WallSegment, t: number, dist: number } | null = null;
 
-      // WallSide: north/south -> width (x-axis), east/west -> length (z-axis)
-      // Wait, let's verify Room dimensions vs WallSide.
-      // Usually North/South walls run along the X axis, so their length is the Room's width.
-      // East/West walls run along the Z axis, so their length is the Room's length.
+      for (const wall of walls) {
+          const { t, dist } = projectPointOnLine(worldPos, wall.from, wall.to);
 
-      switch (door.wallSide) {
-          case 'north':
-          case 'south':
-              wallLength = room.width;
-              isHorizontal = true;
-              break;
-          case 'east':
-          case 'west':
-              wallLength = room.length;
-              isHorizontal = false;
-              break;
+          if (!bestMatch || dist < bestMatch.dist) {
+              bestMatch = { wall, t, dist };
+          }
       }
 
-      const dxPixels = e.clientX - dragStartRef.current.x;
-      const dyPixels = e.clientY - dragStartRef.current.y;
-      const scale = PIXELS_PER_METER * zoomLevel;
+      if (!bestMatch) return;
 
-      // Project mouse movement onto wall axis
-      // If horizontal (North/South), we care about dx
-      // If vertical (East/West), we care about dy
-      // Also need to consider direction.
-      // North (top): +x is right.
-      // South (bottom): +x is right. (Standard coordinate system)
-      // East (right): +z is down.
-      // West (left): +z is down.
+      // Only allow snapping if reasonably close (e.g. 2 meters) to avoid jumping when far away
+      if (bestMatch.dist > 2.0) return;
 
-      // However, "position" 0.0-1.0 is usually "from left/top".
-      // For North: left-to-right (minX to maxX)
-      // For South: left-to-right (minX to maxX) OR right-to-left?
-      // Let's assume standard reading order: 0 is min coordinate, 1 is max coordinate along that axis.
-      // North Wall (minZ): 0 is minX, 1 is maxX.
-      // South Wall (maxZ): 0 is minX, 1 is maxX.
-      // West Wall (minX): 0 is minZ, 1 is maxZ.
-      // East Wall (maxX): 0 is minZ, 1 is maxZ.
+      const wallLength = getWallLength(room, bestMatch.wall.wallSide);
+      let newPosition = bestMatch.t;
 
-      let deltaMeters = 0;
-      if (isHorizontal) {
-          deltaMeters = dxPixels / scale;
-      } else {
-          deltaMeters = dyPixels / scale;
-      }
-
-      const deltaRatio = deltaMeters / wallLength;
-      let newPosition = initialPositionRef.current + deltaRatio;
-
-      // Snap to 5% increments if no specific modifier? Or just smooth?
-      // Let's snap to 0.05 (5%) for easier placement
-      // newPosition = Math.round(newPosition * 20) / 20;
-      // Actually, let's snap to 0.1m increments.
+      // Snap to 0.1m increments
       const snapIncrement = 0.1 / wallLength;
       newPosition = Math.round(newPosition / snapIncrement) * snapIncrement;
 
-      // Validate bounds
-      // Door width in ratio
+      // Validate bounds (keep door inside wall)
       const doorWidthRatio = door.width / wallLength;
       const halfDoorRatio = doorWidthRatio / 2;
 
-      // If position is center:
-      // min = halfDoorRatio, max = 1 - halfDoorRatio
-      // If position is start (left/top):
-      // min = 0, max = 1 - doorWidthRatio
-
-      // Assuming position is center based on usage in other parts (often easier).
-      // But let's check assumptions.
-      // If I don't know, I should check how it is rendered.
-      // Assuming CENTER for now as it makes rotation easier usually.
-
-      // Re-reading 07-doors-windows.md: "Position: 0.0-1.0 along wall (from left/top)"
-      // Usually "position" implies the anchor point.
-      // If the anchor is center, then 0.5 is middle.
-      // If the anchor is left, 0.5 is middle.
-
-      // Let's assume CENTER for the dragging logic to be symmetric,
-      // but if the data model implies Start, I need to adjust.
-      // Task 7.4.3 says "Convert click position to 0.0-1.0 along wall".
-
-      // Let's look at `DoorShape` later. For now, let's assume it represents the Center.
-
+      // Clamp position so door doesn't stick out
       const minPos = halfDoorRatio;
       const maxPos = 1 - halfDoorRatio;
 
-      newPosition = Math.max(minPos, Math.min(maxPos, newPosition));
+      // If door is wider than wall, center it
+      if (minPos > maxPos) {
+          newPosition = 0.5;
+      } else {
+          newPosition = Math.max(minPos, Math.min(maxPos, newPosition));
+      }
 
-      // Overlap check
+      // Check for overlaps with other doors/windows on the SAME wall
+      // Note: We need to filter by the NEW wallSide
       const siblings = store.currentFloorplan?.doors.filter(d =>
           d.roomId === door.roomId &&
-          d.wallSide === door.wallSide &&
+          d.wallSide === bestMatch!.wall.wallSide &&
           d.id !== door.id
       ) || [];
 
       const windows = store.currentFloorplan?.windows.filter(w =>
           w.roomId === door.roomId &&
-          w.wallSide === door.wallSide
+          w.wallSide === bestMatch!.wall.wallSide
       ) || [];
 
       let overlap = false;
@@ -168,7 +134,28 @@ export const useDoorDrag = () => {
       }
 
       if (!overlap) {
-           updateDoor(door.id, { position: newPosition });
+           // Check if on shared wall
+           let connectionId: string | undefined = undefined;
+           let isExterior = true;
+
+           if (store.currentFloorplan?.connections) {
+              const connection = store.currentFloorplan.connections.find(c =>
+                  (c.room1Id === room.id && c.room1Wall === bestMatch!.wall.wallSide) ||
+                  (c.room2Id === room.id && c.room2Wall === bestMatch!.wall.wallSide)
+              );
+
+              if (connection) {
+                  connectionId = connection.id;
+                  isExterior = false;
+              }
+           }
+
+           updateDoor(door.id, {
+               wallSide: bestMatch.wall.wallSide,
+               position: newPosition,
+               connectionId,
+               isExterior
+           });
       }
 
   }, []);
@@ -177,17 +164,15 @@ export const useDoorDrag = () => {
      setIsDragging(false);
      dragStartRef.current = null;
      draggedDoorIdRef.current = null;
-     initialPositionRef.current = 0;
 
      const store = useFloorplanStore.getState();
 
      // Push to history if changed
      if (startFloorplanRef.current && store.currentFloorplan) {
-         // Simple check if door position changed
          const startDoor = startFloorplanRef.current.doors.find((d: Door) => d.id === draggedDoorIdRef.current);
          const endDoor = store.currentFloorplan.doors.find(d => d.id === draggedDoorIdRef.current);
 
-         if (startDoor && endDoor && startDoor.position !== endDoor.position) {
+         if (startDoor && endDoor && (startDoor.position !== endDoor.position || startDoor.wallSide !== endDoor.wallSide)) {
              pushState(startFloorplanRef.current);
          }
      }
@@ -209,7 +194,6 @@ export const useDoorDrag = () => {
        setIsDragging(true);
        dragStartRef.current = { x: e.clientX, y: e.clientY };
        draggedDoorIdRef.current = doorId;
-       initialPositionRef.current = door.position;
 
        if (store.currentFloorplan) {
            startFloorplanRef.current = store.currentFloorplan;

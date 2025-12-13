@@ -84,3 +84,25 @@ export const calculateRectGap = (r1: Rect, r2: Rect): { x: number, z: number } |
 
    return { x: gapX, z: gapZ };
 };
+
+/**
+ * Projects a point onto a line segment
+ */
+export const projectPointOnLine = (point: Position2D, start: Position2D, end: Position2D): { point: Position2D, t: number, dist: number } => {
+  const l2 = Math.pow(end.x - start.x, 2) + Math.pow(end.z - start.z, 2);
+  if (l2 === 0) return { point: start, t: 0, dist: calculateDistance(point, start) };
+
+  let t = ((point.x - start.x) * (end.x - start.x) + (point.z - start.z) * (end.z - start.z)) / l2;
+  t = Math.max(0, Math.min(1, t));
+
+  const projection = {
+      x: start.x + t * (end.x - start.x),
+      z: start.z + t * (end.z - start.z)
+  };
+
+  return {
+      point: projection,
+      t,
+      dist: calculateDistance(point, projection)
+  };
+};

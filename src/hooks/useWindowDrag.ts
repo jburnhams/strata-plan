@@ -2,28 +2,46 @@ import { useState, useCallback, useRef } from 'react';
 import { useFloorplanStore } from '../stores/floorplanStore';
 import { useHistoryStore } from '../stores/historyStore';
 import { useUIStore } from '../stores/uiStore';
-import { PIXELS_PER_METER } from '../constants/defaults';
 import { Window } from '../types/window';
+import { screenToWorld } from '../utils/coordinates';
+import { projectPointOnLine } from '../utils/geometry';
+import { getRoomWallSegments, getWallLength } from '../services/geometry';
+import { WallSegment } from '../types';
 
 export const useWindowDrag = () => {
   const [isDragging, setIsDragging] = useState(false);
 
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const draggedWindowIdRef = useRef<string | null>(null);
-  const initialPositionRef = useRef<number>(0);
   const startFloorplanRef = useRef<any>(null);
 
   const updateWindow = useFloorplanStore((state) => state.updateWindow);
   const pushState = useHistoryStore((state) => state.pushState);
 
-  const zoomLevel = useUIStore((state) => state.zoomLevel);
+  const { zoomLevel, panOffset } = useUIStore();
 
-  const stateRef = useRef({ zoomLevel, updateWindow });
-  stateRef.current = { zoomLevel, updateWindow };
+  const stateRef = useRef({ zoomLevel, panOffset, updateWindow });
+  stateRef.current = { zoomLevel, panOffset, updateWindow };
 
   const handleGlobalMouseMove = useCallback((e: MouseEvent) => {
       if (!dragStartRef.current || !draggedWindowIdRef.current) return;
-      const { zoomLevel, updateWindow } = stateRef.current;
+
+      const canvas = document.querySelector('[data-testid="canvas-viewport"]');
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const { zoomLevel, panOffset, updateWindow } = stateRef.current;
+
+      const worldPos = screenToWorld(
+          e.clientX - rect.left,
+          e.clientY - rect.top,
+          {
+              zoom: zoomLevel,
+              pan: panOffset,
+              width: rect.width,
+              height: rect.height
+          }
+      );
 
       const store = useFloorplanStore.getState();
       const windowObj = store.currentFloorplan?.windows.find(w => w.id === draggedWindowIdRef.current);
@@ -32,35 +50,22 @@ export const useWindowDrag = () => {
       const room = store.currentFloorplan?.rooms.find(r => r.id === windowObj.roomId);
       if (!room) return;
 
-      let wallLength = 0;
-      let isHorizontal = false;
+      const walls = getRoomWallSegments(room);
+      let bestMatch: { wall: WallSegment, t: number, dist: number } | null = null;
 
-      switch (windowObj.wallSide) {
-          case 'north':
-          case 'south':
-              wallLength = room.width;
-              isHorizontal = true;
-              break;
-          case 'east':
-          case 'west':
-              wallLength = room.length;
-              isHorizontal = false;
-              break;
+      for (const wall of walls) {
+          const { t, dist } = projectPointOnLine(worldPos, wall.from, wall.to);
+
+          if (!bestMatch || dist < bestMatch.dist) {
+              bestMatch = { wall, t, dist };
+          }
       }
 
-      const dxPixels = e.clientX - dragStartRef.current.x;
-      const dyPixels = e.clientY - dragStartRef.current.y;
-      const scale = PIXELS_PER_METER * zoomLevel;
+      if (!bestMatch) return;
+      if (bestMatch.dist > 2.0) return;
 
-      let deltaMeters = 0;
-      if (isHorizontal) {
-          deltaMeters = dxPixels / scale;
-      } else {
-          deltaMeters = dyPixels / scale;
-      }
-
-      const deltaRatio = deltaMeters / wallLength;
-      let newPosition = initialPositionRef.current + deltaRatio;
+      const wallLength = getWallLength(room, bestMatch.wall.wallSide);
+      let newPosition = bestMatch.t;
 
       const snapIncrement = 0.1 / wallLength;
       newPosition = Math.round(newPosition / snapIncrement) * snapIncrement;
@@ -71,17 +76,21 @@ export const useWindowDrag = () => {
       const minPos = halfWindowRatio;
       const maxPos = 1 - halfWindowRatio;
 
-      newPosition = Math.max(minPos, Math.min(maxPos, newPosition));
+      if (minPos > maxPos) {
+          newPosition = 0.5;
+      } else {
+          newPosition = Math.max(minPos, Math.min(maxPos, newPosition));
+      }
 
-      // Overlap check
+      // Check overlaps on the NEW wallSide
       const doors = store.currentFloorplan?.doors.filter(d =>
           d.roomId === windowObj.roomId &&
-          d.wallSide === windowObj.wallSide
+          d.wallSide === bestMatch!.wall.wallSide
       ) || [];
 
       const siblings = store.currentFloorplan?.windows.filter(w =>
           w.roomId === windowObj.roomId &&
-          w.wallSide === windowObj.wallSide &&
+          w.wallSide === bestMatch!.wall.wallSide &&
           w.id !== windowObj.id
       ) || [];
 
@@ -113,7 +122,10 @@ export const useWindowDrag = () => {
       }
 
       if (!overlap) {
-           updateWindow(windowObj.id, { position: newPosition });
+           updateWindow(windowObj.id, {
+               wallSide: bestMatch.wall.wallSide,
+               position: newPosition
+           });
       }
 
   }, []);
@@ -122,7 +134,6 @@ export const useWindowDrag = () => {
      setIsDragging(false);
      dragStartRef.current = null;
      draggedWindowIdRef.current = null;
-     initialPositionRef.current = 0;
 
      const store = useFloorplanStore.getState();
 
@@ -130,7 +141,7 @@ export const useWindowDrag = () => {
          const startWindow = startFloorplanRef.current.windows.find((w: Window) => w.id === draggedWindowIdRef.current);
          const endWindow = store.currentFloorplan.windows.find(w => w.id === draggedWindowIdRef.current);
 
-         if (startWindow && endWindow && startWindow.position !== endWindow.position) {
+         if (startWindow && endWindow && (startWindow.position !== endWindow.position || startWindow.wallSide !== endWindow.wallSide)) {
              pushState(startFloorplanRef.current);
          }
      }
@@ -152,7 +163,6 @@ export const useWindowDrag = () => {
        setIsDragging(true);
        dragStartRef.current = { x: e.clientX, y: e.clientY };
        draggedWindowIdRef.current = windowId;
-       initialPositionRef.current = windowObj.position;
 
        if (store.currentFloorplan) {
            startFloorplanRef.current = store.currentFloorplan;
