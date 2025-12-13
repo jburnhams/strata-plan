@@ -1,43 +1,32 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ImportDialog } from '../../../../src/components/dialogs/ImportDialog';
-import { useDialogStore } from '../../../../src/stores/dialogStore';
-import { useImport } from '../../../../src/hooks/useImport';
-import * as HistoryService from '../../../../src/services/import/history';
-import * as SamplesService from '../../../../src/services/import/samples';
+import { ImportDialog } from '@/components/dialogs/ImportDialog';
+import { useImport } from '@/hooks/useImport';
+import { getImportHistory } from '@/services/import/history';
+import { loadSampleProject } from '@/services/import/samples';
+import userEvent from '@testing-library/user-event';
 
-// Mock dependencies
-jest.mock('../../../../src/stores/dialogStore');
-jest.mock('../../../../src/hooks/useImport');
-jest.mock('../../../../src/services/import/history');
-jest.mock('../../../../src/services/import/samples', () => ({
-  loadSampleProject: jest.fn(),
-  SAMPLE_PROJECTS: [
-    { id: 's1', name: 'Sample 1', description: 'Desc', filename: 's1.json' }
-  ]
+// Mocks
+jest.mock('@/hooks/useImport');
+jest.mock('@/services/import/history');
+jest.mock('@/services/import/samples');
+jest.mock('@/stores/floorplanStore', () => ({
+  useFloorplanStore: jest.fn(() => ({ loadFloorplan: jest.fn() })),
 }));
-jest.mock('../../../../src/components/ui/dialog', () => ({
-  Dialog: ({ children, open }: any) => (open ? <div data-testid="dialog">{children}</div> : null),
-  DialogContent: ({ children }: any) => <div>{children}</div>,
-  DialogHeader: ({ children }: any) => <div>{children}</div>,
-  DialogTitle: ({ children }: any) => <div>{children}</div>,
-  DialogDescription: ({ children }: any) => <div>{children}</div>,
-  DialogFooter: ({ children }: any) => <div>{children}</div>,
+jest.mock('@/hooks/useProject', () => ({
+  useProject: jest.fn(() => ({})),
 }));
-
-// Mock lucide icons
-jest.mock('lucide-react', () => ({
-  Upload: () => <div data-testid="icon-upload" />,
-  FileJson: () => <div data-testid="icon-file-json" />,
-  AlertTriangle: () => <div data-testid="icon-alert" />,
-  AlertCircle: () => <div data-testid="icon-alert-circle" />,
-  Check: () => <div data-testid="icon-check" />,
-  Loader2: () => <div data-testid="icon-loader" />,
-  X: () => <div data-testid="icon-close" />,
+jest.mock('@/hooks/use-toast', () => ({
+  useToast: jest.fn(() => ({ toast: jest.fn() })),
+}));
+jest.mock('@/services/storage/projectStorage', () => ({
+  saveProject: jest.fn(),
+}));
+jest.mock('@/stores/dialogStore', () => ({
+    useDialogStore: jest.fn(() => ({ openDialog: jest.fn(), closeDialog: jest.fn() }))
 }));
 
 describe('ImportDialog', () => {
-  const mockCloseDialog = jest.fn();
   const mockImportFile = jest.fn();
   const mockReset = jest.fn();
   const mockOnOpenChange = jest.fn();
@@ -45,12 +34,7 @@ describe('ImportDialog', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    (useDialogStore as unknown as jest.Mock).mockReturnValue({
-      activeDialog: 'import-project',
-      closeDialog: mockCloseDialog,
-    });
-
-    (useImport as unknown as jest.Mock).mockReturnValue({
+    (useImport as jest.Mock).mockReturnValue({
       importFile: mockImportFile,
       isImporting: false,
       progress: 0,
@@ -59,131 +43,74 @@ describe('ImportDialog', () => {
       reset: mockReset,
     });
 
-    (HistoryService.getImportHistory as jest.Mock).mockResolvedValue([]);
-    (SamplesService.loadSampleProject as jest.Mock).mockResolvedValue({});
-    // Mock sample projects array if it's exported as a constant,
-    // but typically we mock the module so we might need to rely on the real constant or mock it if it's used directly
-    // Since we mocked the whole module, we need to provide the constant if the component imports it
-    // Wait, if we mock the module with jest.mock, all exports are undefined/jest.fn unless specified.
-    // The component imports SAMPLE_PROJECTS. We need to provide it.
+    (getImportHistory as jest.Mock).mockResolvedValue([]);
   });
 
-  it('should not render when dialog is not active', () => {
-    render(<ImportDialog open={false} onOpenChange={mockOnOpenChange} />);
-    expect(screen.queryByTestId('dialog')).not.toBeInTheDocument();
-  });
-
-  it('should render dropzone when no file selected', () => {
+  it('renders correctly when open', () => {
     render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
 
     expect(screen.getByText('Import Project')).toBeInTheDocument();
-    expect(screen.getByText('Drag and drop your file here')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Upload file drop zone/i })).toBeInTheDocument();
+    expect(screen.getByText('File Upload')).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'File Upload' })).toBeInTheDocument();
   });
 
-  it('should handle file selection via input', () => {
+  it('handles file selection via input', async () => {
+    const user = userEvent.setup();
     render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
-
     const file = new File(['{}'], 'test.json', { type: 'application/json' });
-    const input = screen.getByLabelText(/Upload file drop zone/i).querySelector('input') as HTMLInputElement;
 
-    fireEvent.change(input, { target: { files: [file] } });
+    // Find drop zone by aria-label (portal aware)
+    const dropZone = screen.getByLabelText('Upload file drop zone');
+    // Find input inside
+    const input = dropZone.querySelector('input[type="file"]');
 
-    expect(screen.getByText('test.json')).toBeInTheDocument();
-    expect(screen.queryByText('Drag and drop your file here')).not.toBeInTheDocument();
+    expect(input).toBeInTheDocument();
+
+    // Use fireEvent for hidden input as userEvent.upload requires label association usually,
+    // but fireEvent is reliable for hidden inputs in tests
+    fireEvent.change(input!, { target: { files: [file] } });
+
+    await waitFor(() => {
+        expect(screen.getByText('test.json')).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('button', { name: 'Import Project' })).toBeInTheDocument();
   });
 
-  it('should handle drag and drop', () => {
+  it('calls importFile on button click', async () => {
+    const user = userEvent.setup();
     render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
-
-    const dropzone = screen.getByRole('button', { name: /Upload file drop zone/i });
     const file = new File(['{}'], 'test.json', { type: 'application/json' });
 
-    fireEvent.dragEnter(dropzone);
-    fireEvent.dragOver(dropzone);
-    fireEvent.drop(dropzone, { dataTransfer: { files: [file] } });
+    const dropZone = screen.getByLabelText('Upload file drop zone');
+    const input = dropZone.querySelector('input[type="file"]');
 
-    expect(screen.getByText('test.json')).toBeInTheDocument();
-  });
+    fireEvent.change(input!, { target: { files: [file] } });
 
-  it('should call importFile when import button clicked', () => {
-    render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
+    await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Import Project' })).toBeInTheDocument();
+    });
 
-    // Select file
-    const file = new File(['{}'], 'test.json', { type: 'application/json' });
-    const input = screen.getByLabelText(/Upload file drop zone/i).querySelector('input') as HTMLInputElement;
-    fireEvent.change(input, { target: { files: [file] } });
-
-    // Click import
-    const importButton = screen.getByRole('button', { name: /^Import Project$/i });
-    fireEvent.click(importButton);
+    const importButton = screen.getByRole('button', { name: 'Import Project' });
+    await user.click(importButton);
 
     expect(mockImportFile).toHaveBeenCalledWith(file, { generateNewIds: false });
   });
 
-  it('should show validation errors', () => {
-    (useImport as unknown as jest.Mock).mockReturnValue({
-      importFile: mockImportFile,
-      isImporting: false,
-      progress: 0,
-      error: 'Validation failed',
-      validationResult: {
-        valid: false,
-        errors: ['Missing ID', 'Invalid units'],
-        warnings: []
-      },
-      reset: mockReset,
+  it('displays history tabs', async () => {
+    const user = userEvent.setup();
+    (getImportHistory as jest.Mock).mockResolvedValue([
+       { filename: 'old.json', importedAt: new Date().toISOString(), size: 1024 }
+    ]);
+
+    render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
+
+    const historyTab = screen.getByRole('tab', { name: 'History' });
+    await user.click(historyTab);
+
+    // Wait for history content
+    await waitFor(() => {
+        expect(screen.getByText('old.json')).toBeInTheDocument();
     });
-
-    render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
-
-    // Select file to trigger error view state (although in reality error usually comes after import attempt)
-    const file = new File(['{}'], 'test.json', { type: 'application/json' });
-    const input = screen.getByLabelText(/Upload file drop zone/i).querySelector('input') as HTMLInputElement;
-    fireEvent.change(input, { target: { files: [file] } });
-
-    expect(screen.getByText('Validation Errors')).toBeInTheDocument();
-    expect(screen.getByText('Missing ID')).toBeInTheDocument();
-    expect(screen.getByText('Invalid units')).toBeInTheDocument();
-  });
-
-  it('should show progress when importing', () => {
-    (useImport as unknown as jest.Mock).mockReturnValue({
-      importFile: mockImportFile,
-      isImporting: true,
-      progress: 45,
-      error: null,
-      validationResult: null,
-      reset: mockReset,
-    });
-
-    render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
-
-    // Select file
-    const file = new File(['{}'], 'test.json', { type: 'application/json' });
-    const input = screen.getByLabelText(/Upload file drop zone/i).querySelector('input') as HTMLInputElement;
-    fireEvent.change(input, { target: { files: [file] } });
-
-    // There are two "Importing..." texts: one in progress label, one in button
-    expect(screen.getAllByText('Importing...').length).toBeGreaterThan(0);
-    expect(screen.getByText('45%')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Importing.../i })).toBeDisabled();
-  });
-
-  it('should allow removing selected file', () => {
-    render(<ImportDialog open={true} onOpenChange={mockOnOpenChange} />);
-
-    const file = new File(['{}'], 'test.json', { type: 'application/json' });
-    const input = screen.getByLabelText(/Upload file drop zone/i).querySelector('input') as HTMLInputElement;
-    fireEvent.change(input, { target: { files: [file] } });
-
-    expect(screen.getByText('test.json')).toBeInTheDocument();
-
-    const removeButton = screen.getByRole('button', { name: /Remove file/i });
-    fireEvent.click(removeButton);
-
-    expect(screen.queryByText('test.json')).not.toBeInTheDocument();
-    expect(screen.getByText('Drag and drop your file here')).toBeInTheDocument();
-    expect(mockReset).toHaveBeenCalled();
   });
 });

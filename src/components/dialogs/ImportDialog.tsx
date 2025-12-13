@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useDialogStore } from '../../stores/dialogStore';
 import { useImport } from '../../hooks/useImport';
 import { getImportHistory, ImportHistoryItem } from '../../services/import/history';
@@ -18,7 +18,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 import { Upload, FileJson, AlertTriangle, AlertCircle, Check, Loader2, X, Clock, Layout } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Progress } from '../../components/ui/progress';
-import { useEffect } from 'react';
 import { useFloorplanStore } from '../../stores/floorplanStore';
 import { useProject } from '../../hooks/useProject';
 import { useToast } from '../../hooks/use-toast';

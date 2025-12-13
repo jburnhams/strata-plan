@@ -12,6 +12,10 @@ jest.mock('@/services/import/index', () => ({
   importFloorplan: jest.fn(),
 }));
 
+jest.mock('@/services/import/history', () => ({
+  addToImportHistory: jest.fn(),
+}));
+
 jest.mock('@/stores/floorplanStore', () => ({
   useFloorplanStore: jest.fn(),
 }));

@@ -1,8 +1,10 @@
 import { importFromJSON } from '../../../../src/services/import/jsonImport';
 import * as FileReaderService from '../../../../src/services/import/fileReader';
+import { migrateData } from '../../../../src/services/storage/migrations';
 import { v4 as uuidv4 } from 'uuid';
 
 jest.mock('../../../../src/services/import/fileReader');
+jest.mock('../../../../src/services/storage/migrations');
 jest.mock('uuid');
 
 describe('jsonImport', () => {
@@ -15,6 +17,7 @@ describe('jsonImport', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (uuidv4 as jest.Mock).mockReturnValue('new-uuid');
+    (migrateData as jest.Mock).mockImplementation((data) => data);
   });
 
   it('should return error for invalid JSON', async () => {
@@ -63,6 +66,10 @@ describe('jsonImport', () => {
           rooms: [
               { id: 'room-1', name: 'Room 1', type: 'bedroom', length: 4, width: 4, height: 2.7, position: {x:0,z:0} }
           ],
+          doors: [
+              { id: 'door-1', roomId: 'room-1', width: 0.9, height: 2.1, position: 0.5, type: 'single', swing: 'inward', handleSide: 'left', isExterior: false, wallSide: 'north' }
+          ],
+          windows: [],
           connections: [],
           createdAt: '2023-01-01T00:00:00.000Z',
           updatedAt: '2023-01-01T00:00:00.000Z'
@@ -77,5 +84,28 @@ describe('jsonImport', () => {
       expect(result.success).toBe(true);
       expect(result.floorplan?.id).toBe('new-uuid');
       expect(result.floorplan?.rooms[0].id).toBe('new-uuid');
+      expect(result.floorplan?.doors[0].id).toBe('new-uuid');
+      // Ensure door's roomId reference is updated
+      expect(result.floorplan?.doors[0].roomId).toBe(result.floorplan?.rooms[0].id);
+  });
+
+  it('should call migrateData during import', async () => {
+      const data = { floorplan: { id: 'fp1' } };
+      (FileReaderService.readFileAsText as jest.Mock).mockResolvedValue(JSON.stringify(data));
+      (migrateData as jest.Mock).mockReturnValue({
+          id: 'fp1',
+          name: 'Migrated',
+          units: 'meters',
+          rooms: [],
+          doors: [],
+          windows: [],
+          connections: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+      });
+
+      await importFromJSON(mockFile);
+
+      expect(migrateData).toHaveBeenCalled();
   });
 });

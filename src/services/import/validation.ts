@@ -1,5 +1,7 @@
 import { Floorplan, Room, RoomType } from '../../types';
 import { ValidationResult } from './index';
+import { validateDoor, Door } from '../../types/door';
+import { validateWindow, Window } from '../../types/window';
 
 /**
  * Validates an imported floorplan object structure and data integrity.
@@ -75,6 +77,51 @@ export function validateImportedFloorplan(data: unknown): ValidationResult {
       errors.push(`Room ${room.id || index}: Invalid position`);
     }
   });
+
+  // Validate doors
+  if (floorplan.doors && Array.isArray(floorplan.doors)) {
+    floorplan.doors.forEach((door: any, index: number) => {
+      if (!door.id || typeof door.id !== 'string') {
+        errors.push(`Door at index ${index} missing ID`);
+      } else if (!door.roomId || !roomIds.has(door.roomId)) {
+        errors.push(`Door ${door.id}: Reference to non-existent roomId ${door.roomId}`);
+      } else {
+        // Check dimensions and position existence before calling validator
+        if (typeof door.width !== 'number' || typeof door.height !== 'number' || typeof door.position !== 'number') {
+          errors.push(`Door ${door.id}: Missing or invalid dimensions/position`);
+        } else {
+          const validation = validateDoor(door as Door);
+          if (!validation.isValid) {
+            validation.errors.forEach(err => errors.push(`Door ${door.id}: ${err}`));
+          }
+        }
+      }
+    });
+  } else if (!floorplan.doors) {
+    warnings.push('Missing doors array, defaulting to empty');
+  }
+
+  // Validate windows
+  if (floorplan.windows && Array.isArray(floorplan.windows)) {
+    floorplan.windows.forEach((win: any, index: number) => {
+      if (!win.id || typeof win.id !== 'string') {
+        errors.push(`Window at index ${index} missing ID`);
+      } else if (!win.roomId || !roomIds.has(win.roomId)) {
+        errors.push(`Window ${win.id}: Reference to non-existent roomId ${win.roomId}`);
+      } else {
+        if (typeof win.width !== 'number' || typeof win.height !== 'number' || typeof win.sillHeight !== 'number') {
+          errors.push(`Window ${win.id}: Missing or invalid dimensions`);
+        } else {
+          const validation = validateWindow(win as Window);
+          if (!validation.isValid) {
+            validation.errors.forEach(err => errors.push(`Window ${win.id}: ${err}`));
+          }
+        }
+      }
+    });
+  } else if (!floorplan.windows) {
+    warnings.push('Missing windows array, defaulting to empty');
+  }
 
   // Validate connections (if present)
   if (floorplan.connections && Array.isArray(floorplan.connections)) {
