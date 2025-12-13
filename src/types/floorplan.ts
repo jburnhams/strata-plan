@@ -62,3 +62,8 @@ export interface FloorplanMetadata {
   updatedAt: Date;
   thumbnailDataUrl?: string;
 }
+
+/**
+ * Alias for FloorplanMetadata to maintain compatibility
+ */
+export type ProjectMetadata = FloorplanMetadata;

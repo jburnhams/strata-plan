@@ -1,5 +1,6 @@
-import { loadProject, saveProject } from './projectStorage';
+import { loadProject, saveProject, deleteProject as deleteProjectStorage } from './projectStorage';
 import { v4 as uuidv4 } from 'uuid';
+import { Floorplan } from '../../types';
 
 /**
  * Duplicates a project by ID.
@@ -24,4 +25,18 @@ export const duplicateProject = async (id: string): Promise<string> => {
 
   await saveProject(newProject);
   return newId;
+};
+
+/**
+ * Updates a project.
+ */
+export const updateProject = async (project: Floorplan): Promise<void> => {
+    await saveProject(project);
+};
+
+/**
+ * Deletes a project by ID.
+ */
+export const deleteProject = async (id: string): Promise<void> => {
+    await deleteProjectStorage(id);
 };

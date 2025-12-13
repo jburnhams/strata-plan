@@ -24,7 +24,8 @@ describe('ProjectListPage', () => {
     });
     (useProjectList as jest.Mock).mockReturnValue({
       projects: [],
-      refreshProjects: mockRefreshProjects,
+      refresh: mockRefreshProjects, // Changed from refreshProjects to refresh
+      reload: mockRefreshProjects, // And reload alias if used
       loading: false,
       error: null,
     });

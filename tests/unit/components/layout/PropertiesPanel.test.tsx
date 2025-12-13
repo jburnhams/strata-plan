@@ -371,7 +371,10 @@ describe('PropertiesPanel', () => {
         selectedWallId: null,
         selectedDoorId: 'door-1',
         selectedWindowId: null,
-        currentFloorplan: { units: 'meters' },
+        currentFloorplan: {
+            units: 'meters',
+            rooms: [{ id: 'room-1', name: 'Test Room' }]
+        },
         getDoorById: () => mockDoor,
         updateDoor: mockUpdateDoor,
         deleteDoor: mockDeleteDoor,
@@ -402,7 +405,10 @@ describe('PropertiesPanel', () => {
         selectedWallId: null,
         selectedDoorId: null,
         selectedWindowId: 'window-1',
-        currentFloorplan: { units: 'meters' },
+        currentFloorplan: {
+            units: 'meters',
+            rooms: [{ id: 'room-1', name: 'Test Room' }]
+        },
         getWindowById: () => mockWindow,
         updateWindow: mockUpdateWindow,
         deleteWindow: mockDeleteWindow,

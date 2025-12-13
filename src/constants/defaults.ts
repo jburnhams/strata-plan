@@ -44,6 +44,7 @@ export const ROOM_TYPE_DEFAULTS: Record<RoomType, {
   hallway: { name: 'Hallway', width: 1.2, length: 4.0 },
   closet: { name: 'Closet', width: 1.5, length: 1.0 },
   garage: { name: 'Garage', width: 6.0, length: 6.0 },
+  generic: { name: 'Room', width: 4.0, length: 4.0 },
   other: { name: 'Room', width: 3.0, length: 3.0 },
 };
 
@@ -61,5 +62,6 @@ export const ROOM_TYPE_MATERIALS: Record<RoomType, {
   hallway: { floor: 'hardwood', wall: 'drywall-painted', ceiling: 'drywall' },
   closet: { floor: 'carpet', wall: 'drywall-painted', ceiling: 'drywall' },
   garage: { floor: 'concrete', wall: 'drywall-white', ceiling: 'exposed-concrete' },
+  generic: { floor: 'carpet', wall: 'drywall-painted', ceiling: 'drywall' },
   other: { floor: 'carpet', wall: 'drywall-painted', ceiling: 'drywall' },
 };

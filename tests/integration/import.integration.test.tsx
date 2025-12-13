@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import { ImportDialog } from '../../src/components/dialogs/ImportDialog';
+// import { ImportDialog } from '../../src/components/dialogs/ImportDialog'; // Use DialogProvider instead
+import { DialogProvider } from '../../src/components/dialogs/DialogProvider';
 import { useDialogStore } from '../../src/stores/dialogStore';
 import { useFloorplanStore } from '../../src/stores/floorplanStore';
 import { useProject } from '../../src/hooks/useProject';
@@ -8,12 +9,18 @@ import { importFloorplan } from '../../src/services/import';
 import { readFileAsText } from '../../src/services/import/fileReader';
 import * as HistoryService from '../../src/services/import/history';
 import { useToast } from '../../src/hooks/use-toast';
+import { DIALOG_IMPORT } from '../../src/constants/dialogs';
+import * as ProjectStorage from '../../src/services/storage/projectStorage';
+import 'fake-indexeddb/auto'; // Enable fake IndexedDB
 
 // Mock dependencies
 jest.mock('../../src/hooks/useProject');
 jest.mock('../../src/hooks/use-toast');
 jest.mock('../../src/services/import/history');
 jest.mock('../../src/services/import/fileReader');
+jest.mock('../../src/services/storage/thumbnails', () => ({
+  generateThumbnail: jest.fn().mockResolvedValue('data:image/png;base64,mock'),
+}));
 
 // Mock dialog component parts to avoid complexity with Radix UI
 jest.mock('../../src/components/ui/dialog', () => ({
@@ -51,23 +58,32 @@ jest.mock('lucide-react', () => ({
 }));
 
 describe('Import Integration', () => {
-  const mockSaveProject = jest.fn();
   const mockToast = jest.fn();
+  let saveProjectSpy: jest.SpyInstance;
+
+  beforeAll(() => {
+    if (!global.structuredClone) {
+        global.structuredClone = (val) => JSON.parse(JSON.stringify(val));
+    }
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
 
     // Reset stores
-    useDialogStore.setState({ activeDialog: 'import-project' });
+    useDialogStore.setState({ activeDialog: DIALOG_IMPORT });
     useFloorplanStore.setState({ currentFloorplan: null });
 
     (useProject as jest.Mock).mockReturnValue({
-      saveProject: mockSaveProject,
+      saveProject: jest.fn(), // Not used by ImportDialog anymore
     });
 
     (useToast as jest.Mock).mockReturnValue({
       toast: mockToast,
     });
+
+    // Spy on the real saveProject
+    saveProjectSpy = jest.spyOn(ProjectStorage, 'saveProject');
 
     (HistoryService.getImportHistory as jest.Mock).mockResolvedValue([]);
     (HistoryService.addToImportHistory as jest.Mock).mockResolvedValue(undefined);
@@ -95,7 +111,7 @@ describe('Import Integration', () => {
       updatedAt: new Date().toISOString()
     };
 
-    render(<ImportDialog />);
+    render(<DialogProvider />);
 
     // Create a file
     const fileContent = JSON.stringify(validFloorplan);
@@ -125,22 +141,18 @@ describe('Import Integration', () => {
       fireEvent.click(importButton);
     });
 
-    // Wait for progress and then completion
-    // The hook updates progress states which causes re-renders
-    // We need to wait for the saveProject call which happens at the end
+    // Wait for completion (toast or history)
     await waitFor(() => {
-      if (screen.queryByText('Validation Errors')) {
-        screen.debug(); // Print errors if import failed
-      }
-      // Check if toast was called with error
-      try {
-        expect(mockSaveProject).toHaveBeenCalled();
-      } catch (e) {
-        // If saveProject not called, check if error toast appeared
-        console.log('Toast calls:', mockToast.mock.calls);
-        throw e;
-      }
+        if (screen.queryByText('Validation Errors')) {
+            screen.debug();
+        }
+        // Wait until success toast appears
+        expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({
+            title: 'Import Successful'
+        }));
     }, { timeout: 3000 });
+
+    expect(saveProjectSpy).toHaveBeenCalled();
 
     // Verify store updated
     const state = useFloorplanStore.getState();
@@ -150,17 +162,12 @@ describe('Import Integration', () => {
     // Verify history updated
     expect(HistoryService.addToImportHistory).toHaveBeenCalledWith('test.json', expect.any(Number));
 
-    // Verify success toast
-    expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Import Successful'
-    }));
-
     // Verify dialog closed
     expect(useDialogStore.getState().activeDialog).toBeNull();
   });
 
   it('should show validation errors for invalid file', async () => {
-    render(<ImportDialog />);
+    render(<DialogProvider />);
 
     // Create invalid file
     const invalidData = { name: 'Invalid' }; // Missing required fields
@@ -197,7 +204,7 @@ describe('Import Integration', () => {
     });
 
     // Verify NOT saved
-    expect(mockSaveProject).not.toHaveBeenCalled();
-    expect(useDialogStore.getState().activeDialog).toBe('import-project'); // Still open
+    expect(saveProjectSpy).not.toHaveBeenCalled();
+    expect(useDialogStore.getState().activeDialog).toBe(DIALOG_IMPORT); // Still open
   });
 });

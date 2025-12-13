@@ -22,9 +22,15 @@ import { useEffect } from 'react';
 import { useFloorplanStore } from '../../stores/floorplanStore';
 import { useProject } from '../../hooks/useProject';
 import { useToast } from '../../hooks/use-toast';
+import { saveProject } from '../../services/storage/projectStorage';
 
-export function ImportDialog() {
-  const { activeDialog, closeDialog } = useDialogStore();
+interface ImportDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function ImportDialog({ open, onOpenChange }: ImportDialogProps) {
+  // const { activeDialog, closeDialog } = useDialogStore(); // Controlled via props
   const { importFile, isImporting, progress, error, validationResult, reset } = useImport();
 
   const [dragActive, setDragActive] = useState(false);
@@ -34,21 +40,20 @@ export function ImportDialog() {
   const [isLoadingSample, setIsLoadingSample] = useState(false);
 
   const { loadFloorplan } = useFloorplanStore();
-  const { saveProject } = useProject();
   const { toast } = useToast();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const isOpen = activeDialog === 'import-project';
+  // const isOpen = activeDialog === 'import-project'; // Use open prop
 
   useEffect(() => {
-    if (isOpen) {
+    if (open) {
       getImportHistory().then(setHistory);
     }
-  }, [isOpen]);
+  }, [open]);
 
   const handleClose = () => {
-    closeDialog('import-project');
+    onOpenChange(false);
     // Small delay to let animation finish before resetting state
     setTimeout(() => {
       setSelectedFile(null);
@@ -148,7 +153,7 @@ export function ImportDialog() {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+    <Dialog open={open} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="sm:max-w-md md:max-w-lg">
         <DialogHeader>
           <DialogTitle>Import Project</DialogTitle>

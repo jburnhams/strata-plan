@@ -23,6 +23,7 @@ export type RoomType =
   | 'hallway'
   | 'closet'
   | 'garage'
+  | 'generic'
   | 'other';
 
 /**

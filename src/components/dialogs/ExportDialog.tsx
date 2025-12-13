@@ -19,27 +19,34 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-export function ExportDialog() {
-  const { isOpen, closeDialog, data } = useDialog('export')
+interface ExportDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
+
+export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
+  // const { isOpen, closeDialog, data } = useDialog('export') // Managed by parent in DialogProvider
+  // We should rely on props or store, but typically DialogProvider manages open state and passes it down OR component uses store directly.
+  // The current pattern in DialogProvider suggests passing props.
   const [format, setFormat] = useState<'json' | 'gltf' | 'pdf'>('json')
   const [filename, setFilename] = useState('')
 
   useEffect(() => {
-    if (isOpen) {
-      const defaultName = data?.name || 'project'
+    if (open) {
+      const defaultName = 'project' // data?.name not available via props currently
       setFilename(`${defaultName}-${new Date().toISOString().split('T')[0]}`)
       setFormat('json') // Default to JSON
     }
-  }, [isOpen, data])
+  }, [open])
 
   const handleExport = () => {
     // TODO: Export logic
     console.log('Export', { format, filename })
-    closeDialog()
+    onOpenChange(false)
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && closeDialog()}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Export Project</DialogTitle>
@@ -80,7 +87,7 @@ export function ExportDialog() {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={closeDialog}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button onClick={handleExport} disabled={!filename.trim()}>

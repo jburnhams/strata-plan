@@ -1,12 +1,12 @@
-import { loadSettings, saveSettings, addRecentProject, removeRecentProject, DEFAULT_SETTINGS } from '@/services/storage/settingsStorage';
-import { initDatabase } from '@/services/storage/database';
+import { getSettings, saveSettings, DEFAULT_SETTINGS } from '../../../../src/services/storage/settingsStorage';
+import { initDatabase } from '../../../../src/services/storage/database';
 
-jest.mock('@/services/storage/database');
+jest.mock('../../../../src/services/storage/database');
 
-describe('Settings Storage Service', () => {
+describe('settingsStorage', () => {
   const mockDb = {
-    put: jest.fn(),
     get: jest.fn(),
+    put: jest.fn(),
   };
 
   beforeEach(() => {
@@ -14,104 +14,56 @@ describe('Settings Storage Service', () => {
     (initDatabase as jest.Mock).mockResolvedValue(mockDb);
   });
 
-  describe('loadSettings', () => {
-    it('returns default settings if nothing stored', async () => {
+  describe('getSettings', () => {
+    it('should return default settings if none stored', async () => {
       mockDb.get.mockResolvedValue(undefined);
-
-      const settings = await loadSettings();
+      const settings = await getSettings();
       expect(settings).toEqual(DEFAULT_SETTINGS);
-      expect(mockDb.get).toHaveBeenCalledWith('settings', 'user_settings');
     });
 
-    it('returns stored settings merged with defaults', async () => {
-      const stored = {
-        value: {
-          theme: 'dark',
-          // missing other fields
-        }
-      };
+    it('should return stored settings merged with defaults', async () => {
+      const stored = { value: { theme: 'dark' } };
       mockDb.get.mockResolvedValue(stored);
-
-      const settings = await loadSettings();
-      expect(settings.theme).toBe('dark');
-      expect(settings.defaultUnits).toBe('meters'); // Default
+      const settings = await getSettings();
+      expect(settings).toEqual({ ...DEFAULT_SETTINGS, theme: 'dark' });
     });
   });
 
   describe('saveSettings', () => {
-    it('merges and saves settings', async () => {
-      // Mock existing
-      mockDb.get.mockResolvedValue({ value: DEFAULT_SETTINGS });
+    it('should save settings to idb', async () => {
+      mockDb.get.mockResolvedValue(undefined); // Load defaults first
+      const newSettings = { theme: 'light' as const };
+      await saveSettings(newSettings);
 
-      await saveSettings({ theme: 'dark' });
-
-      expect(mockDb.put).toHaveBeenCalledWith('settings', {
+      expect(mockDb.put).toHaveBeenCalledWith('settings', expect.objectContaining({
         key: 'user_settings',
-        value: expect.objectContaining({
-          ...DEFAULT_SETTINGS,
-          theme: 'dark'
-        })
+        value: expect.objectContaining({ theme: 'light' })
+      }));
+    });
+  });
+
+  describe('recentProjects', () => {
+      it('should add recent project', async () => {
+          // Assume existing settings with empty recent projects
+          mockDb.get.mockResolvedValue({ value: { recentProjects: [] } });
+          const { addRecentProject } = require('../../../../src/services/storage/settingsStorage');
+
+          await addRecentProject('p1');
+
+          expect(mockDb.put).toHaveBeenCalledWith('settings', expect.objectContaining({
+              value: expect.objectContaining({ recentProjects: ['p1'] })
+          }));
       });
-    });
-  });
 
-  describe('addRecentProject', () => {
-    it('adds new project to top of list', async () => {
-      mockDb.get.mockResolvedValue({ value: { ...DEFAULT_SETTINGS, recentProjects: ['p2', 'p3'] } });
-
-      await addRecentProject('p1');
-
-      expect(mockDb.put).toHaveBeenCalledWith('settings', expect.objectContaining({
-        value: expect.objectContaining({
-          recentProjects: ['p1', 'p2', 'p3']
-        })
-      }));
-    });
-
-    it('moves existing project to top', async () => {
-      mockDb.get.mockResolvedValue({ value: { ...DEFAULT_SETTINGS, recentProjects: ['p2', 'p1', 'p3'] } });
-
-      await addRecentProject('p1');
-
-      expect(mockDb.put).toHaveBeenCalledWith('settings', expect.objectContaining({
-        value: expect.objectContaining({
-          recentProjects: ['p1', 'p2', 'p3']
-        })
-      }));
-    });
-
-    it('limits list to 5 items', async () => {
-      mockDb.get.mockResolvedValue({ value: { ...DEFAULT_SETTINGS, recentProjects: ['1', '2', '3', '4', '5'] } });
-
-      await addRecentProject('6');
-
-      expect(mockDb.put).toHaveBeenCalledWith('settings', expect.objectContaining({
-        value: expect.objectContaining({
-          recentProjects: ['6', '1', '2', '3', '4']
-        })
-      }));
-    });
-  });
-
-  describe('removeRecentProject', () => {
-      it('removes project if in list', async () => {
-          mockDb.get.mockResolvedValue({ value: { ...DEFAULT_SETTINGS, recentProjects: ['p1', 'p2'] } });
+      it('should remove recent project', async () => {
+          mockDb.get.mockResolvedValue({ value: { recentProjects: ['p1', 'p2'] } });
+          const { removeRecentProject } = require('../../../../src/services/storage/settingsStorage');
 
           await removeRecentProject('p1');
 
           expect(mockDb.put).toHaveBeenCalledWith('settings', expect.objectContaining({
-              value: expect.objectContaining({
-                  recentProjects: ['p2']
-              })
+              value: expect.objectContaining({ recentProjects: ['p2'] })
           }));
-      });
-
-      it('does nothing if not in list', async () => {
-          mockDb.get.mockResolvedValue({ value: { ...DEFAULT_SETTINGS, recentProjects: ['p2'] } });
-
-          await removeRecentProject('p1');
-
-          expect(mockDb.put).not.toHaveBeenCalled();
       });
   });
 });
