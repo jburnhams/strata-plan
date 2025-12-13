@@ -1,5 +1,5 @@
 import React from 'react';
-import { Room } from '../../types';
+import { Room, Position2D } from '../../types';
 import { ROOM_TYPE_COLORS } from '../../constants/colors';
 import { DEFAULT_WALL_THICKNESS } from '../../constants/defaults';
 import { FLOOR_MATERIALS } from '../../constants/materialConfigs';
@@ -15,6 +15,16 @@ interface RoomShapeProps {
   onMouseEnter: (roomId: string) => void;
   onMouseLeave: () => void;
 }
+
+const calculatePolygonArea = (vertices: Position2D[]): number => {
+  let area = 0;
+  for (let i = 0; i < vertices.length; i++) {
+    const j = (i + 1) % vertices.length;
+    area += vertices[i].x * vertices[j].z;
+    area -= vertices[j].x * vertices[i].z;
+  }
+  return Math.abs(area / 2);
+};
 
 export const RoomShape: React.FC<RoomShapeProps> = ({
   room,
@@ -60,7 +70,12 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
   const showLabel = room.length > 1.0 && room.width > 1.0;
 
   // Calculate area
-  const area = room.length * room.width;
+  let area = room.length * room.width;
+  const isPolygon = room.vertices && room.vertices.length > 2;
+
+  if (isPolygon && room.vertices) {
+    area = calculatePolygonArea(room.vertices);
+  }
 
   // Font size calculation (clamp between min and max)
   // Base it on min dimension
@@ -78,16 +93,26 @@ export const RoomShape: React.FC<RoomShapeProps> = ({
       data-testid={`room-shape-${room.id}`}
       style={{ cursor: 'pointer' }}
     >
-      <rect
-        x={room.position.x}
-        y={room.position.z}
-        width={room.length}
-        height={room.width}
-        fill={fill}
-        fillOpacity={0.5}
-        stroke={stroke}
-        strokeWidth={baseStrokeWidth}
-      />
+      {isPolygon && room.vertices ? (
+        <polygon
+          points={room.vertices.map(v => `${room.position.x + v.x},${room.position.z + v.z}`).join(' ')}
+          fill={fill}
+          fillOpacity={0.5}
+          stroke={stroke}
+          strokeWidth={baseStrokeWidth}
+        />
+      ) : (
+        <rect
+          x={room.position.x}
+          y={room.position.z}
+          width={room.length}
+          height={room.width}
+          fill={fill}
+          fillOpacity={0.5}
+          stroke={stroke}
+          strokeWidth={baseStrokeWidth}
+        />
+      )}
 
       {/* Label */}
       {showLabel && (

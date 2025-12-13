@@ -400,7 +400,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Set room position from bounding box
   - Store polygon vertices for non-rectangular rooms
 
-- [ ] **4.9.4** Handle non-rectangular rooms:
+- [x] **4.9.4** Handle non-rectangular rooms:
   - Store vertices array in room
   - Render polygon instead of rectangle
   - Calculate area using shoelace formula
@@ -409,7 +409,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 - [x] Enclosed area detection finds simple rectangles
 - [x] Enclosed area detection finds L-shapes
-- [ ] Click inside area creates room
+- [x] Click inside area creates room
 - [x] Polygon area calculated correctly
 
 ---
@@ -424,7 +424,7 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
   - Show dimensions on selected room edges
   - Format: "5.0 m" with unit from project settings
 
-- [ ] **4.10.2** Implement measurement tool:
+- [x] **4.10.2** Implement measurement tool:
   - Click two points to measure distance
   - Display distance with line between points
   - Measurements persist until cleared
@@ -443,8 +443,8 @@ The 2D Canvas Editor provides a visual drawing interface for users who want manu
 
 ### Unit Tests
 
-- [ ] Dimension labels show correct values
-- [ ] Measurement tool calculates correct distance
+- [x] Dimension labels show correct values
+- [x] Measurement tool calculates correct distance
 - [ ] Measurements toggle on/off
 
 ---
@@ -539,11 +539,13 @@ src/
 │   ├── useRoomDrag.ts
 │   ├── useRoomResize.ts
 │   ├── useRoomRotation.ts
-│   └── useWallDrawing.ts
+│   ├── useWallDrawing.ts
+│   └── useMeasurementTool.ts
 ├── services/
 │   └── roomDetection.ts
 └── stores/
-    └── toolStore.ts
+    ├── toolStore.ts
+    └── measurementStore.ts
 
 tests/
 ├── unit/
@@ -551,12 +553,17 @@ tests/
 │       └── editor/
 │           ├── CanvasViewport.test.tsx
 │           ├── RoomShape.test.tsx
-│           └── Grid.test.tsx
+│           ├── Grid.test.tsx
+│           └── MeasurementOverlay.test.tsx
 │   └── hooks/
 │       ├── useRoomResize.test.ts
-│       └── useRoomResize_advanced.test.ts
+│       ├── useRoomResize_advanced.test.ts
+│       └── useMeasurementTool.test.ts
 │   └── services/
 │       └── roomDetection.test.ts
+│   └── stores/
+│       └── measurementStore.test.ts
 └── integration/
-    └── canvas-editor.integration.test.tsx
+    ├── canvas-editor.integration.test.tsx
+    └── measurement-tool.integration.test.tsx
 ```
