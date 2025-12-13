@@ -34,11 +34,13 @@ import {
   Clipboard,
   Trash2,
   MousePointer2,
-  CheckSquare
+  CheckSquare,
+  Palette
 } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { useUIStore } from '../../stores/uiStore';
 import { useDialogStore } from '../../stores/dialogStore';
+import { DIALOG_COLOR_SCHEME } from '../../constants/dialogs';
 
 interface TopToolbarProps {
   className?: string;
@@ -179,6 +181,11 @@ export function TopToolbar({ className }: TopToolbarProps) {
               <MousePointer2 className="mr-2 h-4 w-4" />
               <span>Deselect</span>
               <span className="ml-auto text-xs tracking-widest opacity-60">Esc</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => openDialog(DIALOG_COLOR_SCHEME)}>
+              <Palette className="mr-2 h-4 w-4" />
+              <span>Color Scheme...</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

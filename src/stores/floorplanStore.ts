@@ -12,6 +12,7 @@ import { calculateAllConnections } from '../services/adjacency/graph';
 import { createManualConnection } from '../services/adjacency/manualConnections';
 import { DEFAULT_ROOM_GAP, ROOM_TYPE_MATERIALS } from '../constants/defaults';
 import { CeilingMaterial, FloorMaterial, WallMaterial } from '../types/materials';
+import { ColorScheme } from '../services/colorSchemes';
 
 /**
  * Floorplan store state
@@ -72,6 +73,7 @@ export interface FloorplanActions {
   setRoomWallMaterial: (roomId: string, material: WallMaterial) => void;
   setRoomCeilingMaterial: (roomId: string, material: CeilingMaterial) => void;
   setRoomCustomColor: (roomId: string, surface: 'floor' | 'wall' | 'ceiling', color: string) => void;
+  applyColorScheme: (scheme: ColorScheme) => void;
 
   // Selection
   selectRoom: (id: string | null) => void;
@@ -681,6 +683,33 @@ export const useFloorplanStore = create<FloorplanStore>((set, get) => ({
     }
 
     updateRoom(roomId, updates);
+  },
+
+  applyColorScheme: (scheme: ColorScheme) => {
+    const state = get();
+    if (!state.currentFloorplan) return;
+
+    const updatedRooms = state.currentFloorplan.rooms.map((room) => ({
+      ...room,
+      color: scheme.roomTypeColors[room.type] || scheme.roomTypeColors['other'],
+      floorMaterial: scheme.defaultFloorMaterial,
+      wallMaterial: scheme.defaultWallMaterial,
+      // Clear custom colors
+      customFloorColor: undefined,
+      customWallColor: undefined,
+      customCeilingColor: undefined,
+    }));
+
+    const updatedFloorplan = {
+      ...state.currentFloorplan,
+      rooms: updatedRooms,
+      updatedAt: new Date(),
+    };
+
+    set({
+      currentFloorplan: updatedFloorplan,
+      isDirty: true,
+    });
   },
 
   // Selection

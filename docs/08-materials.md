@@ -241,13 +241,13 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Subtasks
 
-- [ ] **8.6.1** Create Three.js materials from configs:
+- [x] **8.6.1** Create Three.js materials from configs:
   ```typescript
   function createFloorMaterial(config: FloorMaterialConfig): THREE.Material
   function createWallMaterial(config: WallMaterialConfig): THREE.Material
   ```
 
-- [ ] **8.6.2** Implement material caching:
+- [x] **8.6.2** Implement material caching:
   - Cache created materials by config
   - Reuse for multiple rooms with same material
 
@@ -260,21 +260,21 @@ This section adds visual richness through material selection, textures, and colo
   - Repeat based on room size (e.g., 1 tile per meter)
   - wrapS, wrapT = RepeatWrapping
 
-- [ ] **8.6.5** Apply materials to room meshes:
+- [x] **8.6.5** Apply materials to room meshes:
   - Floor mesh gets floor material
   - Wall meshes get wall material
   - Ceiling mesh gets ceiling material
 
-- [ ] **8.6.6** Handle custom colors:
+- [x] **8.6.6** Handle custom colors:
   - If custom color set, use color instead of texture
   - Create new material with custom color
 
 ### Unit Tests
 
-- [ ] Material created with correct color
+- [x] Material created with correct color
 - [ ] Texture loading triggers
-- [ ] Cache returns same material for same config
-- [ ] Custom color overrides texture
+- [x] Cache returns same material for same config
+- [x] Custom color overrides texture
 
 ---
 
@@ -336,7 +336,7 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Subtasks
 
-- [ ] **8.8.1** Define color scheme presets:
+- [x] **8.8.1** Define color scheme presets:
   ```typescript
   interface ColorScheme {
     id: string
@@ -355,17 +355,17 @@ This section adds visual richness through material selection, textures, and colo
   ]
   ```
 
-- [ ] **8.8.2** Create color scheme selector:
+- [x] **8.8.2** Create color scheme selector:
   - Dropdown or grid of preset options
   - Preview thumbnails
   - Apply to entire floorplan
 
-- [ ] **8.8.3** Color-blind friendly schemes:
+- [x] **8.8.3** Color-blind friendly schemes:
   - Preset optimized for color blindness
   - Deuteranopia, Protanopia, Tritanopia variants
   - Toggle in accessibility settings
 
-- [ ] **8.8.4** Apply scheme action:
+- [x] **8.8.4** Apply scheme action:
   ```typescript
   applyColorScheme(schemeId: string): void
   ```
@@ -374,9 +374,9 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Unit Tests
 
-- [ ] Color schemes load correctly
-- [ ] Applying scheme updates all rooms
-- [ ] Color-blind schemes have valid colors
+- [x] Color schemes load correctly
+- [x] Applying scheme updates all rooms
+- [x] Color-blind schemes have valid colors
 
 ---
 
@@ -386,28 +386,28 @@ This section adds visual richness through material selection, textures, and colo
 
 ### Subtasks
 
-- [ ] **8.9.1** Add material quality setting:
+- [x] **8.9.1** Add material quality setting:
   ```typescript
   materialQuality: 'simple' | 'standard' | 'detailed'
   ```
 
-- [ ] **8.9.2** Define quality levels:
+- [x] **8.9.2** Define quality levels:
   - **Simple**: Solid colors only, no textures, MeshBasicMaterial
   - **Standard**: Textures enabled, MeshStandardMaterial
   - **Detailed**: High-res textures, MeshPhysicalMaterial, reflections
 
-- [ ] **8.9.3** Create quality selector in viewer:
+- [x] **8.9.3** Create quality selector in viewer:
   - Dropdown in viewer settings
   - Immediate effect on rendering
 
-- [ ] **8.9.4** Auto-quality based on performance:
+- [x] **8.9.4** Auto-quality based on performance:
   - If FPS drops below 30, suggest reducing quality
   - Optional: auto-reduce quality
 
 ### Unit Tests
 
-- [ ] Quality setting persists
-- [ ] Material type changes with quality
+- [x] Quality setting persists
+- [x] Material type changes with quality
 
 ---
 

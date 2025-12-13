@@ -7,7 +7,8 @@ import {
   DIALOG_DELETE_PROJECT,
   DIALOG_EXPORT,
   DIALOG_IMPORT,
-  DIALOG_KEYBOARD_SHORTCUTS
+  DIALOG_KEYBOARD_SHORTCUTS,
+  DIALOG_COLOR_SCHEME
 } from '../../constants/dialogs';
 
 import { NewProjectDialog } from "./NewProjectDialog";
@@ -17,6 +18,7 @@ import { DeleteProjectDialog } from "./DeleteProjectDialog";
 import { ExportDialog } from "./ExportDialog";
 import { ImportDialog } from "./ImportDialog";
 import { KeyboardShortcutsDialog } from "./KeyboardShortcutsDialog";
+import { ColorSchemeDialog } from "./ColorSchemeDialog";
 
 export function DialogProvider() {
   const { activeDialog, dialogData, closeDialog } = useDialogStore();
@@ -71,6 +73,11 @@ export function DialogProvider() {
 
       <KeyboardShortcutsDialog
         open={activeDialog === DIALOG_KEYBOARD_SHORTCUTS}
+        onOpenChange={handleOpenChange}
+      />
+
+      <ColorSchemeDialog
+        open={activeDialog === DIALOG_COLOR_SCHEME}
         onOpenChange={handleOpenChange}
       />
     </>

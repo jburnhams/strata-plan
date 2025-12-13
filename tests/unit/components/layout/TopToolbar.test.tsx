@@ -54,6 +54,7 @@ jest.mock('lucide-react', () => ({
   MousePointer2: () => <span data-testid="icon-mouse-pointer2" />,
   CheckSquare: () => <span data-testid="icon-check-square" />,
   Link: () => <span data-testid="icon-link" />,
+  Palette: () => <span data-testid="icon-palette" />,
 }));
 
 describe('TopToolbar', () => {
