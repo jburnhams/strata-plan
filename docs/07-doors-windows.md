@@ -335,12 +335,12 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Subtasks
 
-- [ ] **7.8.1** Modify wall geometry for openings:
+- [x] **7.8.1** Modify wall geometry for openings:
   - Create wall with rectangular hole at door/window position
   - Use Shape with holes → ExtrudeGeometry
   - Or: CSG subtraction
 
-- [ ] **7.8.2** Create `DoorMesh` component:
+- [x] **7.8.2** Create `DoorMesh` component:
   - Door frame (simple box geometry)
   - Door panel (rotated based on swing)
   - Optional: door handle detail
@@ -349,26 +349,26 @@ This section implements doors and windows as openings in walls. Doors connect ad
   - Animate door opening/closing
   - Triggered by hover or click
 
-- [ ] **7.8.4** Create `WindowMesh` component:
+- [x] **7.8.4** Create `WindowMesh` component:
   - Window frame geometry
   - Glass pane (transparent material)
   - Mullions for multi-pane windows
 
-- [ ] **7.8.5** Glass material:
+- [x] **7.8.5** Glass material:
   - Semi-transparent
   - Slight reflection
   - Tint color option
 
-- [ ] **7.8.6** Position openings correctly:
+- [x] **7.8.6** Position openings correctly:
   - Calculate 3D position from room and wall
   - Account for wall thickness
 
 ### Unit Tests
 
-- [ ] Door creates hole in wall geometry
-- [ ] Door frame renders at correct position
-- [ ] Window glass has transparency
-- [ ] Multiple openings on same wall work
+- [x] Door creates hole in wall geometry
+- [x] Door frame renders at correct position
+- [x] Window glass has transparency
+- [x] Multiple openings on same wall work
 
 ---
 
