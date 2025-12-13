@@ -413,13 +413,13 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Subtasks
 
-- [ ] **7.10.1** Create doors section in sidebar:
+- [x] **7.10.1** Create doors section in sidebar:
   - Header: "Doors (N)"
   - List of doors
   - Each item: door icon, type, room name
   - Click to select
 
-- [ ] **7.10.2** Create windows section in sidebar:
+- [x] **7.10.2** Create windows section in sidebar:
   - Header: "Windows (N)"
   - List of windows
   - Each item: window icon, dimensions, room name
@@ -436,8 +436,8 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Unit Tests
 
-- [ ] Doors list shows correct count
-- [ ] Click selects door
+- [x] Doors list shows correct count
+- [x] Click selects door
 - [ ] Delete removes door
 
 ---

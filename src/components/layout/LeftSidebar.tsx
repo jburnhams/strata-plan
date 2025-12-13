@@ -6,17 +6,16 @@ import { useAddRoom } from '../../hooks/useAddRoom';
 import {
   ChevronLeft,
   ChevronRight,
-  LayoutDashboard,
   Search,
   Plus,
-  DoorOpen,
-  Maximize,
   Box
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { SidebarSection } from './SidebarSection';
 import { ScrollArea } from '../ui/scroll-area';
+import { DoorsList } from '../sidebar/DoorsList';
+import { WindowsList } from '../sidebar/WindowsList';
 
 interface LeftSidebarProps {
   className?: string;
@@ -26,16 +25,11 @@ export function LeftSidebar({ className }: LeftSidebarProps) {
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const {
     currentFloorplan,
-    selectedRoomId,
     selectedRoomIds,
     selectedWallId,
-    selectedDoorId,
-    selectedWindowId,
     selectRoom,
     setRoomSelection,
     selectWall,
-    selectDoor,
-    selectWindow
   } = useFloorplanStore();
   const { addRoom } = useAddRoom();
 
@@ -43,8 +37,6 @@ export function LeftSidebar({ className }: LeftSidebarProps) {
 
   const rooms = currentFloorplan?.rooms ?? [];
   const walls = currentFloorplan?.walls ?? [];
-  const doors = currentFloorplan?.doors ?? [];
-  const windows = currentFloorplan?.windows ?? [];
 
   const filteredRooms = useMemo(() => {
     if (!searchTerm) return rooms;
@@ -211,53 +203,9 @@ export function LeftSidebar({ className }: LeftSidebarProps) {
              </div>
         </SidebarSection>
 
-        <SidebarSection title="Doors" count={doors.length}>
-            <div className="space-y-1">
-                 {doors.map(door => (
-                     <div
-                        key={door.id}
-                        className={cn(
-                            "flex items-center gap-2 p-2 rounded-md text-sm cursor-pointer hover:bg-muted transition-colors",
-                            selectedDoorId === door.id && "bg-accent text-accent-foreground"
-                        )}
-                        onClick={() => selectDoor(door.id)}
-                        role="button"
-                    >
-                        <DoorOpen className="h-3 w-3" />
-                        <span className="truncate flex-1">Door {door.id.slice(0, 4)}</span>
-                    </div>
-                ))}
-                {doors.length === 0 && (
-                    <div className="text-xs text-muted-foreground p-2 text-center">
-                        No doors
-                    </div>
-                )}
-            </div>
-        </SidebarSection>
+        <DoorsList />
 
-        <SidebarSection title="Windows" count={windows.length}>
-             <div className="space-y-1">
-                 {windows.map(window => (
-                     <div
-                        key={window.id}
-                        className={cn(
-                            "flex items-center gap-2 p-2 rounded-md text-sm cursor-pointer hover:bg-muted transition-colors",
-                            selectedWindowId === window.id && "bg-accent text-accent-foreground"
-                        )}
-                        onClick={() => selectWindow(window.id)}
-                        role="button"
-                    >
-                        <Maximize className="h-3 w-3" />
-                        <span className="truncate flex-1">Window {window.id.slice(0, 4)}</span>
-                    </div>
-                ))}
-                 {windows.length === 0 && (
-                    <div className="text-xs text-muted-foreground p-2 text-center">
-                        No windows
-                    </div>
-                )}
-            </div>
-        </SidebarSection>
+        <WindowsList />
 
       </ScrollArea>
     </aside>
