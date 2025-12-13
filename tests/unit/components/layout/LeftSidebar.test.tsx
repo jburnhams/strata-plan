@@ -87,10 +87,10 @@ describe('LeftSidebar', () => {
             { id: 'w1', from: {x:0,y:0}, to: {x:1,y:0} } as any
           ],
           doors: [
-            { id: 'd1' } as any
+            { id: 'd1', type: 'single', roomId: '1' } as any
           ],
           windows: [
-            { id: 'win1' } as any
+            { id: 'win1', roomId: '1', width: 1.2, height: 1.2 } as any
           ]
         }
       });
@@ -218,9 +218,16 @@ describe('LeftSidebar', () => {
     const doorsHeader = screen.getByText('Doors');
     fireEvent.click(doorsHeader);
 
-    const doorItem = screen.getByText('Door d1');
-    expect(doorItem).toBeInTheDocument();
+    // Check for "Single Door" text, allowing for "Room 1" to be in a separate element
+    const doorType = screen.getByText('Single Door');
+    expect(doorType).toBeInTheDocument();
 
+    // There are multiple "Room 1" texts (one in rooms list, one in doors list)
+    const roomNames = screen.getAllByText('Room 1');
+    expect(roomNames.length).toBeGreaterThanOrEqual(2);
+
+    // Click on the container
+    const doorItem = screen.getByTestId('door-list-item-d1');
     fireEvent.click(doorItem);
     expect(mockSelectDoor).toHaveBeenCalledWith('d1');
   });
@@ -233,10 +240,10 @@ describe('LeftSidebar', () => {
     const windowsHeader = screen.getByText('Windows');
     fireEvent.click(windowsHeader);
 
-    const windowItem = screen.getByText('Window win1');
+    const windowItem = screen.getByText('1.2m x 1.2m');
     expect(windowItem).toBeInTheDocument();
 
-    fireEvent.click(windowItem);
+    fireEvent.click(screen.getByTestId('window-list-item-win1'));
     expect(mockSelectWindow).toHaveBeenCalledWith('win1');
   });
 });
