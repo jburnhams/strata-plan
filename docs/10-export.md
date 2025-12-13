@@ -176,13 +176,13 @@ The export system allows users to download their floorplans in multiple formats:
 
 ### Subtasks
 
-- [ ] **10.4.1** Install jsPDF:
+- [x] **10.4.1** Install jsPDF:
   ```bash
   npm install jspdf
   npm install --save-dev @types/jspdf
   ```
 
-- [ ] **10.4.2** Create PDF export function:
+- [x] **10.4.2** Create PDF export function:
   ```typescript
   async function exportToPDF(
     floorplan: Floorplan,
@@ -198,7 +198,7 @@ The export system allows users to download their floorplans in multiple formats:
   }
   ```
 
-- [ ] **10.4.3** Design PDF layout:
+- [x] **10.4.3** Design PDF layout:
   ```
   Page 1:
   ┌─────────────────────────────────┐
@@ -232,25 +232,25 @@ The export system allows users to download their floorplans in multiple formats:
   - Render rooms to scale
   - Add to PDF as image
 
-- [ ] **10.4.5** Add room table:
+- [x] **10.4.5** Add room table:
   - Table with all room details
   - Auto-paginate if many rooms
 
-- [ ] **10.4.6** Add headers and footers:
+- [x] **10.4.6** Add headers and footers:
   - Project name in header
   - Page numbers in footer
   - Date generated
 
-- [ ] **10.4.7** Handle units display:
+- [x] **10.4.7** Handle units display:
   - Show dimensions in project units
   - Include unit label (m or ft)
 
 ### Unit Tests
 
-- [ ] PDF export produces valid blob
-- [ ] Page count correct for room count
-- [ ] Table data matches floorplan
-- [ ] Dimensions show correct units
+- [x] PDF export produces valid blob
+- [x] Page count correct for room count
+- [x] Table data matches floorplan
+- [x] Dimensions show correct units
 
 ---
 
