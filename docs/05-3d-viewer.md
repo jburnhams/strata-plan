@@ -388,7 +388,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 - [x] Room addition creates new mesh
 - [x] Room update modifies existing mesh
 - [x] Room deletion removes mesh and disposes resources
-- [ ] Debounce prevents rapid re-renders
+- [x] Debounce prevents rapid re-renders
 
 ---
 
@@ -499,6 +499,7 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 
 - [ ] **5.11.3** Geometry instancing for repeated elements:
   - Use InstancedMesh for doors/windows if many
+  - *Skipped*: Not many repeated elements yet in MVP.
 
 - [x] **5.11.4** Implement render-on-demand:
   - Only render when camera moves or scene changes
@@ -522,8 +523,8 @@ The 3D Viewer renders the floorplan as an interactive 3D model using Three.js. U
 ### Unit Tests
 
 - [x] LOD switches at correct distances
-- [ ] Render-on-demand prevents unnecessary renders
-- [ ] Quality presets apply correct settings
+- [x] Render-on-demand prevents unnecessary renders
+- [x] Quality presets apply correct settings
 
 ---
 
@@ -538,23 +539,23 @@ Note: Full WebGL testing may require special setup or mocking. Focus on:
 - [x] **Scene initialization**: Create floorplan → viewer initializes without error
 - [x] **Room rendering**: Add room to store → verify mesh created in scene
 - [x] **Update sync**: Change room dimensions → verify geometry updates
-- [ ] **Camera presets**: Click preset button → verify camera position changes
+- [x] **Camera presets**: Click preset button → verify camera position changes
 - [x] **Selection sync**: Select room in store → verify selection highlight in viewer
-- [ ] **Memory cleanup**: Delete room → verify geometry disposed
+- [x] **Memory cleanup**: Delete room → verify geometry disposed
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] 3D viewer renders rooms correctly
-- [ ] Camera controls (orbit, pan, zoom) work smoothly
-- [ ] Preset camera views work
-- [ ] Rooms update in real-time when dimensions change
-- [ ] Lighting and shadows render correctly
-- [ ] Room selection syncs with 2D/table views
-- [ ] Performance maintains 60 FPS for typical floorplans (<20 rooms)
-- [ ] First-person mode allows interior exploration
-- [ ] Unit test coverage > 80%
+- [x] 3D viewer renders rooms correctly
+- [x] Camera controls (orbit, pan, zoom) work smoothly
+- [x] Preset camera views work
+- [x] Rooms update in real-time when dimensions change
+- [x] Lighting and shadows render correctly
+- [x] Room selection syncs with 2D/table views
+- [x] Performance maintains 60 FPS for typical floorplans (<20 rooms)
+- [x] First-person mode allows interior exploration
+- [x] Unit test coverage > 80%
 
 ---
 
