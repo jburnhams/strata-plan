@@ -295,37 +295,37 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Subtasks
 
-- [ ] **7.7.1** Create `DoorShape` SVG component:
+- [x] **7.7.1** Create `DoorShape` SVG component:
   - Render as gap in wall line
   - Show door swing arc (quarter circle)
   - Show door panel (line)
   - Different rendering for each door type
 
-- [ ] **7.7.2** Door type visualizations:
+- [x] **7.7.2** Door type visualizations:
   - Single: one swing arc
   - Double: two swing arcs
   - Sliding: arrows showing slide direction
   - Pocket: dashed line showing pocket
   - Bifold: accordion pattern
 
-- [ ] **7.7.3** Create `WindowShape` SVG component:
+- [x] **7.7.3** Create `WindowShape` SVG component:
   - Render as gap in wall with frame
   - Double line for frame
   - Cross lines for multiple panes
 
-- [ ] **7.7.4** Selection and hover states:
+- [x] **7.7.4** Selection and hover states:
   - Selected door/window has highlight
   - Hover shows tooltip with type and dimensions
 
-- [ ] **7.7.5** Standard architectural symbols:
+- [x] **7.7.5** Standard architectural symbols:
   - Use conventional floor plan symbols
   - Reference: architectural drawing standards
 
 ### Unit Tests
 
-- [ ] Door renders at correct position on wall
-- [ ] Swing arc direction matches settings
-- [ ] Window renders with frame
+- [x] Door renders at correct position on wall
+- [x] Swing arc direction matches settings
+- [x] Window renders with frame
 
 ---
 
@@ -507,6 +507,8 @@ tests/
 │       ├── editor/
 │       │   └── DoorTool.test.tsx
 │       │   └── WindowTool.test.tsx
+│       │   └── DoorShape.test.tsx
+│       │   └── WindowShape.test.tsx
 │       └── viewer/
 │           └── DoorMesh.test.tsx
 │   └── hooks/

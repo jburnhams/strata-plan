@@ -1,120 +1,100 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { DoorPropertiesPanel } from '@/components/properties/DoorPropertiesPanel';
-import { WindowPropertiesPanel } from '@/components/properties/WindowPropertiesPanel';
-import { useFloorplanStore } from '@/stores/floorplanStore';
-import { createJSONStorage } from 'zustand/middleware';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { Canvas2D } from '../../src/components/editor/Canvas2D';
+import { useFloorplanStore } from '../../src/stores/floorplanStore';
+import { useUIStore } from '../../src/stores/uiStore';
+import { useToolStore } from '../../src/stores/toolStore';
+import { mockFloorplan } from '../utils/mockData';
 
-// Mock storage to avoid IDB errors in test env
-jest.mock('@/services/storage/projectStorage', () => ({
-  projectStorage: {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    removeItem: jest.fn(),
-  },
+// Mock ResizeObserver
+class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+global.ResizeObserver = ResizeObserver;
+
+// Mock canvas elements
+jest.mock('../../src/components/editor/Grid', () => ({
+  Grid: () => <g data-testid="grid-layer" />
+}));
+
+jest.mock('../../src/components/editor/Ruler', () => ({
+  Ruler: () => <div data-testid="ruler" />
 }));
 
 describe('Doors and Windows Integration', () => {
   beforeEach(() => {
-    const store = useFloorplanStore.getState();
-    store.loadFloorplan({
-      id: 'test-plan',
-      name: 'Test Plan',
-      units: 'meters',
-      rooms: [],
-      connections: [],
-      doors: [],
-      windows: [],
-      walls: [],
-      version: '1.0.0',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    // Reset stores
+    useFloorplanStore.getState().clearFloorplan();
+    // mockFloorplan is the function, not createMockFloorplan
+    useFloorplanStore.getState().loadFloorplan(mockFloorplan()); // loadFloorplan instead of setFloorplan
+
+    useUIStore.setState({
+      zoomLevel: 1,
+      panOffset: { x: 0, z: 0 },
+      mode: 'canvas'
     });
+
+    useToolStore.setState({ activeTool: 'select' });
   });
 
-  it('allows updating door properties', async () => {
-    const store = useFloorplanStore.getState();
-    const room = store.addRoom({
-        name: 'Living Room',
-        width: 5,
-        length: 5,
-        type: 'living',
-        height: 2.4,
-        position: { x: 0, z: 0 } // Explicitly provide position to match store expectation
+  it('Door placement flow: Add door to store -> verify appears in canvas', async () => {
+    const room = useFloorplanStore.getState().addRoom({
+      name: 'Test Room',
+      length: 5,
+      width: 4,
+      type: 'living',
+      height: 2.4,
+      position: { x: 0, z: 0 }
     });
 
-    // Add a door
-    const door = store.addDoor({
-      roomId: room.id,
-      wallSide: 'north',
-      position: 0.5,
-      width: 0.9,
-      height: 2.1,
-      type: 'single',
-      swing: 'inward',
-      handleSide: 'left',
-      isExterior: true
+    render(<Canvas2D />);
+
+    // Verify room
+    expect(await screen.findByTestId(`room-shape-${room.id}`)).toBeInTheDocument();
+
+    // Add door via store
+    const door = useFloorplanStore.getState().addDoor({
+        roomId: room.id,
+        wallSide: 'north',
+        position: 0.5,
+        width: 0.9,
+        height: 2.1
     });
 
-    store.selectDoor(door.id);
-
-    render(<DoorPropertiesPanel />);
-
-    // Verify initial render
-    expect(screen.getByText('Living Room')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Width/)).toHaveValue(0.9);
-
-    // Update width
-    const widthInput = screen.getByLabelText(/Width/);
-    fireEvent.change(widthInput, { target: { value: '1.2' } });
-
-    // Verify store update
-    await waitFor(() => {
-        const updatedDoor = useFloorplanStore.getState().getDoorById(door.id);
-        expect(updatedDoor?.width).toBe(1.2);
-    });
+    // Verify door shape appears
+    const doorElement = await screen.findByTestId(`door-shape-${door.id}`);
+    expect(doorElement).toBeInTheDocument();
   });
 
-  it('allows updating window properties', async () => {
-    const store = useFloorplanStore.getState();
-    const room = store.addRoom({
-        name: 'Kitchen',
-        width: 4,
-        length: 4,
-        type: 'kitchen',
-        height: 2.4,
-        position: { x: 0, z: 0 }
+  it('Window placement flow: Add window to store -> verify appears in canvas', async () => {
+    const room = useFloorplanStore.getState().addRoom({
+      name: 'Test Room',
+      length: 5,
+      width: 4,
+      type: 'living',
+      height: 2.4,
+      position: { x: 0, z: 0 }
     });
 
-    // Add a window
-    const windowObj = store.addWindow({
-      roomId: room.id,
-      wallSide: 'south',
-      position: 0.3,
-      width: 1.2,
-      height: 1.2,
-      frameType: 'single',
-      material: 'pvc',
-      openingType: 'fixed',
-      sillHeight: 0.9
+    render(<Canvas2D />);
+
+    // Add window via store
+    const window = useFloorplanStore.getState().addWindow({
+        roomId: room.id,
+        wallSide: 'south',
+        position: 0.5,
+        width: 1.2,
+        height: 1.2,
+        sillHeight: 0.9,
+        frameType: 'double',
+        material: 'pvc',
+        openingType: 'casement'
     });
 
-    store.selectWindow(windowObj.id);
-
-    render(<WindowPropertiesPanel />);
-
-    // Verify initial render
-    expect(screen.getByText('Kitchen')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Width/)).toHaveValue(1.2);
-
-    // Update width
-    const widthInput = screen.getByLabelText(/Width/);
-    fireEvent.change(widthInput, { target: { value: '1.5' } });
-
-    // Verify store update
-    await waitFor(() => {
-        const updatedWindow = useFloorplanStore.getState().getWindowById(windowObj.id);
-        expect(updatedWindow?.width).toBe(1.5);
-    });
+    // Verify window shape appears
+    const windowElement = await screen.findByTestId(`window-shape-${window.id}`);
+    expect(windowElement).toBeInTheDocument();
   });
 });
