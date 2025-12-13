@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { Canvas2D } from '../../src/components/editor/Canvas2D';
 import { useFloorplanStore } from '../../src/stores/floorplanStore';
 import { useUIStore } from '../../src/stores/uiStore';
@@ -32,18 +32,21 @@ describe('Canvas Editor Integration', () => {
     render(<Canvas2D />);
 
     // Add a room directly to store
-    const room = useFloorplanStore.getState().addRoom({
-        name: 'Test Room',
-        length: 5,
-        width: 4,
-        type: 'living',
-        height: 2.4,
-        position: { x: 0, z: 0 }
+    let room;
+    act(() => {
+        room = useFloorplanStore.getState().addRoom({
+            name: 'Test Room',
+            length: 5,
+            width: 4,
+            type: 'living',
+            height: 2.4,
+            position: { x: 0, z: 0 }
+        });
     });
 
     // Verify it appears in the document
     // RoomShape renders a rect with test id
-    const roomElement = await screen.findByTestId(`room-shape-${room.id}`);
+    const roomElement = await screen.findByTestId(`room-shape-${room!.id}`);
     expect(roomElement).toBeInTheDocument();
 
     // Verify text
@@ -51,21 +54,24 @@ describe('Canvas Editor Integration', () => {
   });
 
   it('Drag and drop: Select room -> drag -> verify position updated', async () => {
-    const room = useFloorplanStore.getState().addRoom({
-        name: 'Drag Room',
-        length: 5,
-        width: 4,
-        type: 'bedroom',
-        height: 2.4,
-        position: { x: 0, z: 0 }
+    let room;
+    act(() => {
+        room = useFloorplanStore.getState().addRoom({
+            name: 'Drag Room',
+            length: 5,
+            width: 4,
+            type: 'bedroom',
+            height: 2.4,
+            position: { x: 0, z: 0 }
+        });
     });
 
     render(<Canvas2D />);
 
-    const roomElement = await screen.findByTestId(`room-shape-${room.id}`);
+    const roomElement = await screen.findByTestId(`room-shape-${room!.id}`);
 
     // Get initial position
-    expect(useFloorplanStore.getState().getRoomById(room.id)?.position.x).toBe(0);
+    expect(useFloorplanStore.getState().getRoomById(room!.id)?.position.x).toBe(0);
 
     // Perform Drag
     // 1. Mouse Down on room (clientX=100)
@@ -80,34 +86,37 @@ describe('Canvas Editor Integration', () => {
 
     // Verify new position
     // Should be +1m in X
-    const updatedRoom = useFloorplanStore.getState().getRoomById(room.id);
+    const updatedRoom = useFloorplanStore.getState().getRoomById(room!.id);
     expect(updatedRoom?.position.x).toBeCloseTo(1.0);
     expect(updatedRoom?.position.z).toBeCloseTo(0);
   });
 
   it('Collision Detection: overlapping drag shows warning', async () => {
      // Create two rooms
-     const room1 = useFloorplanStore.getState().addRoom({
-        name: 'Room 1',
-        length: 4,
-        width: 4,
-        type: 'living',
-        height: 2.4,
-        position: { x: 0, z: 0 }
-    });
+     let room1, room2;
+     act(() => {
+        room1 = useFloorplanStore.getState().addRoom({
+            name: 'Room 1',
+            length: 4,
+            width: 4,
+            type: 'living',
+            height: 2.4,
+            position: { x: 0, z: 0 }
+        });
 
-    const room2 = useFloorplanStore.getState().addRoom({
-        name: 'Room 2',
-        length: 4,
-        width: 4,
-        type: 'kitchen',
-        height: 2.4,
-        position: { x: 10, z: 0 }
-    });
+        room2 = useFloorplanStore.getState().addRoom({
+            name: 'Room 2',
+            length: 4,
+            width: 4,
+            type: 'kitchen',
+            height: 2.4,
+            position: { x: 10, z: 0 }
+        });
+     });
 
     render(<Canvas2D />);
 
-    const room2Element = await screen.findByTestId(`room-shape-${room2.id}`);
+    const room2Element = await screen.findByTestId(`room-shape-${room2!.id}`);
 
     // Drag Room 2 onto Room 1
     // Room 1 is at 0,0 to 4,4
@@ -119,7 +128,7 @@ describe('Canvas Editor Integration', () => {
     fireEvent.mouseMove(document, { clientX: 100, clientY: 100 });
 
     // Verify room moved close to 0 (overlapping)
-    expect(useFloorplanStore.getState().getRoomById(room2.id)?.position.x).toBeLessThan(5);
+    expect(useFloorplanStore.getState().getRoomById(room2!.id)?.position.x).toBeLessThan(5);
 
     // The red stroke is '#ef4444'
     const rect = room2Element.querySelector('rect');
@@ -130,28 +139,31 @@ describe('Canvas Editor Integration', () => {
 
   it('Smart Guides: Snap to alignment', async () => {
     // Room 1 (Static) at 0,0
-    const room1 = useFloorplanStore.getState().addRoom({
-        name: 'Static',
-        length: 4,
-        width: 4,
-        type: 'living',
-        height: 2.4,
-        position: { x: 0, z: 0 }
-    });
+    let room1, room2;
+    act(() => {
+        room1 = useFloorplanStore.getState().addRoom({
+            name: 'Static',
+            length: 4,
+            width: 4,
+            type: 'living',
+            height: 2.4,
+            position: { x: 0, z: 0 }
+        });
 
-    // Room 2 (Moving) at 10,0
-    const room2 = useFloorplanStore.getState().addRoom({
-        name: 'Moving',
-        length: 4,
-        width: 4,
-        type: 'kitchen',
-        height: 2.4,
-        position: { x: 10, z: 0 }
+        // Room 2 (Moving) at 10,0
+        room2 = useFloorplanStore.getState().addRoom({
+            name: 'Moving',
+            length: 4,
+            width: 4,
+            type: 'kitchen',
+            height: 2.4,
+            position: { x: 10, z: 0 }
+        });
     });
 
     render(<Canvas2D />);
 
-    const room2Element = await screen.findByTestId(`room-shape-${room2.id}`);
+    const room2Element = await screen.findByTestId(`room-shape-${room2!.id}`);
 
     // Drag Room 2 close to x=0 (align left edge)
     // Move from 10 to ~0.1.
@@ -164,7 +176,7 @@ describe('Canvas Editor Integration', () => {
     fireEvent.mouseMove(document, { clientX: 5, clientY: 100 });
 
     // Should snap to 0 exactly (left edge alignment)
-    const updatedRoom = useFloorplanStore.getState().getRoomById(room2.id);
+    const updatedRoom = useFloorplanStore.getState().getRoomById(room2!.id);
     expect(updatedRoom?.position.x).toBe(0);
 
     // Verify guide is rendered
@@ -179,16 +191,19 @@ describe('Canvas Editor Integration', () => {
   it('Measurement Overlay: Shows dimensions when room selected', async () => {
     render(<Canvas2D />);
 
-    const room = useFloorplanStore.getState().addRoom({
-        name: 'Measure Room',
-        length: 5,
-        width: 4,
-        type: 'living',
-        height: 2.4,
-        position: { x: 0, z: 0 }
+    let room;
+    act(() => {
+        room = useFloorplanStore.getState().addRoom({
+            name: 'Measure Room',
+            length: 5,
+            width: 4,
+            type: 'living',
+            height: 2.4,
+            position: { x: 0, z: 0 }
+        });
     });
 
-    const roomElement = await screen.findByTestId(`room-shape-${room.id}`);
+    const roomElement = await screen.findByTestId(`room-shape-${room!.id}`);
 
     // Measurements should not be visible initially (no selection)
     expect(screen.queryByText('5.00 m')).not.toBeInTheDocument();
@@ -207,14 +222,16 @@ describe('Canvas Editor Integration', () => {
       // Manually add 4 walls forming a 5x5 rectangle at 0,0
       const { addWall } = useFloorplanStore.getState();
 
-      // Wall 1: 0,0 -> 5,0
-      addWall({ from: { x: 0, z: 0 }, to: { x: 5, z: 0 }, thickness: 0.2 });
-      // Wall 2: 5,0 -> 5,5
-      addWall({ from: { x: 5, z: 0 }, to: { x: 5, z: 5 }, thickness: 0.2 });
-      // Wall 3: 5,5 -> 0,5
-      addWall({ from: { x: 5, z: 5 }, to: { x: 0, z: 5 }, thickness: 0.2 });
-      // Wall 4: 0,5 -> 0,0
-      addWall({ from: { x: 0, z: 5 }, to: { x: 0, z: 0 }, thickness: 0.2 });
+      act(() => {
+          // Wall 1: 0,0 -> 5,0
+          addWall({ from: { x: 0, z: 0 }, to: { x: 5, z: 0 }, thickness: 0.2 });
+          // Wall 2: 5,0 -> 5,5
+          addWall({ from: { x: 5, z: 0 }, to: { x: 5, z: 5 }, thickness: 0.2 });
+          // Wall 3: 5,5 -> 0,5
+          addWall({ from: { x: 5, z: 5 }, to: { x: 0, z: 5 }, thickness: 0.2 });
+          // Wall 4: 0,5 -> 0,0
+          addWall({ from: { x: 0, z: 5 }, to: { x: 0, z: 0 }, thickness: 0.2 });
+      });
 
       // The RoomCreationOverlay should detect this and render a clickable area
       // It might take a render cycle for useMemo to update

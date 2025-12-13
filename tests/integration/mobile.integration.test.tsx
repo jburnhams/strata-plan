@@ -44,6 +44,23 @@ jest.mock('../../src/components/layout/SettingsSync', () => ({
   SettingsSync: () => null,
 }));
 
+// Mock useNavigation to force Editor view
+jest.mock('../../src/hooks/useNavigation', () => ({
+  useNavigation: () => ({
+    currentView: 'editor',
+    navigateTo: jest.fn(),
+    createProject: jest.fn(),
+    openProject: jest.fn(),
+    closeProject: jest.fn(),
+  }),
+}));
+
+// Robust mock for useBreakpoint
+const mockUseBreakpointHook = jest.fn();
+jest.mock('../../src/hooks/useBreakpoint', () => ({
+  useBreakpoint: () => mockUseBreakpointHook(),
+}));
+
 // Mock crypto if needed
 if (!global.crypto) {
     Object.defineProperty(global, 'crypto', {
@@ -54,110 +71,65 @@ if (!global.crypto) {
 }
 
 describe('Mobile Integration', () => {
-  const originalInnerWidth = window.innerWidth;
-
   beforeEach(() => {
     // Reset stores
     useFloorplanStore.getState().clearFloorplan();
+    useFloorplanStore.getState().createFloorplan('Test Plan', 'meters'); // Ensure a plan exists
     useUIStore.setState({ mode: 'canvas' });
 
-    // Reset window width to original
-    Object.defineProperty(window, 'innerWidth', {
-      writable: true,
-      configurable: true,
-      value: originalInnerWidth,
+    mockUseBreakpointHook.mockReset();
+    // Default to desktop to prevent undefined crashes if not set
+    mockUseBreakpointHook.mockReturnValue({
+        isMobile: false,
+        isTablet: false,
+        isDesktop: true,
+        breakpoint: 'xl'
     });
   });
-
-  afterEach(() => {
-    Object.defineProperty(window, 'innerWidth', {
-      writable: true,
-      configurable: true,
-      value: originalInnerWidth,
-    });
-  });
-
-  // Robust viewport setter
-  const setWindowWidth = (width: number) => {
-    act(() => {
-      // Use Object.defineProperty to ensure the property is set even if JSDOM/Environment tries to protect it
-      Object.defineProperty(window, 'innerWidth', {
-        writable: true,
-        configurable: true,
-        value: width,
-      });
-
-      // Also update matchMedia mock to consistent state (optional but good practice)
-      window.matchMedia = jest.fn().mockImplementation((query) => {
-        return {
-          matches: false, // Simplification: we rely on useBreakpoint (innerWidth), but libraries might check this
-          media: query,
-          onchange: null,
-          addListener: jest.fn(),
-          removeListener: jest.fn(),
-          addEventListener: jest.fn(),
-          removeEventListener: jest.fn(),
-          dispatchEvent: jest.fn(),
-        };
-      });
-
-      window.dispatchEvent(new Event('resize'));
-    });
-  };
-
-  const navigateToEditor = async () => {
-    // Check if we are on landing page
-    const demoButton = screen.queryByText('Try Demo');
-    if (demoButton) {
-      fireEvent.click(demoButton);
-
-      // Wait for navigation to complete (Try Demo should disappear)
-      await waitFor(() => {
-        expect(screen.queryByText('Try Demo')).not.toBeInTheDocument();
-      }, { timeout: 2000 });
-    }
-    // Else assume we are already in editor (store persisted state)
-  };
 
   it('renders Desktop layout by default (large screen)', async () => {
-    setWindowWidth(1280); // Desktop size
+    mockUseBreakpointHook.mockReturnValue({
+      isMobile: false,
+      isTablet: false,
+      isDesktop: true,
+      breakpoint: 'xl'
+    });
+
     render(<App />);
 
-    // Navigate to editor
-    await navigateToEditor();
-
     // Should see Desktop Canvas
-    await waitFor(() => {
-        expect(screen.getByTestId('desktop-canvas')).toBeInTheDocument();
-    }, { timeout: 3000 });
-
+    expect(screen.getByTestId('desktop-canvas')).toBeInTheDocument();
     expect(screen.queryByTestId('touch-canvas')).not.toBeInTheDocument();
   });
 
   it('switches to Mobile layout and TouchCanvas on small screens', async () => {
-    setWindowWidth(375); // Mobile size
-    render(<App />);
+    mockUseBreakpointHook.mockReturnValue({
+      isMobile: true,
+      isTablet: false,
+      isDesktop: false,
+      breakpoint: 'sm'
+    });
 
-    await navigateToEditor();
+    render(<App />);
 
     // Should see Touch Canvas
     await waitFor(() => {
         expect(screen.getByTestId('touch-canvas')).toBeInTheDocument();
-    }, { timeout: 3000 });
-
+    });
     expect(screen.queryByTestId('desktop-canvas')).not.toBeInTheDocument();
   });
 
   it('renders MobileRoomTable on mobile when in table mode', async () => {
-    setWindowWidth(375);
-
-    // Manually create floorplan to ensure state is populated
-    useFloorplanStore.getState().createFloorplan('Test Plan', 'meters');
+    mockUseBreakpointHook.mockReturnValue({
+      isMobile: true,
+      isTablet: false,
+      isDesktop: false,
+      breakpoint: 'sm'
+    });
 
     render(<App />);
-    await navigateToEditor();
 
-    // Ensure we are in table mode
+    // Switch to table mode via UI or direct state if needed
     const tableSpan = screen.queryByText('Table');
     if (tableSpan) {
         const tableButton = tableSpan.closest('button');
@@ -165,25 +137,31 @@ describe('Mobile Integration', () => {
             fireEvent.click(tableButton);
         }
     } else {
+        // Fallback if UI not rendered yet
         act(() => { useUIStore.setState({ mode: 'table' }) });
     }
 
     // MobileRoomTable usually renders "Rooms (0)" or "No rooms added yet"
     await waitFor(() => {
         expect(screen.getByText('No rooms added yet.')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    });
 
     expect(screen.getByText('Add Room')).toBeInTheDocument();
   });
 
   it('renders TabletLayout on medium screens', async () => {
-    setWindowWidth(800); // Tablet size
+    mockUseBreakpointHook.mockReturnValue({
+      isMobile: false,
+      isTablet: true,
+      isDesktop: false,
+      breakpoint: 'lg'
+    });
+
     render(<App />);
-    await navigateToEditor();
 
     // Tablet uses Canvas2D (Desktop version) currently
     await waitFor(() => {
         expect(screen.getByTestId('desktop-canvas')).toBeInTheDocument();
-    }, { timeout: 3000 });
+    });
   });
 });

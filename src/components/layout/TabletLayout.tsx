@@ -16,9 +16,11 @@ export function TabletLayout({ children }: TabletLayoutProps) {
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground">
+      {/* Compact Toolbar */}
       <TopToolbar />
 
       <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar - controlled by store, but on tablet we might want it to behave differently */}
         <LeftSidebar />
 
         <main className="flex-1 relative overflow-hidden bg-background flex">
@@ -27,6 +29,7 @@ export function TabletLayout({ children }: TabletLayoutProps) {
           </div>
         </main>
 
+        {/* Properties Panel - slides in/out */}
         <PropertiesPanel />
       </div>
 
