@@ -1,8 +1,10 @@
 import React from 'react';
 import { Window } from '../../types/window';
 import { Room } from '../../types/room';
-import { WallSide } from '../../types/geometry';
 import { DEFAULT_WALL_THICKNESS } from '../../constants/defaults';
+import { useWindowDrag } from '../../hooks/useWindowDrag';
+import { useFloorplanStore } from '../../stores/floorplanStore';
+import { useToolStore } from '../../stores/toolStore';
 
 interface WindowShapeProps {
   window: Window;
@@ -17,29 +19,33 @@ export const WindowShape: React.FC<WindowShapeProps> = ({
   isSelected = false,
   isHovered = false
 }) => {
+  const { handleDragStart } = useWindowDrag();
+  const selectWindow = useFloorplanStore(state => state.selectWindow);
+  const activeTool = useToolStore(state => state.activeTool);
+
   let x = 0;
   let y = 0;
   let rotation = 0;
 
   switch (window.wallSide) {
     case 'north':
-      x = room.length * window.position;
+      x = room.width * window.position;
       y = 0;
       rotation = 0;
       break;
     case 'south':
-      x = room.length * window.position;
-      y = room.width;
+      x = room.width * window.position;
+      y = room.length;
       rotation = 180;
       break;
     case 'east':
-      x = room.length;
-      y = room.width * window.position;
+      x = room.width;
+      y = room.length * window.position;
       rotation = 90;
       break;
     case 'west':
       x = 0;
-      y = room.width * window.position;
+      y = room.length * window.position;
       rotation = 270;
       break;
   }
@@ -51,6 +57,13 @@ export const WindowShape: React.FC<WindowShapeProps> = ({
   const strokeColor = isSelected ? '#2563eb' : isHovered ? '#3b82f6' : '#1e293b';
   const strokeWidth = isSelected || isHovered ? 0.08 : 0.05;
   const glassFill = '#e2e8f0';
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (activeTool === 'select') {
+      selectWindow(window.id);
+      handleDragStart(e, window.id);
+    }
+  };
 
   const renderWindowType = () => {
     return (
@@ -91,8 +104,11 @@ export const WindowShape: React.FC<WindowShapeProps> = ({
     <g
       transform={`translate(${absoluteX}, ${absoluteY}) rotate(${rotation})`}
       data-testid={`window-shape-${window.id}`}
+      onMouseDown={onMouseDown}
+      style={{ cursor: activeTool === 'select' ? 'move' : 'default' }}
     >
       {renderWindowType()}
+       {/* Hit area */}
        <rect
           x={-width/2}
           y={-DEFAULT_WALL_THICKNESS}
@@ -100,7 +116,6 @@ export const WindowShape: React.FC<WindowShapeProps> = ({
           height={DEFAULT_WALL_THICKNESS * 2}
           fill="transparent"
           stroke="none"
-          style={{ cursor: 'pointer' }}
        />
     </g>
   );

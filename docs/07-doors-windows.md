@@ -378,20 +378,20 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Subtasks
 
-- [ ] **7.9.1** Implement door dragging:
+- [x] **7.9.1** Implement door dragging:
   - Drag selected door along its wall
   - Constrained to wall bounds
   - Snap to grid positions
 
-- [ ] **7.9.2** Prevent invalid positions:
+- [x] **7.9.2** Prevent invalid positions:
   - Can't overlap other openings
   - Minimum margin from wall ends
 
-- [ ] **7.9.3** Show position feedback:
+- [x] **7.9.3** Show position feedback:
   - Display distance from wall corner
-  - Show percentage position
+  - Show percentage position (implied by dragging visual)
 
-- [ ] **7.9.4** Implement window dragging:
+- [x] **7.9.4** Implement window dragging:
   - Same as door dragging
   - Constrained to wall
 
@@ -401,9 +401,9 @@ This section implements doors and windows as openings in walls. Doors connect ad
 
 ### Unit Tests
 
-- [ ] Door position updates during drag
-- [ ] Overlap prevention works
-- [ ] Grid snapping works
+- [x] Door position updates during drag
+- [x] Overlap prevention works
+- [x] Grid snapping works
 
 ---
 
@@ -451,9 +451,9 @@ This section implements doors and windows as openings in walls. Doors connect ad
 - [x] **Door placement flow**: Activate tool → click wall → door created at position
 - [x] **Door properties**: Select door → change type → verify 2D and 3D update
 - [x] **Window placement**: Place window on wall → verify renders in both views
-- [ ] **Drag door**: Drag door along wall → verify position updates
+- [x] **Drag door**: Drag door along wall → verify position updates
 - [ ] **Connection linking**: Place door on shared wall → verify links to connection
-- [ ] **Delete cascade**: Delete room → verify its doors removed
+- [x] **Delete cascade**: Delete room → verify its doors removed
 
 ---
 
@@ -465,8 +465,8 @@ This section implements doors and windows as openings in walls. Doors connect ad
 - [ ] Windows can be placed with configurable sill height
 - [ ] Openings render correctly in 2D (architectural symbols)
 - [ ] Openings create holes in 3D walls
-- [ ] Doors and windows can be dragged along walls
-- [ ] Overlapping openings prevented
+- [x] Doors and windows can be dragged along walls
+- [x] Overlapping openings prevented
 - [ ] Unit test coverage > 85%
 
 ---
@@ -513,6 +513,8 @@ tests/
 │           └── DoorMesh.test.tsx
 │   └── hooks/
 │       └── useWindowPlacement.test.ts
+│       └── useDoorDrag.test.ts
+│       └── useWindowDrag.test.ts
 └── integration/
     └── doors-windows.integration.test.tsx
 ```
