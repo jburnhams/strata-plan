@@ -12,25 +12,32 @@ interface RoomCardProps {
 
 export function RoomCard({ room }: RoomCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const { updateRoom, removeRoom, duplicateRoom, setRoomSelection } = useFloorplanStore();
+  const { updateRoom, deleteRoom, addRoom, setRoomSelection } = useFloorplanStore();
 
   const handleExpand = () => {
     setExpanded(!expanded);
     if (!expanded) {
-      setRoomSelection(room.id);
+      setRoomSelection([room.id]);
     }
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm(`Delete ${room.name}?`)) {
-      removeRoom(room.id);
+      deleteRoom(room.id);
     }
   };
 
   const handleDuplicate = (e: React.MouseEvent) => {
     e.stopPropagation();
-    duplicateRoom(room.id);
+    // duplicateRoom doesn't exist, we must implement logic manually or add it to store
+    // For now, manual implementation
+    const { id, ...roomData } = room;
+    addRoom({
+        ...roomData,
+        name: `${room.name} (Copy)`,
+        position: { x: room.position.x + 1, z: room.position.z + 1 }
+    });
   };
 
   const formatArea = (l: number, w: number) => {

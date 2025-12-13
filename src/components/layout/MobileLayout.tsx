@@ -3,7 +3,7 @@ import { Menu, LayoutGrid, Maximize, Cuboid, MoreHorizontal, Settings, FileDown,
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
 import { useUIStore } from '../../stores/uiStore';
-import { useProject } from '../../hooks/useProject';
+import { useFloorplanStore } from '../../stores/floorplanStore';
 
 interface MobileLayoutProps {
   children?: React.ReactNode;
@@ -11,7 +11,7 @@ interface MobileLayoutProps {
 
 export function MobileLayout({ children }: MobileLayoutProps) {
   const { mode, setMode } = useUIStore();
-  const { currentProject } = useProject();
+  const { currentFloorplan } = useFloorplanStore();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
@@ -29,7 +29,7 @@ export function MobileLayout({ children }: MobileLayoutProps) {
             <Menu className="h-5 w-5" />
           </Button>
           <span className="font-semibold text-sm truncate max-w-[150px]">
-            {currentProject?.name || 'StrataPlan'}
+            {currentFloorplan?.name || 'StrataPlan'}
           </span>
         </div>
 

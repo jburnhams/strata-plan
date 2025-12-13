@@ -12,7 +12,7 @@ interface TabletLayoutProps {
 }
 
 export function TabletLayout({ children }: TabletLayoutProps) {
-  const { toggleSidebar, togglePropertiesPanel, isSidebarOpen, isPropertiesPanelOpen } = useUIStore();
+  const { toggleSidebar, togglePropertiesPanel, sidebarOpen, propertiesPanelOpen } = useUIStore();
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground">

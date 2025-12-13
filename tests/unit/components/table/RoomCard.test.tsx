@@ -13,7 +13,7 @@ jest.mock('lucide-react', () => ({
   Copy: () => <div data-testid="icon-copy" />,
 }));
 
-// Mock UI components
+// Mock UI components using absolute paths
 jest.mock('@/components/ui/card', () => ({
   Card: ({ children, className }: any) => <div className={className} data-testid="card">{children}</div>,
   CardHeader: ({ children, onClick, className }: any) => <div className={className} onClick={onClick} data-testid="card-header">{children}</div>,
@@ -39,14 +39,14 @@ describe('RoomCard', () => {
   };
 
   const mockSetRoomSelection = jest.fn();
-  const mockRemoveRoom = jest.fn();
-  const mockDuplicateRoom = jest.fn();
+  const mockDeleteRoom = jest.fn();
+  const mockAddRoom = jest.fn();
 
   beforeEach(() => {
     (useFloorplanStore as unknown as jest.Mock).mockReturnValue({
       setRoomSelection: mockSetRoomSelection,
-      removeRoom: mockRemoveRoom,
-      duplicateRoom: mockDuplicateRoom,
+      deleteRoom: mockDeleteRoom,
+      addRoom: mockAddRoom,
       updateRoom: jest.fn(),
     });
     window.confirm = jest.fn(() => true);
@@ -56,7 +56,6 @@ describe('RoomCard', () => {
     render(<RoomCard room={mockRoom} />);
 
     expect(screen.getByText('Master Bedroom')).toBeInTheDocument();
-    // Use getAllByText because 'bedroom' appears in type label and possibly elsewhere
     expect(screen.getAllByText(/bedroom/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/20\.00 m²/)).toBeInTheDocument();
   });
@@ -69,7 +68,7 @@ describe('RoomCard', () => {
     fireEvent.click(screen.getByTestId('card-header'));
 
     expect(screen.getByTestId('card-content')).toBeInTheDocument();
-    expect(mockSetRoomSelection).toHaveBeenCalledWith('room-1');
+    expect(mockSetRoomSelection).toHaveBeenCalledWith(['room-1']);
 
     expect(screen.getByText('5.00')).toBeInTheDocument();
     expect(screen.getByText('4.00')).toBeInTheDocument();
@@ -83,7 +82,7 @@ describe('RoomCard', () => {
     fireEvent.click(deleteBtn!);
 
     expect(window.confirm).toHaveBeenCalled();
-    expect(mockRemoveRoom).toHaveBeenCalledWith('room-1');
+    expect(mockDeleteRoom).toHaveBeenCalledWith('room-1');
   });
 
   it('handles duplicate action', () => {
@@ -93,6 +92,9 @@ describe('RoomCard', () => {
     const copyBtn = screen.getByText('Copy').closest('button');
     fireEvent.click(copyBtn!);
 
-    expect(mockDuplicateRoom).toHaveBeenCalledWith('room-1');
+    expect(mockAddRoom).toHaveBeenCalledWith(expect.objectContaining({
+        name: 'Master Bedroom (Copy)',
+        position: { x: 1, z: 1 }
+    }));
   });
 });

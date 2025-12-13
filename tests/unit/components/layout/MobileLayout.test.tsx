@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { useUIStore } from '@/stores/uiStore';
-import { useProject } from '@/hooks/useProject';
+import { useFloorplanStore } from '@/stores/floorplanStore';
 
 // Mock Lucide icons
 jest.mock('lucide-react', () => ({
@@ -19,7 +19,10 @@ jest.mock('lucide-react', () => ({
 
 // Mock hooks
 jest.mock('@/stores/uiStore');
-jest.mock('@/hooks/useProject');
+jest.mock('@/stores/floorplanStore');
+jest.mock('@/hooks/useProject', () => ({
+    useProject: () => ({ currentProject: null }) // Not used anymore
+}));
 
 // Mock Dialog
 jest.mock('@/components/ui/dialog', () => ({
@@ -47,8 +50,8 @@ describe('MobileLayout', () => {
       mode: 'table',
       setMode: mockSetMode,
     });
-    (useProject as unknown as jest.Mock).mockReturnValue({
-      currentProject: { name: 'Test Project' },
+    (useFloorplanStore as unknown as jest.Mock).mockReturnValue({
+      currentFloorplan: { name: 'Test Project' },
     });
     mockSetMode.mockClear();
   });

@@ -10,7 +10,7 @@ interface TouchCanvasProps {
 
 export function TouchCanvas({ className }: TouchCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { zoom, pan, setZoom, setPan, zoomLevel, panOffset } = useUIStore();
+  const { zoomLevel, panOffset, setZoom, setPan } = useUIStore();
 
   useTouchGestures(containerRef, {
     onPan: (deltaX, deltaY) => {

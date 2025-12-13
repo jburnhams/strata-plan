@@ -13,7 +13,15 @@ export function MobileRoomTable() {
 
   const handleAddRoom = () => {
     // Default to a generic room
-    addRoom('bedroom');
+    addRoom({
+      name: 'New Room',
+      length: 4,
+      width: 4,
+      height: 2.4,
+      type: 'bedroom',
+      position: { x: 0, z: 0 },
+      rotation: 0,
+    });
   };
 
   return (

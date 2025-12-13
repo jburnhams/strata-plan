@@ -75,6 +75,8 @@ describe('MobileRoomTable', () => {
 
     fireEvent.click(screen.getByText('Add Room').closest('button')!);
 
-    expect(mockAddRoom).toHaveBeenCalledWith('bedroom');
+    expect(mockAddRoom).toHaveBeenCalledWith(expect.objectContaining({
+        type: 'bedroom'
+    }));
   });
 });
