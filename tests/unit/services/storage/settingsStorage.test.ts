@@ -41,4 +41,29 @@ describe('settingsStorage', () => {
       }));
     });
   });
+
+  describe('recentProjects', () => {
+      it('should add recent project', async () => {
+          // Assume existing settings with empty recent projects
+          mockDb.get.mockResolvedValue({ value: { recentProjects: [] } });
+          const { addRecentProject } = require('../../../../src/services/storage/settingsStorage');
+
+          await addRecentProject('p1');
+
+          expect(mockDb.put).toHaveBeenCalledWith('settings', expect.objectContaining({
+              value: expect.objectContaining({ recentProjects: ['p1'] })
+          }));
+      });
+
+      it('should remove recent project', async () => {
+          mockDb.get.mockResolvedValue({ value: { recentProjects: ['p1', 'p2'] } });
+          const { removeRecentProject } = require('../../../../src/services/storage/settingsStorage');
+
+          await removeRecentProject('p1');
+
+          expect(mockDb.put).toHaveBeenCalledWith('settings', expect.objectContaining({
+              value: expect.objectContaining({ recentProjects: ['p2'] })
+          }));
+      });
+  });
 });

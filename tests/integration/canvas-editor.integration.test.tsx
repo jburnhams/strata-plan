@@ -223,6 +223,14 @@ describe('Canvas Editor Integration', () => {
       expect(overlay).toBeInTheDocument();
 
       // There should be a path element inside representing the room
+      // Need to hover to see the text
+      const polygonPath = overlay.querySelector('path');
+      expect(polygonPath).toBeInTheDocument();
+
+      if (polygonPath) {
+        fireEvent.mouseEnter(polygonPath);
+      }
+
       // We can search for the text "Click to Create Room"
       // Wait for it because detecting might be async or require re-render
       const createText = await screen.findByText('Click to Create Room');
