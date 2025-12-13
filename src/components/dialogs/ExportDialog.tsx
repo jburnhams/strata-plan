@@ -53,10 +53,11 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
     setIsExporting(true);
     try {
         let blob: Blob;
-        let extension = format;
+        let extension: string = format;
 
         if (format === 'json') {
-            blob = exportToJSON(currentFloorplan);
+            // exportToJSON returns Promise<Blob> as per checked file
+            blob = await exportToJSON(currentFloorplan);
         } else if (format === 'gltf') {
             blob = await exportToGLTF(currentFloorplan, { includeTextures, binary: true });
             extension = 'glb';
