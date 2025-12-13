@@ -43,10 +43,11 @@ describe('WindowShape', () => {
 
   it('positions correctly for north wall', () => {
     const { container } = renderComponent(mockWindow, mockRoom);
-    // North wall: y = 0, x = length * position
-    // x = 2.5 + 10 = 12.5, y = 0 + 10 = 10
+    // North wall: y = 0, x = width * position
+    // x = 4 * 0.5 = 2 relative + 10 = 12.
+    // y = 0 + 10 = 10
     const group = container.querySelector('g');
-    expect(group).toHaveAttribute('transform', expect.stringContaining('translate(12.5, 10)'));
+    expect(group).toHaveAttribute('transform', expect.stringContaining('translate(12, 10)'));
     expect(group).toHaveAttribute('transform', expect.stringContaining('rotate(0)'));
   });
 
