@@ -5,6 +5,7 @@ import { useMeasurementStore } from '../../stores/measurementStore';
 import { PIXELS_PER_METER } from '../../constants/defaults';
 import { MeasurementUnit } from '../../types/floorplan';
 import { Position2D } from '../../types';
+import { getRoomRect, calculateRectGap } from '../../utils/geometry';
 
 const formatDimension = (valueMeters: number, unit: MeasurementUnit = 'meters'): string => {
   if (unit === 'feet') {
@@ -80,11 +81,14 @@ export const MeasurementOverlay: React.FC = () => {
   const selectedRoomIds = useFloorplanStore((state) => state.selectedRoomIds);
   const currentFloorplan = useFloorplanStore((state) => state.currentFloorplan);
   const zoomLevel = useUIStore((state) => state.zoomLevel);
+  const showMeasurements = useUIStore((state) => state.showMeasurements);
   const { activeMeasurement, measurements } = useMeasurementStore();
 
   const units = currentFloorplan?.units || 'meters';
   const rooms = currentFloorplan?.rooms || [];
   const selectedRooms = rooms.filter(r => selectedRoomIds.includes(r.id));
+
+  if (!showMeasurements) return null;
 
   const hasContent = selectedRooms.length > 0 || activeMeasurement || measurements.length > 0;
 
@@ -96,6 +100,85 @@ export const MeasurementOverlay: React.FC = () => {
   const offset = 20 / (PIXELS_PER_METER * zoomLevel);
   const paddingX = 4 / (PIXELS_PER_METER * zoomLevel);
   const paddingY = 2 / (PIXELS_PER_METER * zoomLevel);
+
+  // Calculate gaps if exactly two rooms are selected
+  let gapX = 0;
+  let gapZ = 0;
+  let gapElements: React.ReactNode[] = [];
+
+  if (selectedRooms.length === 2) {
+      const r1 = getRoomRect(selectedRooms[0]);
+      const r2 = getRoomRect(selectedRooms[1]);
+      const gap = calculateRectGap(r1, r2);
+
+      if (gap) {
+          gapX = gap.x;
+          gapZ = gap.z;
+
+          // Horizontal Gap
+          if (gapX > 0.01) {
+              const left = r1.x < r2.x ? r1 : r2;
+              const right = r1.x < r2.x ? r2 : r1;
+
+              const startX = left.x + left.width;
+              const endX = right.x;
+
+              // Z position logic
+              const zOverlapStart = Math.max(r1.z, r2.z);
+              const zOverlapEnd = Math.min(r1.z + r1.height, r2.z + r2.height);
+
+              let zPos;
+              if (zOverlapStart < zOverlapEnd) {
+                 zPos = (zOverlapStart + zOverlapEnd) / 2;
+              } else {
+                 zPos = (r1.z + r1.height/2 + r2.z + r2.height/2) / 2;
+              }
+
+              gapElements.push(
+                <MeasurementLine
+                    key="gap-x"
+                    start={{ x: startX, z: zPos }}
+                    end={{ x: endX, z: zPos }}
+                    distance={gapX}
+                    unit={units}
+                    fontSize={fontSize}
+                    color="#f59e0b" // amber-500
+                />
+              );
+          }
+
+          // Vertical Gap
+          if (gapZ > 0.01) {
+              const top = r1.z < r2.z ? r1 : r2;
+              const bottom = r1.z < r2.z ? r2 : r1;
+
+              const startZ = top.z + top.height;
+              const endZ = bottom.z;
+
+              const xOverlapStart = Math.max(r1.x, r2.x);
+              const xOverlapEnd = Math.min(r1.x + r1.width, r2.x + r2.width);
+
+              let xPos;
+              if (xOverlapStart < xOverlapEnd) {
+                  xPos = (xOverlapStart + xOverlapEnd) / 2;
+              } else {
+                  xPos = (r1.x + r1.width/2 + r2.x + r2.width/2) / 2;
+              }
+
+              gapElements.push(
+                <MeasurementLine
+                    key="gap-z"
+                    start={{ x: xPos, z: startZ }}
+                    end={{ x: xPos, z: endZ }}
+                    distance={gapZ}
+                    unit={units}
+                    fontSize={fontSize}
+                    color="#f59e0b"
+                />
+              );
+          }
+      }
+  }
 
   return (
     <g data-testid="measurement-overlay">
@@ -165,6 +248,9 @@ export const MeasurementOverlay: React.FC = () => {
           </g>
         );
       })}
+
+      {/* Gap Measurements */}
+      {gapElements}
 
       {/* Active Tool Measurement */}
       {activeMeasurement && activeMeasurement.startPoint && activeMeasurement.endPoint && (

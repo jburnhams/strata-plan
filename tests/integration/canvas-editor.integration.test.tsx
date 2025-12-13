@@ -201,6 +201,41 @@ describe('Canvas Editor Integration', () => {
     expect(screen.getByText('4.00 m')).toBeInTheDocument();
   });
 
+  it('Measurement Overlay: Shows gap between two selected rooms', async () => {
+    render(<Canvas2D />);
+
+    const room1 = useFloorplanStore.getState().addRoom({
+        name: 'Left',
+        length: 4,
+        width: 4,
+        type: 'living',
+        height: 2.4,
+        position: { x: 0, z: 0 }
+    });
+
+    const room2 = useFloorplanStore.getState().addRoom({
+        name: 'Right',
+        length: 4,
+        width: 4,
+        type: 'living',
+        height: 2.4,
+        position: { x: 6, z: 0 }
+    });
+    // Gap is 2 meters (4 to 6)
+
+    const room1Element = await screen.findByTestId(`room-shape-${room1.id}`);
+    const room2Element = await screen.findByTestId(`room-shape-${room2.id}`);
+
+    // Select both rooms
+    // Click room 1
+    fireEvent.click(room1Element);
+    // Shift+Click room 2
+    fireEvent.click(room2Element, { shiftKey: true });
+
+    // Expect to see gap measurement "2.00 m"
+    expect(screen.getByText('2.00 m')).toBeInTheDocument();
+  });
+
   it('Wall drawing: Draw walls -> create room from closed area', async () => {
       render(<Canvas2D />);
 

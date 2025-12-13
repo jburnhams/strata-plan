@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MeasurementOverlay } from '../../../../src/components/editor/MeasurementOverlay';
 import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
 import { useMeasurementStore } from '../../../../src/stores/measurementStore';
+import { useUIStore } from '../../../../src/stores/uiStore';
 import { Room } from '../../../../src/types';
 
 describe('MeasurementOverlay', () => {
@@ -24,6 +25,11 @@ describe('MeasurementOverlay', () => {
     useMeasurementStore.setState({
       activeMeasurement: null,
       measurements: []
+    });
+
+    useUIStore.setState({
+      showMeasurements: true,
+      zoomLevel: 1
     });
   });
 
@@ -88,7 +94,13 @@ describe('MeasurementOverlay', () => {
     expect(screen.getByText('2.50 m')).toBeInTheDocument();
   });
 
-  it('does not render if no room selected and no measurements', () => {
+  it('does not render if showMeasurements is false', () => {
+    useUIStore.setState({ showMeasurements: false });
+    useFloorplanStore.setState(state => ({
+      currentFloorplan: { ...state.currentFloorplan!, rooms: [mockRoom] },
+      selectedRoomIds: ['room-1']
+    }));
+
     const { container } = render(
       <svg>
         <MeasurementOverlay />
@@ -96,6 +108,27 @@ describe('MeasurementOverlay', () => {
     );
 
     expect(container.querySelector('g[data-testid="measurement-overlay"]')).toBeNull();
+  });
+
+  it('displays gap between two selected rooms', () => {
+    const room1 = { ...mockRoom, id: 'room-1', position: { x: 0, z: 0 }, length: 4, width: 4 }; // Ends at x=4
+    const room2 = { ...mockRoom, id: 'room-2', position: { x: 6, z: 0 }, length: 4, width: 4 }; // Starts at x=6, gap 2m
+
+    useFloorplanStore.setState(state => ({
+      currentFloorplan: { ...state.currentFloorplan!, rooms: [room1, room2] },
+      selectedRoomIds: ['room-1', 'room-2']
+    }));
+
+    render(
+      <svg>
+        <MeasurementOverlay />
+      </svg>
+    );
+
+    // Should verify gap is 2.00 m
+    // There are already texts for lengths/widths (4.00 m)
+    // We expect "2.00 m" to appear for the gap
+    expect(screen.getByText('2.00 m')).toBeInTheDocument();
   });
 
   it('renders measurements in feet if unit is feet', () => {
