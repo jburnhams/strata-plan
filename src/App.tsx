@@ -12,6 +12,7 @@ import { TooltipProvider } from './components/ui/tooltip';
 import { Toaster } from './components/ui/toaster';
 import { DialogProvider } from './components/dialogs/DialogProvider';
 import { KeyboardShortcutProvider } from './components/layout/KeyboardShortcutProvider';
+import { SettingsSync } from './components/layout/SettingsSync';
 import { useNavigation } from './hooks/useNavigation';
 // Placeholder components for new views
 import { LandingPage } from './components/pages/LandingPage';
@@ -31,6 +32,7 @@ function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="strata-plan-theme">
       <TooltipProvider>
+        <SettingsSync />
         {currentView === 'landing' && <LandingPage />}
         {currentView === 'projectList' && <ProjectListPage />}
 

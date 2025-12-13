@@ -270,7 +270,7 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Discards unsaved changes
   - Confirmation dialog before revert
 
-- [ ] **9.5.4** Keyboard shortcut:
+- [x] **9.5.4** Keyboard shortcut:
   - Ctrl+S triggers manual save
   - Toast: "Project saved"
 
@@ -415,7 +415,7 @@ This section implements client-side persistence using IndexedDB. All project dat
   - Return stored settings
   - Apply defaults for missing values
 
-- [ ] **9.8.4** Sync with UI store:
+- [x] **9.8.4** Sync with UI store:
   - Load settings into uiStore on app start
   - Save settings when uiStore changes
 
@@ -481,7 +481,7 @@ This section implements client-side persistence using IndexedDB. All project dat
   }
   ```
 
-- [ ] **9.10.2** Initialize on app start:
+- [x] **9.10.2** Initialize on app start:
   - Call in App.tsx or main.tsx
   - Load settings into stores
   - Handle initialization errors
@@ -499,7 +499,7 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Unit Tests
 
-- [ ] Service initializes correctly
+- [x] Service initializes correctly
 - [x] Hooks return loading states
 - [x] Errors propagate correctly
 
@@ -511,12 +511,12 @@ This section implements client-side persistence using IndexedDB. All project dat
 
 ### Test Cases
 
-- [ ] **Full lifecycle**: Create project → save → reload page (simulated) → load → verify data
-- [ ] **Auto-save**: Make changes → wait for auto-save → verify saved
-- [ ] **Multiple projects**: Save 3 projects → list → verify all present
-- [ ] **Delete cascade**: Delete project → verify removed from list
-- [ ] **Settings persistence**: Change settings → reload → verify restored
-- [ ] **Migration**: Load old version data → verify migrated correctly
+- [x] **Full lifecycle**: Create project → save → reload page (simulated) → load → verify data
+- [x] **Auto-save**: Make changes → wait for auto-save → verify saved
+- [x] **Multiple projects**: Save 3 projects → list → verify all present
+- [x] **Delete cascade**: Delete project → verify removed from list
+- [x] **Settings persistence**: Change settings → reload → verify restored
+- [x] **Migration**: Load old version data → verify migrated correctly
 
 Note: IndexedDB testing may require `fake-indexeddb` package for Jest.
 

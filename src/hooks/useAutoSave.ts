@@ -17,24 +17,24 @@ export const useAutoSave = (floorplan: Floorplan | null, enabled: boolean = true
 
   // We need to keep track of the latest floorplan ref for the save function
   const floorplanRef = useRef(floorplan);
+  const initialMount = useRef(true);
 
   useEffect(() => {
     floorplanRef.current = floorplan;
   }, [floorplan]);
 
   // Track if floorplan changes to mark as dirty
-  // We skip the first mount or if floorplan is null
   useEffect(() => {
     if (floorplan && enabled) {
-        setIsDirty(true);
-        setStatus('unsaved');
+        if (initialMount.current) {
+            initialMount.current = false;
+        } else {
+            setIsDirty(true);
+            setStatus('unsaved');
+        }
     }
   }, [floorplan, enabled]);
 
-  // Debounced floorplan for saving
-  // We don't use the returned value directly, but the effect uses the debounce delay
-  // Actually, useDebounce returns a value that updates after delay.
-  // So when debouncedFloorplan updates, we trigger save.
   const AUTO_SAVE_DELAY = 30000; // 30 seconds
   const debouncedFloorplan = useDebounce(floorplan, AUTO_SAVE_DELAY);
 
@@ -45,8 +45,6 @@ export const useAutoSave = (floorplan: Floorplan | null, enabled: boolean = true
       setStatus('saving');
       setError(null);
 
-      // Update updatedAt before saving? Usually done by store actions.
-      // We assume floorplan is up to date.
       await saveProject(floorplanRef.current);
 
       setStatus('saved');
@@ -57,11 +55,13 @@ export const useAutoSave = (floorplan: Floorplan | null, enabled: boolean = true
       setStatus('error');
       setError(err instanceof Error ? err : new Error('Unknown error during auto-save'));
     }
-  }, [enabled, isDirty]); // Dependencies
+  }, [enabled, isDirty]);
 
-  // Trigger save when debounced value changes
+  // Trigger save when debounced value catches up to current value and we are dirty
   useEffect(() => {
-    if (debouncedFloorplan && isDirty && enabled) {
+    // We check if debouncedFloorplan is the same instance as the current one.
+    // This implies that the debounce timer has finished for the LATEST change.
+    if (debouncedFloorplan && debouncedFloorplan === floorplanRef.current && isDirty && enabled) {
         save();
     }
   }, [debouncedFloorplan, isDirty, enabled, save]);
@@ -71,12 +71,10 @@ export const useAutoSave = (floorplan: Floorplan | null, enabled: boolean = true
       const handleBeforeUnload = (e: BeforeUnloadEvent) => {
           if (isDirty) {
               e.preventDefault();
-              // Assigning directly might fail in some test envs without mocks, but we mocked it.
-              // However, check if e is actually modifiable.
               try {
                   e.returnValue = '';
               } catch (err) {
-                  // Ignore assignment error in tests if property not writable
+                  // Ignore
               }
               return '';
           }
