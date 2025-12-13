@@ -131,4 +131,75 @@ describe('Import Validation', () => {
     expect(result.valid).toBe(false);
     expect(result.errors).toContain('Connection at index 0: Reference to non-existent room2Id room-99');
   });
+
+  it('should validate doors', () => {
+      const data = {
+          id: 'fp-1',
+          units: 'meters',
+          rooms: [{ id: 'room-1', length: 5, width: 4, height: 2.4, type: 'living', position: {x:0,z:0} }],
+          doors: [
+              {
+                  id: 'door-1',
+                  roomId: 'room-1',
+                  wallSide: 'north',
+                  position: 0.5,
+                  width: 0.9,
+                  height: 2.1,
+                  type: 'single',
+                  swing: 'inward',
+                  handleSide: 'left',
+                  isExterior: false
+              },
+              {
+                  id: 'door-2',
+                  roomId: 'room-99', // Invalid
+                  wallSide: 'north',
+                  position: 0.5,
+                  width: 0.9,
+                  height: 2.1
+              }
+          ],
+          windows: []
+      };
+
+      const result = validateImportedFloorplan(data);
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Door door-2: Reference to non-existent roomId room-99');
+  });
+
+  it('should validate windows', () => {
+      const data = {
+          id: 'fp-1',
+          units: 'meters',
+          rooms: [{ id: 'room-1', length: 5, width: 4, height: 2.4, type: 'living', position: {x:0,z:0} }],
+          doors: [],
+          windows: [
+              {
+                  id: 'win-1',
+                  roomId: 'room-1',
+                  wallSide: 'north',
+                  position: 0.5,
+                  width: 1.0,
+                  height: 1.0,
+                  sillHeight: 0.9,
+                  frameType: 'single',
+                  material: 'pvc',
+                  openingType: 'fixed'
+              },
+              {
+                  id: 'win-2',
+                  roomId: 'room-1',
+                  wallSide: 'north',
+                  position: 0.5,
+                  width: -1, // Invalid
+                  height: 1.0,
+                  sillHeight: 0.9
+              }
+          ]
+      };
+
+      const result = validateImportedFloorplan(data);
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Window win-2: Window width must be between 0.3m and 3.0m');
+  });
 });

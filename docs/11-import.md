@@ -24,7 +24,7 @@ The import system allows users to load floorplans from external files. JSON impo
 
 ### Subtasks
 
-- [ ] **11.1.1** Create import service interface:
+- [x] **11.1.1** Create import service interface:
   ```typescript
   interface ImportService {
     importJSON(file: File): Promise<ImportResult>
@@ -43,7 +43,7 @@ The import system allows users to load floorplans from external files. JSON impo
   type ImportFormat = 'json' | 'gltf' | 'unknown'
   ```
 
-- [ ] **11.1.2** Create unified import function:
+- [x] **11.1.2** Create unified import function:
   ```typescript
   async function importFloorplan(file: File): Promise<ImportResult>
   ```
@@ -51,7 +51,7 @@ The import system allows users to load floorplans from external files. JSON impo
   - Route to appropriate parser
   - Validate result
 
-- [ ] **11.1.3** File reading utilities:
+- [x] **11.1.3** File reading utilities:
   ```typescript
   async function readFileAsText(file: File): Promise<string>
   async function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer>
@@ -59,9 +59,9 @@ The import system allows users to load floorplans from external files. JSON impo
 
 ### Unit Tests
 
-- [ ] Format detection works by extension
-- [ ] File reading returns content
-- [ ] Unknown format handled gracefully
+- [x] Format detection works by extension
+- [x] File reading returns content
+- [x] Unknown format handled gracefully
 
 ---
 
@@ -71,7 +71,7 @@ The import system allows users to load floorplans from external files. JSON impo
 
 ### Subtasks
 
-- [ ] **11.2.1** Implement JSON import:
+- [x] **11.2.1** Implement JSON import:
   ```typescript
   async function importFromJSON(file: File): Promise<ImportResult>
   ```
@@ -80,12 +80,12 @@ The import system allows users to load floorplans from external files. JSON impo
   - Extract floorplan data
   - Validate structure
 
-- [ ] **11.2.2** Handle export wrapper:
+- [x] **11.2.2** Handle export wrapper:
   - Check for `exportedFrom` metadata
   - Extract `floorplan` property if wrapped
   - Handle bare floorplan object
 
-- [ ] **11.2.3** Validate imported data:
+- [x] **11.2.3** Validate imported data:
   ```typescript
   function validateFloorplanData(data: unknown): ValidationResult
   ```
@@ -94,27 +94,27 @@ The import system allows users to load floorplans from external files. JSON impo
   - Check value ranges
   - Return list of issues
 
-- [ ] **11.2.4** Handle version differences:
+- [x] **11.2.4** Handle version differences:
   - Check schemaVersion
   - Run migrations if needed (from Section 09)
   - Warn if version is newer than app
 
-- [ ] **11.2.5** Generate new IDs:
+- [x] **11.2.5** Generate new IDs:
   - Option to regenerate all UUIDs
   - Prevents ID conflicts with existing projects
 
-- [ ] **11.2.6** Error handling:
+- [x] **11.2.6** Error handling:
   - Invalid JSON syntax → "Invalid JSON file"
   - Missing required fields → List missing fields
   - Wrong data types → "Expected number for length, got string"
 
 ### Unit Tests
 
-- [ ] Valid JSON imports successfully
-- [ ] Invalid JSON returns error
-- [ ] Missing fields detected
-- [ ] Version migration triggered
-- [ ] New IDs generated when requested
+- [x] Valid JSON imports successfully
+- [x] Invalid JSON returns error
+- [x] Missing fields detected
+- [x] Version migration triggered
+- [x] New IDs generated when requested
 
 ---
 
@@ -124,7 +124,7 @@ The import system allows users to load floorplans from external files. JSON impo
 
 ### Subtasks
 
-- [ ] **11.3.1** Create comprehensive validator:
+- [x] **11.3.1** Create comprehensive validator:
   ```typescript
   function validateImportedFloorplan(data: unknown): ValidationResult {
     const errors: string[] = []
@@ -134,7 +134,7 @@ The import system allows users to load floorplans from external files. JSON impo
   }
   ```
 
-- [ ] **11.3.2** Validate floorplan structure:
+- [x] **11.3.2** Validate floorplan structure:
   - `id`: string, required
   - `name`: string, required
   - `units`: 'meters' | 'feet', required
@@ -142,33 +142,33 @@ The import system allows users to load floorplans from external files. JSON impo
   - `createdAt`: valid date string
   - `updatedAt`: valid date string
 
-- [ ] **11.3.3** Validate each room:
+- [x] **11.3.3** Validate each room:
   - Required: id, name, length, width, height, type, position
   - length, width, height: positive numbers
   - type: valid RoomType value
   - position: object with x, z numbers
 
-- [ ] **11.3.4** Validate doors and windows:
+- [x] **11.3.4** Validate doors and windows:
   - Required fields present
   - Position in valid range (0-1)
   - Dimensions positive
 
-- [ ] **11.3.5** Validate connections:
+- [x] **11.3.5** Validate connections:
   - Referenced room IDs exist
   - Wall sides valid
 
-- [ ] **11.3.6** Check for data consistency:
+- [x] **11.3.6** Check for data consistency:
   - No duplicate IDs
   - All referenced IDs exist
   - No overlapping rooms (warning)
 
 ### Unit Tests
 
-- [ ] Valid data passes validation
-- [ ] Missing field detected
-- [ ] Invalid type detected
-- [ ] Duplicate ID detected
-- [ ] Orphan reference detected
+- [x] Valid data passes validation
+- [x] Missing field detected
+- [x] Invalid type detected
+- [x] Duplicate ID detected
+- [x] Orphan reference detected
 
 ---
 
@@ -220,12 +220,12 @@ The import system allows users to load floorplans from external files. JSON impo
 
 ### Subtasks
 
-- [ ] **11.5.1** Create import dialog:
+- [x] **11.5.1** Create import dialog:
   - Opens from File menu or Import button
   - Drag-and-drop zone
   - File browser button
 
-- [ ] **11.5.2** Drag-and-drop zone:
+- [x] **11.5.2** Drag-and-drop zone:
   ```typescript
   interface DropZoneProps {
     onFileDrop: (file: File) => void
@@ -236,38 +236,38 @@ The import system allows users to load floorplans from external files. JSON impo
   - Shows accepted file types
   - Handles multiple files (use first)
 
-- [ ] **11.5.3** File browser:
+- [x] **11.5.3** File browser:
   - Button to open file picker
   - Filter by accepted types (.json, .gltf, .glb)
 
-- [ ] **11.5.4** File preview:
+- [x] **11.5.4** File preview:
   - Show filename and size
   - Detect format
   - Show format icon
 
-- [ ] **11.5.5** Validation display:
+- [x] **11.5.5** Validation display:
   - Show validation errors in red
   - Show warnings in yellow
   - List all issues
 
-- [ ] **11.5.6** Import options:
+- [x] **11.5.6** Import options:
   - "Replace current project" vs "Create new project"
   - Checkbox: "Generate new IDs"
 
-- [ ] **11.5.7** Import button:
+- [x] **11.5.7** Import button:
   - Disabled until valid file selected
   - Shows progress during import
   - "Import" text changes to "Importing..."
 
-- [ ] **11.5.8** Confirmation for replace:
+- [x] **11.5.8** Confirmation for replace:
   - If replacing, confirm: "This will replace your current project"
 
 ### Unit Tests
 
-- [ ] Drop zone accepts valid files
-- [ ] Drop zone rejects invalid types
-- [ ] Validation errors displayed
-- [ ] Import button disabled when invalid
+- [x] Drop zone accepts valid files
+- [x] Drop zone rejects invalid types
+- [x] Validation errors displayed
+- [x] Import button disabled when invalid
 
 ---
 
@@ -277,7 +277,7 @@ The import system allows users to load floorplans from external files. JSON impo
 
 ### Subtasks
 
-- [ ] **11.6.1** Create import hook:
+- [x] **11.6.1** Create import hook:
   ```typescript
   function useImport(): {
     importFile: (file: File, options?: ImportOptions) => Promise<ImportResult>
@@ -288,18 +288,18 @@ The import system allows users to load floorplans from external files. JSON impo
   }
   ```
 
-- [ ] **11.6.2** Handle import flow:
+- [x] **11.6.2** Handle import flow:
   - Validate file
   - Parse content
   - Validate data
   - Create/replace project
   - Update store
 
-- [ ] **11.6.3** Progress tracking:
+- [x] **11.6.3** Progress tracking:
   - Report progress for large files
   - Stages: reading, parsing, validating, saving
 
-- [ ] **11.6.4** Error handling:
+- [x] **11.6.4** Error handling:
   - File read errors
   - Parse errors
   - Validation errors
@@ -307,9 +307,9 @@ The import system allows users to load floorplans from external files. JSON impo
 
 ### Unit Tests
 
-- [ ] Import hook processes file
-- [ ] Progress updates during import
-- [ ] Errors captured and reported
+- [x] Import hook processes file
+- [x] Progress updates during import
+- [x] Errors captured and reported
 
 ---
 
@@ -351,7 +351,7 @@ The import system allows users to load floorplans from external files. JSON impo
 
 ### Subtasks
 
-- [ ] **11.8.1** Track import history:
+- [x] **11.8.1** Track import history:
   - Store last 10 import filenames
   - Store import timestamps
   - Stored in user settings
@@ -363,9 +363,9 @@ The import system allows users to load floorplans from external files. JSON impo
 
 ### Unit Tests
 
-- [ ] Import history updated on import
-- [ ] History limited to 10 entries
-- [ ] Oldest entries removed
+- [x] Import history updated on import
+- [x] History limited to 10 entries
+- [x] Oldest entries removed
 
 ---
 
@@ -375,13 +375,13 @@ The import system allows users to load floorplans from external files. JSON impo
 
 ### Subtasks
 
-- [ ] **11.9.1** Create sample project files:
+- [x] **11.9.1** Create sample project files:
   - `studio-apartment.json`: Simple 1-room
   - `two-bedroom.json`: 5-room layout
   - `office-space.json`: Open floor plan
   - Store in `public/samples/`
 
-- [ ] **11.9.2** Load sample projects:
+- [x] **11.9.2** Load sample projects:
   ```typescript
   async function loadSampleProject(sampleId: string): Promise<Floorplan>
   ```

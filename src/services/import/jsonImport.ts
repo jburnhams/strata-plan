@@ -2,6 +2,7 @@ import { Floorplan } from '../../types';
 import { ImportResult } from './index';
 import { readFileAsText } from './fileReader';
 import { validateImportedFloorplan } from './validation';
+import { migrateData } from '../storage/migrations';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -32,8 +33,17 @@ export async function importFromJSON(
     // If the file was exported by StrataPlan, it might be wrapped in an object containing metadata
     // Check if there is a 'floorplan' property at the root
     if (data.floorplan && typeof data.floorplan === 'object') {
-        // We could also check data.exportedFrom or data.version here if needed
         data = data.floorplan;
+    }
+
+    // Run migrations if needed
+    try {
+      data = migrateData(data);
+    } catch (e) {
+      return {
+        success: false,
+        errors: [`Migration failed: ${e instanceof Error ? e.message : 'Unknown error'}`]
+      };
     }
 
     const validation = validateImportedFloorplan(data);
@@ -47,6 +57,10 @@ export async function importFromJSON(
     }
 
     let floorplan = data as Floorplan;
+
+    // Ensure arrays exist
+    if (!floorplan.doors) floorplan.doors = [];
+    if (!floorplan.windows) floorplan.windows = [];
 
     // Regenerate IDs if requested
     if (options.generateNewIds) {
@@ -85,20 +99,27 @@ function regenerateIds(floorplan: Floorplan): Floorplan {
     const newId = uuidv4();
     idMap.set(room.id, newId);
     room.id = newId;
-
-    // Regenerate door/window IDs
-    // The Room type doesn't have doors/windows, but if they are nested in import (legacy), we handle it
-    if ((room as any).doors) {
-      (room as any).doors.forEach((door: any) => {
-        door.id = uuidv4();
-      });
-    }
-    if ((room as any).windows) {
-      (room as any).windows.forEach((window: any) => {
-        window.id = uuidv4();
-      });
-    }
   });
+
+  // Update doors with new room IDs and generate new door IDs
+  if (newFloorplan.doors) {
+    newFloorplan.doors.forEach(door => {
+      door.id = uuidv4();
+      if (idMap.has(door.roomId)) {
+        door.roomId = idMap.get(door.roomId)!;
+      }
+    });
+  }
+
+  // Update windows with new room IDs and generate new window IDs
+  if (newFloorplan.windows) {
+    newFloorplan.windows.forEach(window => {
+      window.id = uuidv4();
+      if (idMap.has(window.roomId)) {
+        window.roomId = idMap.get(window.roomId)!;
+      }
+    });
+  }
 
   // Update connections with new room IDs
   newFloorplan.connections.forEach(conn => {
