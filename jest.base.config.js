@@ -17,7 +17,7 @@ const baseConfig = {
     ],
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(uuid|lucide-react|three|@react-three/fiber|@react-three/drei)/)',
+    'node_modules/(?!(uuid|lucide-react|three|@react-three/fiber|@react-three/drei|jspdf)/)',
   ],
   setupFilesAfterEnv: ['<rootDir>/tests/utils/setup.ts'],
   maxWorkers: 2,

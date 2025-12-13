@@ -1,6 +1,7 @@
 import { Floorplan } from '../../types/floorplan';
 import { exportToJSON } from './jsonExport';
 import { exportToGLTF } from './gltfExport';
+import { exportToPDF } from './pdfExport';
 import { GLTFExportOptions, PDFExportOptions, ExportOptions } from './types';
 
 export * from './types';
@@ -53,7 +54,7 @@ export async function exportFloorplan(
 ): Promise<void> {
   let blob: Blob;
 
-  let filenameFormat = format;
+  let filenameFormat: string = format;
 
   switch (format) {
     case 'json':
@@ -68,11 +69,12 @@ export async function exportFloorplan(
       if (gltfOptions?.binary === false) {
         filenameFormat = 'gltf';
       } else {
-        filenameFormat = 'glb' as ExportFormat;
+        filenameFormat = 'glb';
       }
       break;
     case 'pdf':
-      throw new Error('PDF export not implemented yet');
+      blob = await exportToPDF(floorplan, options as PDFExportOptions);
+      break;
     default:
       throw new Error(`Unsupported export format: ${format}`);
   }
