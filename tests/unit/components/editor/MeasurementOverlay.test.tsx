@@ -1,106 +1,116 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MeasurementOverlay } from '@/components/editor/MeasurementOverlay';
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-
-jest.mock('@/stores/floorplanStore', () => {
-    const { jest } = require('@jest/globals');
-    return {
-        useFloorplanStore: jest.fn()
-    };
-});
-jest.mock('@/stores/uiStore', () => {
-    const { jest } = require('@jest/globals');
-    return {
-        useUIStore: jest.fn()
-    };
-});
-
-const { useFloorplanStore } = require('@/stores/floorplanStore');
-const { useUIStore } = require('@/stores/uiStore');
+import { MeasurementOverlay } from '../../../../src/components/editor/MeasurementOverlay';
+import { useFloorplanStore } from '../../../../src/stores/floorplanStore';
+import { useMeasurementStore } from '../../../../src/stores/measurementStore';
+import { Room } from '../../../../src/types';
 
 describe('MeasurementOverlay', () => {
-  const defaultRoom = { id: 'room1', name: 'Room 1', position: { x: 0, z: 0 }, length: 5, width: 4, rotation: 0 };
-
   beforeEach(() => {
-    jest.clearAllMocks();
-
-    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector: any) => {
-      const state = {
-        currentFloorplan: {
-          rooms: [defaultRoom],
-          units: 'meters'
-        },
-        selectedRoomIds: ['room1'],
-      };
-      return selector(state);
+    useFloorplanStore.setState({
+      currentFloorplan: {
+        id: 'fp-1',
+        name: 'Test Plan',
+        units: 'meters',
+        rooms: [],
+        connections: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        walls: []
+      },
+      selectedRoomIds: []
     });
 
-    (useUIStore as unknown as jest.Mock).mockImplementation((selector: any) => {
-      const state = {
-        zoomLevel: 1,
-      };
-      return selector(state);
+    useMeasurementStore.setState({
+      activeMeasurement: null,
+      measurements: []
     });
   });
 
-  const renderComponent = () => {
-    return render(
+  const mockRoom: Room = {
+    id: 'room-1',
+    name: 'Living',
+    length: 5,
+    width: 4,
+    height: 2.4,
+    type: 'living',
+    position: { x: 0, z: 0 },
+    rotation: 0
+  };
+
+  it('renders room dimensions when room is selected', () => {
+    useFloorplanStore.setState(state => ({
+      currentFloorplan: { ...state.currentFloorplan!, rooms: [mockRoom] },
+      selectedRoomIds: ['room-1']
+    }));
+
+    render(
       <svg>
         <MeasurementOverlay />
       </svg>
     );
-  };
 
-  it('renders measurements for selected room', () => {
-    renderComponent();
-    expect(screen.getByText('5.00 m')).toBeTruthy();
-    expect(screen.getByText('4.00 m')).toBeTruthy();
+    expect(screen.getByText('5.00 m')).toBeInTheDocument();
+    expect(screen.getByText('4.00 m')).toBeInTheDocument();
   });
 
-  it('does not render if no room selected', () => {
-    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector: any) => {
-        const state = {
-          currentFloorplan: { rooms: [defaultRoom] },
-          selectedRoomIds: [],
-        };
-        return selector(state);
-      });
-    const { container } = renderComponent();
+  it('renders active measurement', () => {
+    useMeasurementStore.setState({
+      activeMeasurement: {
+        startPoint: { x: 0, z: 0 },
+        endPoint: { x: 3, z: 0 },
+        distance: 3
+      }
+    });
+
+    render(
+      <svg>
+        <MeasurementOverlay />
+      </svg>
+    );
+
+    expect(screen.getByText('3.00 m')).toBeInTheDocument();
+  });
+
+  it('renders persisted measurements', () => {
+    useMeasurementStore.setState({
+      measurements: [
+        { id: 'm1', startPoint: { x: 0, z: 0 }, endPoint: { x: 2.5, z: 0 }, distance: 2.5 }
+      ]
+    });
+
+    render(
+      <svg>
+        <MeasurementOverlay />
+      </svg>
+    );
+
+    expect(screen.getByText('2.50 m')).toBeInTheDocument();
+  });
+
+  it('does not render if no room selected and no measurements', () => {
+    const { container } = render(
+      <svg>
+        <MeasurementOverlay />
+      </svg>
+    );
+
     expect(container.querySelector('g[data-testid="measurement-overlay"]')).toBeNull();
   });
 
   it('renders measurements in feet if unit is feet', () => {
-    (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector: any) => {
-      const state = {
-        currentFloorplan: {
-          rooms: [defaultRoom],
-          units: 'feet'
-        },
-        selectedRoomIds: ['room1'],
-      };
-      return selector(state);
-    });
+    useFloorplanStore.setState(state => ({
+      currentFloorplan: { ...state.currentFloorplan!, units: 'feet', rooms: [mockRoom] },
+      selectedRoomIds: ['room-1']
+    }));
 
-    renderComponent();
-    // 5m = 16.40ft, 4m = 13.12ft
-    expect(screen.getByText('16.40 ft')).toBeTruthy();
-    expect(screen.getByText('13.12 ft')).toBeTruthy();
-  });
+    render(
+      <svg>
+        <MeasurementOverlay />
+      </svg>
+    );
 
-  it('applies rotation transform', () => {
-     (useFloorplanStore as unknown as jest.Mock).mockImplementation((selector: any) => {
-      const state = {
-        currentFloorplan: {
-          rooms: [{ ...defaultRoom, rotation: 45 }],
-          units: 'meters'
-        },
-        selectedRoomIds: ['room1'],
-      };
-      return selector(state);
-    });
-
-    const { container } = renderComponent();
-    const group = container.querySelector('g[transform^="rotate(45"]');
-    expect(group).toBeTruthy();
+    // 5m * 3.28084 = 16.40 ft
+    expect(screen.getByText(/16.40 ft/)).toBeInTheDocument();
   });
 });

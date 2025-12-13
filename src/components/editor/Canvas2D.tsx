@@ -14,6 +14,7 @@ import { EditorToolbar } from './EditorToolbar';
 import { Position2D } from '../../types';
 import { useKeyboardSelection } from '../../hooks/useKeyboardSelection';
 import { useWallDrawing } from '../../hooks/useWallDrawing';
+import { useMeasurementTool } from '../../hooks/useMeasurementTool';
 import { useToolStore } from '../../stores/toolStore';
 
 export function Canvas2D() {
@@ -24,7 +25,17 @@ export function Canvas2D() {
   useKeyboardSelection();
 
   // Wall Drawing Hook
-  const { isDrawing, startPoint, currentPoint, handleMouseDown } = useWallDrawing();
+  const wallDrawing = useWallDrawing();
+  // Measurement Tool Hook
+  const measurementTool = useMeasurementTool();
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (activeTool === 'wall') {
+      wallDrawing.handleMouseDown(e);
+    } else if (activeTool === 'measure') {
+      measurementTool.handleMouseDown(e);
+    }
+  };
 
   return (
     <div className="flex-1 h-full flex flex-col relative" data-testid="canvas-2d">
@@ -39,7 +50,11 @@ export function Canvas2D() {
           <SnapIndicator cursorPosition={cursorPosition} />
           <RoomLayer />
           <RoomCreationOverlay />
-          <WallPreview isDrawing={isDrawing} startPoint={startPoint} currentPoint={currentPoint} />
+          <WallPreview
+            isDrawing={wallDrawing.isDrawing}
+            startPoint={wallDrawing.startPoint}
+            currentPoint={wallDrawing.currentPoint}
+          />
           <DoorTool cursorPosition={cursorPosition} />
           <WindowTool cursorPosition={cursorPosition} />
           <SelectionOverlay />

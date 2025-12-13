@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RoomShape } from '../../../../src/components/editor/RoomShape';
-import { Room, RoomType } from '../../../../src/types';
+import { Room } from '../../../../src/types';
 import { DEFAULT_WALL_THICKNESS } from '../../../../src/constants/defaults';
 
 describe('RoomShape', () => {
@@ -117,5 +117,43 @@ describe('RoomShape', () => {
       const group = screen.getByTestId('room-shape-room-1');
       // Center should be 2.5, 2.0
       expect(group).toHaveAttribute('transform', 'rotate(45, 2.5, 2)');
+  });
+
+  it('renders polygon for non-rectangular rooms', () => {
+    // L-shaped room vertices relative to position (0,0)
+    // 0,0 -> 4,0 -> 4,2 -> 2,2 -> 2,4 -> 0,4 -> 0,0
+    // Total area: 4*2 + 2*2 = 8 + 4 = 12 m^2
+    const polygonRoom: Room = {
+      ...mockRoom,
+      vertices: [
+        { x: 0, z: 0 },
+        { x: 4, z: 0 },
+        { x: 4, z: 2 },
+        { x: 2, z: 2 },
+        { x: 2, z: 4 },
+        { x: 0, z: 4 },
+      ],
+      length: 4,
+      width: 4,
+    };
+
+    render(
+      <svg>
+        <RoomShape {...defaultProps} room={polygonRoom} />
+      </svg>
+    );
+
+    const group = screen.getByTestId('room-shape-room-1');
+    const polygon = group.querySelector('polygon');
+    const rect = group.querySelector('rect');
+
+    expect(polygon).toBeInTheDocument();
+    expect(rect).not.toBeInTheDocument();
+
+    const expectedPoints = "0,0 4,0 4,2 2,2 2,4 0,4";
+    expect(polygon).toHaveAttribute('points', expectedPoints);
+
+    // Verify area calculation
+    expect(screen.getByText('12.0 m²')).toBeInTheDocument();
   });
 });
