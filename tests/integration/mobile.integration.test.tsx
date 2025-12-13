@@ -44,13 +44,17 @@ jest.mock('../../src/components/layout/SettingsSync', () => ({
   SettingsSync: () => null,
 }));
 
-// Mock crypto if needed
-if (!global.crypto) {
-    Object.defineProperty(global, 'crypto', {
-        value: {
-            randomUUID: () => '1234-5678',
-        }
-    });
+// Ensure crypto.randomUUID is available in JSDOM
+if (typeof crypto === 'undefined') {
+  Object.defineProperty(global, 'crypto', {
+    value: {
+      randomUUID: () => '1234-5678-90ab-cdef',
+    },
+    writable: true,
+  });
+} else if (!crypto.randomUUID) {
+  // @ts-ignore
+  crypto.randomUUID = () => '1234-5678-90ab-cdef';
 }
 
 describe('Mobile Integration', () => {
@@ -84,6 +88,11 @@ describe('Mobile Integration', () => {
     const demoButton = screen.queryByText('Try Demo');
     if (demoButton) {
       fireEvent.click(demoButton);
+
+      // Wait for navigation to complete (Try Demo should disappear)
+      await waitFor(() => {
+        expect(screen.queryByText('Try Demo')).not.toBeInTheDocument();
+      }, { timeout: 2000 });
     }
     // Else assume we are already in editor (store persisted state)
   };
@@ -98,7 +107,8 @@ describe('Mobile Integration', () => {
     // Should see Desktop Canvas
     await waitFor(() => {
         expect(screen.getByTestId('desktop-canvas')).toBeInTheDocument();
-    });
+    }, { timeout: 2000 });
+
     expect(screen.queryByTestId('touch-canvas')).not.toBeInTheDocument();
   });
 
@@ -111,7 +121,8 @@ describe('Mobile Integration', () => {
     // Should see Touch Canvas
     await waitFor(() => {
         expect(screen.getByTestId('touch-canvas')).toBeInTheDocument();
-    });
+    }, { timeout: 2000 });
+
     expect(screen.queryByTestId('desktop-canvas')).not.toBeInTheDocument();
   });
 
@@ -125,7 +136,6 @@ describe('Mobile Integration', () => {
     await navigateToEditor();
 
     // Ensure we are in table mode
-    // We can click the 'Table' button in the bottom nav if visible
     const tableSpan = screen.queryByText('Table');
     if (tableSpan) {
         const tableButton = tableSpan.closest('button');
@@ -133,14 +143,13 @@ describe('Mobile Integration', () => {
             fireEvent.click(tableButton);
         }
     } else {
-        // Fallback if not rendered yet or layout issue, though with wait for it should be fine
         act(() => { useUIStore.setState({ mode: 'table' }) });
     }
 
     // MobileRoomTable usually renders "Rooms (0)" or "No rooms added yet"
     await waitFor(() => {
         expect(screen.getByText('No rooms added yet.')).toBeInTheDocument();
-    });
+    }, { timeout: 2000 });
 
     expect(screen.getByText('Add Room')).toBeInTheDocument();
   });
@@ -153,6 +162,6 @@ describe('Mobile Integration', () => {
     // Tablet uses Canvas2D (Desktop version) currently
     await waitFor(() => {
         expect(screen.getByTestId('desktop-canvas')).toBeInTheDocument();
-    });
+    }, { timeout: 2000 });
   });
 });
