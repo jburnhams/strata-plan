@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import { createRoomMaterial } from '@/services/geometry3d/materials';
+import { createRoomMaterial, clearMaterialCache } from '@/services/geometry3d/materials';
 import { Room } from '@/types';
+import { FLOOR_MATERIALS, WALL_MATERIALS, CEILING_MATERIALS } from '@/constants/materialConfigs';
 
 describe('materials', () => {
   const mockRoom: Room = {
@@ -15,6 +16,10 @@ describe('materials', () => {
     doors: [],
     windows: []
   };
+
+  beforeEach(() => {
+    clearMaterialCache();
+  });
 
   it('creates standard materials by default', () => {
     const materials = createRoomMaterial(mockRoom);
@@ -32,27 +37,47 @@ describe('materials', () => {
     expect(materials.ceiling).toBeInstanceOf(THREE.MeshBasicMaterial);
   });
 
-  it('uses room color for floor', () => {
-    const coloredRoom = { ...mockRoom, color: '#ff0000' };
-    const materials = createRoomMaterial(coloredRoom);
+  it('uses specific material configuration when defined', () => {
+    const roomWithMaterials: Room = {
+      ...mockRoom,
+      floorMaterial: 'tile-ceramic',
+      wallMaterial: 'brick-red',
+      ceilingMaterial: 'wood-beam'
+    };
+
+    const materials = createRoomMaterial(roomWithMaterials);
 
     const floorMat = materials.floor as THREE.MeshStandardMaterial;
-    expect(floorMat.color.getHexString()).toBe('ff0000');
+    const wallMat = materials.walls as THREE.MeshStandardMaterial;
+    const ceilingMat = materials.ceiling as THREE.MeshStandardMaterial;
+
+    // Check colors match the config
+    expect('#' + floorMat.color.getHexString()).toBe(FLOOR_MATERIALS['tile-ceramic'].defaultColor.toLowerCase());
+    expect('#' + wallMat.color.getHexString()).toBe(WALL_MATERIALS['brick-red'].defaultColor.toLowerCase());
+    expect('#' + ceilingMat.color.getHexString()).toBe(CEILING_MATERIALS['wood-beam'].defaultColor.toLowerCase());
   });
 
-  it('derives wall color from room color', () => {
-    const coloredRoom = { ...mockRoom, color: '#ff0000' };
-    const materials = createRoomMaterial(coloredRoom);
+  it('prioritizes custom colors over material configuration', () => {
+    const customColor = '#123456';
+    const roomWithCustomColors: Room = {
+      ...mockRoom,
+      floorMaterial: 'tile-ceramic',
+      customFloorColor: customColor,
+      wallMaterial: 'brick-red',
+      customWallColor: customColor,
+      ceilingMaterial: 'wood-beam',
+      customCeilingColor: customColor
+    };
 
+    const materials = createRoomMaterial(roomWithCustomColors);
+
+    const floorMat = materials.floor as THREE.MeshStandardMaterial;
     const wallMat = materials.walls as THREE.MeshStandardMaterial;
-    // Should be lighter than pure red
-    // We expect the color to change. The exact value depends on Three.js impl
-    expect(wallMat.color.getHexString()).not.toBe('ff0000');
-    // Verify it is still somewhat red (Hue 0)
-    const hsl = { h: 0, s: 0, l: 0 };
-    wallMat.color.getHSL(hsl);
-    expect(hsl.h).toBeCloseTo(0, 1); // Hue should be 0 (red)
-    expect(hsl.l).toBeGreaterThan(0.5); // Lightness should be > 0.5 (original red)
+    const ceilingMat = materials.ceiling as THREE.MeshStandardMaterial;
+
+    expect(floorMat.color.getHexString()).toBe(customColor.replace('#', ''));
+    expect(wallMat.color.getHexString()).toBe(customColor.replace('#', ''));
+    expect(ceilingMat.color.getHexString()).toBe(customColor.replace('#', ''));
   });
 
   it('applies transparency to walls', () => {
@@ -63,15 +88,25 @@ describe('materials', () => {
     expect(wallMat.opacity).toBe(0.5);
 
     // Floor and ceiling should remain opaque
-    expect(materials.floor.transparent).toBe(false); // Default false for standard material unless specified
+    expect(materials.floor.transparent).toBe(false);
     expect((materials.floor as THREE.MeshStandardMaterial).opacity).toBe(1);
   });
 
-  it('handles default opacity correctly', () => {
-     const materials = createRoomMaterial(mockRoom, { quality: 'standard' });
-     const wallMat = materials.walls as THREE.MeshStandardMaterial;
-     // transparent defaults to false in threejs unless set
-     expect(wallMat.transparent).toBe(false);
-     expect(wallMat.opacity).toBe(1);
+  it('caches materials and returns the same instance for identical configurations', () => {
+    const materials1 = createRoomMaterial(mockRoom);
+    const materials2 = createRoomMaterial(mockRoom);
+
+    expect(materials1.floor).toBe(materials2.floor);
+    expect(materials1.walls).toBe(materials2.walls);
+    expect(materials1.ceiling).toBe(materials2.ceiling);
+  });
+
+  it('returns different materials for different configurations', () => {
+    const materials1 = createRoomMaterial(mockRoom);
+
+    const otherRoom: Room = { ...mockRoom, floorMaterial: 'carpet' };
+    const materials2 = createRoomMaterial(otherRoom);
+
+    expect(materials1.floor).not.toBe(materials2.floor);
   });
 });

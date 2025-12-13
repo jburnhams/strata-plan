@@ -5,3 +5,4 @@ export const DIALOG_DELETE_PROJECT = 'delete-project';
 export const DIALOG_EXPORT = 'export';
 export const DIALOG_IMPORT = 'import';
 export const DIALOG_KEYBOARD_SHORTCUTS = 'keyboard-shortcuts';
+export const DIALOG_COLOR_SCHEME = 'color-scheme';

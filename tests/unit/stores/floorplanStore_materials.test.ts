@@ -2,6 +2,7 @@ import { act } from '@testing-library/react';
 import { useFloorplanStore } from '@/stores/floorplanStore';
 import { ROOM_TYPE_MATERIALS } from '@/constants/defaults';
 import { RoomType } from '@/types/room';
+import { ColorScheme } from '@/services/colorSchemes';
 
 // Mock generateUUID
 jest.mock('@/services/geometry', () => ({
@@ -165,5 +166,67 @@ describe('floorplanStore Material Actions', () => {
     });
     room = useFloorplanStore.getState().currentFloorplan?.rooms.find(r => r.id === roomId);
     expect(room?.customCeilingColor).toBe('#abcdef');
+  });
+
+  it('should apply color scheme to all rooms', () => {
+    // Add two rooms
+    act(() => {
+      useFloorplanStore.getState().addRoom({
+        name: 'Room 1',
+        length: 4, width: 4, height: 2.7,
+        type: 'bedroom',
+        position: { x: 0, z: 0 }, rotation: 0,
+        customFloorColor: '#ffffff' // Setup conflict
+      });
+      useFloorplanStore.getState().addRoom({
+        name: 'Room 2',
+        length: 4, width: 4, height: 2.7,
+        type: 'kitchen',
+        position: { x: 5, z: 0 }, rotation: 0
+      });
+    });
+
+    const mockScheme: ColorScheme = {
+      id: 'test-scheme',
+      name: 'Test Scheme',
+      roomTypeColors: {
+        bedroom: '#111111',
+        kitchen: '#222222',
+        bathroom: '#333333',
+        living: '#444444',
+        dining: '#555555',
+        office: '#666666',
+        hallway: '#777777',
+        closet: '#888888',
+        garage: '#999999',
+        generic: '#aaaaaa',
+        other: '#bbbbbb'
+      },
+      defaultFloorMaterial: 'concrete',
+      defaultWallMaterial: 'brick-white'
+    };
+
+    act(() => {
+      useFloorplanStore.getState().applyColorScheme(mockScheme);
+    });
+
+    const rooms = useFloorplanStore.getState().currentFloorplan?.rooms!;
+    expect(rooms).toHaveLength(2);
+
+    const bedroom = rooms.find(r => r.type === 'bedroom')!;
+    const kitchen = rooms.find(r => r.type === 'kitchen')!;
+
+    // Check materials
+    expect(bedroom.floorMaterial).toBe('concrete');
+    expect(bedroom.wallMaterial).toBe('brick-white');
+    expect(kitchen.floorMaterial).toBe('concrete');
+    expect(kitchen.wallMaterial).toBe('brick-white');
+
+    // Check colors
+    expect(bedroom.color).toBe('#111111');
+    expect(kitchen.color).toBe('#222222');
+
+    // Check custom colors cleared
+    expect(bedroom.customFloorColor).toBeUndefined();
   });
 });

@@ -3,6 +3,7 @@ import { useFloorplanStore } from '../../src/stores/floorplanStore';
 import { ROOM_TYPE_MATERIALS } from '../../src/constants/defaults';
 import { FloorMaterial, WallMaterial } from '../../src/types/materials';
 import { Room } from '../../src/types/room';
+import { COLOR_SCHEMES } from '../../src/services/colorSchemes';
 
 // Mock storage to prevent IndexedDB calls
 jest.mock('../../src/services/storage', () => ({
@@ -91,5 +92,47 @@ describe('Materials Integration', () => {
     const updatedRoom = result.current.getRoomById(room!.id);
     expect(updatedRoom?.floorMaterial).toBe('carpet');
     expect(updatedRoom?.customFloorColor).toBeUndefined();
+  });
+
+  it('should apply color scheme to entire floorplan', () => {
+    const { result } = renderHook(() => useFloorplanStore());
+
+    // 1. Create rooms with different types
+    act(() => {
+      result.current.addRoom({
+        name: 'Living',
+        length: 5, width: 4, height: 2.7,
+        type: 'living',
+        position: { x: 0, z: 0 }, rotation: 0,
+      });
+      result.current.addRoom({
+        name: 'Kitchen',
+        length: 4, width: 3, height: 2.7,
+        type: 'kitchen',
+        position: { x: 5, z: 0 }, rotation: 0,
+        customFloorColor: '#123456' // Conflict to be resolved
+      });
+    });
+
+    // 2. Apply Modern Scheme
+    const modernScheme = COLOR_SCHEMES.find(s => s.id === 'modern')!;
+    act(() => {
+      result.current.applyColorScheme(modernScheme);
+    });
+
+    const rooms = result.current.currentFloorplan?.rooms!;
+    const living = rooms.find(r => r.type === 'living')!;
+    const kitchen = rooms.find(r => r.type === 'kitchen')!;
+
+    // 3. Verify changes
+    expect(living.floorMaterial).toBe(modernScheme.defaultFloorMaterial);
+    expect(kitchen.floorMaterial).toBe(modernScheme.defaultFloorMaterial);
+
+    // Check colors
+    expect(living.color).toBe(modernScheme.roomTypeColors.living);
+    expect(kitchen.color).toBe(modernScheme.roomTypeColors.kitchen);
+
+    // Check custom color cleared
+    expect(kitchen.customFloorColor).toBeUndefined();
   });
 });
