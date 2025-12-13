@@ -26,7 +26,7 @@ This section ensures StrataPlan works well on tablets and phones. Responsive des
 
 ### Subtasks
 
-- [ ] **15.1.1** Define breakpoints:
+- [x] **15.1.1** Define breakpoints:
   ```typescript
   const BREAKPOINTS = {
     sm: 640,    // Small phones
@@ -37,7 +37,7 @@ This section ensures StrataPlan works well on tablets and phones. Responsive des
   }
   ```
 
-- [ ] **15.1.2** Configure Tailwind:
+- [x] **15.1.2** Configure Tailwind:
   ```javascript
   // tailwind.config.js
   module.exports = {
@@ -53,7 +53,7 @@ This section ensures StrataPlan works well on tablets and phones. Responsive des
   }
   ```
 
-- [ ] **15.1.3** Create useBreakpoint hook:
+- [x] **15.1.3** Create useBreakpoint hook:
   ```typescript
   function useBreakpoint(): {
     isMobile: boolean    // < 768px
@@ -70,8 +70,8 @@ This section ensures StrataPlan works well on tablets and phones. Responsive des
 
 ### Unit Tests
 
-- [ ] useBreakpoint returns correct value
-- [ ] Breakpoint changes on resize
+- [x] useBreakpoint returns correct value
+- [x] Breakpoint changes on resize
 
 ---
 
