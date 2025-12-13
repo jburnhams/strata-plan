@@ -129,4 +129,13 @@ describe('SceneManager Component', () => {
     rerender(<SceneManager />);
     expect(screen.getByTestId('room-mesh-r1')).toBeInTheDocument();
   });
+
+  it('uses debounced scene sync', () => {
+    const useSceneSyncSpy = jest.spyOn(useSceneSyncModule, 'useSceneSync');
+
+    render(<SceneManager />);
+
+    // Verify it was called with default delay 100
+    expect(useSceneSyncSpy).toHaveBeenCalledWith(100);
+  });
 });
