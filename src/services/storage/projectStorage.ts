@@ -3,6 +3,7 @@ import { serializeFloorplan, deserializeFloorplan, CURRENT_VERSION } from './ser
 import { generateThumbnail } from './thumbnails';
 import { migrateData } from './migrations';
 import { Floorplan, FloorplanMetadata } from '@/types/floorplan';
+import { calculatePolygonArea } from '@/utils/geometry';
 
 export interface ProjectMetadata extends FloorplanMetadata {}
 
@@ -131,6 +132,9 @@ export const listProjects = async (): Promise<ProjectMetadata[]> => {
         const rooms = (data && Array.isArray(data.rooms)) ? data.rooms : [];
 
         const totalArea = rooms.reduce((sum: number, room: any) => {
+            if (room.vertices && Array.isArray(room.vertices) && room.vertices.length > 2) {
+                return sum + calculatePolygonArea(room.vertices);
+            }
             const length = Number(room.length) || 0;
             const width = Number(room.width) || 0;
             return sum + (length * width);
