@@ -106,3 +106,17 @@ export const projectPointOnLine = (point: Position2D, start: Position2D, end: Po
       dist: calculateDistance(point, projection)
   };
 };
+
+/**
+ * Calculates the area of a polygon defined by vertices using the Shoelace formula.
+ * Returns absolute value (positive area).
+ */
+export const calculatePolygonArea = (vertices: Position2D[]): number => {
+  let area = 0;
+  for (let i = 0; i < vertices.length; i++) {
+    const j = (i + 1) % vertices.length;
+    area += vertices[i].x * vertices[j].z;
+    area -= vertices[j].x * vertices[i].z;
+  }
+  return Math.abs(area / 2);
+};
